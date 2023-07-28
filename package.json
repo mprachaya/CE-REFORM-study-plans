@@ -52,6 +52,7 @@
     "@mdi/react": "^1.6.1",
     "@mui/lab": "^5.0.0-alpha.70",
     "@mui/material": "^5.4.3",
+    "@mui/x-data-grid": "^6.10.2",
     "@popperjs/core": "^2.11.2",
     "apexcharts-clevision": "3.28.5",
     "babel-eslint": "^10.1.0",

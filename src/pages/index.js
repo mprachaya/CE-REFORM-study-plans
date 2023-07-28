@@ -1,11 +1,7 @@
 import React from 'react'
-import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
-import CardContent from '@mui/material/CardContent'
 import Grid from '@mui/material/Grid'
 import Box from '@mui/material/Grid'
-import Icon from '@mdi/react'
-import { motion } from 'framer-motion'
 
 /////////////Icon///////////////////
 import { mdiFolderOpenOutline } from '@mdi/js'
@@ -16,8 +12,11 @@ import { mdiFileTableOutline } from '@mdi/js'
 import BlankLayout from 'src/@core/layouts/BlankLayout'
 import CardMenu from 'src/components/CardMenu'
 import { OnHover, Visible } from 'src/components/Motion'
+import { useRouter } from 'next/router'
 
 const MasterData = () => {
+  const router = useRouter()
+
   return (
     <Box m={12} mb={20}>
       <Grid container sx={{ mb: 10 }}>
@@ -34,7 +33,7 @@ const MasterData = () => {
           <Visible>
             <OnHover>
               <CardMenu
-                handleClick={() => console.log('Master Data')}
+                handleClick={() => router.push('/pages/masterdata/curriculums')}
                 MenuIcon={mdiFolderOpenOutline}
                 MenuName={'Master Data'}
                 Content={
