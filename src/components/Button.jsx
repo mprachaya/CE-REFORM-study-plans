@@ -1,9 +1,10 @@
 import React from 'react'
 import { Button } from '@mui/material'
 
-function Btn({ handleClick }) {
+function Btn(props) {
   return (
     <Button
+      {...props}
       sx={{
         bgcolor: 'primary.main',
         color: 'grey.50',
@@ -12,7 +13,7 @@ function Btn({ handleClick }) {
           color: 'primary.main'
         }
       }}
-      onClick={handleClick}
+      onClick={props.handleClick}
     >
       Add New
     </Button>

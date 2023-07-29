@@ -19,7 +19,7 @@ import React from 'react'
 function AddCurriculumModal({ open, handleClose, handleSubmit }) {
   return (
     <Dialog open={open} onClose={handleClose} maxWidth={'lg'} fullWidth>
-      <DialogContent sx={{ minHeight: 500 }}>
+      <DialogContent sx={{ minHeight: 450 }}>
         <Typography variant='h6' sx={{ mt: 5, ml: 5 }}>
           Add new curriculum
         </Typography>

@@ -2,7 +2,7 @@ import React from 'react'
 import { Box } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
 
-function DataGridTable({ rows, columns }) {
+function DataGridTable({ rows, columns, uniqueKey }) {
   return (
     <Box style={{ height: 400, width: '100%' }}>
       <DataGrid
@@ -15,6 +15,7 @@ function DataGridTable({ rows, columns }) {
         }}
         pageSizeOptions={[20, 50, 100]}
         disableRowSelectionOnClick
+        getRowId={row => row[uniqueKey]}
       />
     </Box>
   )
