@@ -1,5 +1,5 @@
 //useFetch.js
-import { useState, useMemo } from 'react'
+import { useState, useEffect } from 'react'
 import axios from 'axios'
 
 export default function useFetch(url, header) {
@@ -7,51 +7,70 @@ export default function useFetch(url, header) {
   const [loading, setLoading] = useState(null)
   const [error, setError] = useState(null)
 
-  useMemo(() => {
-    // console.log('Running useFetch!');
+  useEffect(() => {
     setLoading(true)
     setError(null)
-    // const source = axios.CancelToken.source();
+
     if (header) {
       axios
         .get(url, header)
         .then(response => response.data)
         .then(res => {
-          // console.log(res.data);
           setLoading(false)
-          //checking for multiple responses for more flexibility
-          //with the url we send in.
+
           res.data && setData(res.data.data)
-          // console.log('Fetching successful!');
         })
         .catch(err => {
           setLoading(false)
           setError('An error occurred. Awkward..')
           console.log(err)
         })
-      // return () => {
-      //   source.cancel();
-      // };
     } else {
       axios
         .get(url)
         .then(res => {
           setLoading(false)
-          //checking for multiple responses for more flexibility
-          //with the url we send in.
+
           res.data && setData(res.data.data)
-          // console.log('Fetching successful!');
+        })
+        .catch(err => {
+          setLoading(false)
+          setError('An error occurred. Awkward.. :', err)
+          console.log(error)
+        })
+    }
+  }, [url])
+
+  const reFetch = () => {
+    if (header) {
+      axios
+        .get(url, header)
+        .then(response => response.data)
+        .then(res => {
+          setLoading(false)
+
+          res.data && setData(res.data.data)
         })
         .catch(err => {
           setLoading(false)
           setError('An error occurred. Awkward..')
+          console.log(err)
+        })
+    } else {
+      axios
+        .get(url)
+        .then(res => {
+          setLoading(false)
+
+          res.data && setData(res.data.data)
+        })
+        .catch(err => {
+          setLoading(false)
+          setError('An error occurred. Awkward.. :', err)
           console.log(error)
         })
-      // return () => {
-      //   source.cancel();
-      // };
     }
-  }, [url])
+  }
 
-  return { data, setData, loading, error }
+  return { data, setData, loading, error, reFetch }
 }

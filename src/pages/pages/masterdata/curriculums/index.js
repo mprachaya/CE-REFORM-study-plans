@@ -21,10 +21,40 @@ import useFetch from 'src/hooks/useFetch'
 
 import CircleLoading from 'src/components/CircleLoading'
 import { MenuItem } from '@mui/material'
+import axios from 'axios'
+import { useRouter } from 'next/router'
+import useSubmit from 'src/hooks/useSubmit'
 
 const Curriculums = () => {
   const [open, setOpen] = useState(false)
   const [facultySelection, setFacultySelection] = useState(0)
+
+  const URL_GET_CURRICULUM = `https://my-backend-adonis.onrender.com/api/v1/curriculums/`
+  const URL_GET_FACULTY = `https://my-backend-adonis.onrender.com/api/v1/faculties`
+  const URL_GET_STUDENT_GROUPS = `https://my-backend-adonis.onrender.com/api/v1/collegian-groups`
+  const URL_INSERT = `https://my-backend-adonis.onrender.com/api/v1/curriculums/`
+
+  const initialsState = {
+    faculty_id: 0,
+    collegian_group_id: 0,
+    curriculum_name_th: '',
+    curriculum_name_en: '',
+    curriculum_short_name_th: '',
+    curriculum_short_name_en: '',
+    curriculum_year: '',
+    ref_curriculum_id: ''
+  }
+
+  const [state, setState] = useState({
+    faculty_id: 5,
+    collegian_group_id: 1,
+    curriculum_name_th: 'test3',
+    curriculum_name_en: 'test3',
+    curriculum_short_name_th: 'test3',
+    curriculum_short_name_en: 'test3',
+    curriculum_year: 2699,
+    ref_curriculum_id: ''
+  })
 
   const handleClickOpen = () => {
     setOpen(true)
@@ -57,19 +87,24 @@ const Curriculums = () => {
   const {
     error: CurriculumError,
     data: Curriculums,
-    setData: setCurriculums,
-    loading: CurriculumLoading
-  } = useFetch(`https://my-backend-adonis.onrender.com/api/v1/curriculums/`)
+    loading: CurriculumLoading,
+    reFetch: reFetchCurriculums
+  } = useFetch(URL_GET_CURRICULUM)
+
+  const { error: FacultyError, data: Faculty, loading: FacultyLoading } = useFetch(URL_GET_FACULTY)
 
   const {
-    error: FacultyError,
-    data: Faculty,
-    setData: setFaculty,
-    loading: FacultyLoading
-  } = useFetch(`https://my-backend-adonis.onrender.com/api/v1/faculties`)
+    error: StudentGroupsError,
+    data: StudentGroups,
+    loading: StudentGroupsLoading
+  } = useFetch(URL_GET_STUDENT_GROUPS)
 
-  const loadingState = CurriculumLoading && FacultyLoading
-  const errorState = CurriculumError && FacultyError
+  const handleSubmit = submitState => {
+    useSubmit(URL_INSERT, submitState, () => setOpen(false), reFetchCurriculums)
+  }
+
+  const loadingState = CurriculumLoading && FacultyLoading && StudentGroupsLoading
+  const errorState = CurriculumError && FacultyError && StudentGroupsError
 
   useMemo(() => {
     console.log('Curriculums: ', Curriculums)
@@ -78,13 +113,6 @@ const Curriculums = () => {
   useMemo(() => {
     console.log('Faculty: ', Faculty)
   }, [Faculty])
-
-  // useMemo(() => {
-  //   if (Faculty) {
-  //     const minId = Math.min(...Faculty.map(item => item.faculty_id))
-  //     setFacultySelection(minId)
-  //   }
-  // }, [Faculty])
 
   if (loadingState) {
     return <CircleLoading />
@@ -144,49 +172,6 @@ const Curriculums = () => {
     { field: 'roup_type', headerName: 'Group Type', width: 160 }
   ]
 
-  // const rows = [
-  //   {
-  //     id: 1,
-  //     year: '2560',
-  //     curriculum_th: 'วศ.บ วิศวกรรมคอมพิวเตอร์',
-  //     Curriculum_en: 'B.Eng (Computer Engineering)',
-  //     faculty: 'Engineering',
-  //     student: 'วศ.บ'
-  //   },
-  //   {
-  //     id: 2,
-  //     year: '2565',
-  //     curriculum_th: 'วศ.บ วิศวกรรมคอมพิวเตอร์',
-  //     Curriculum_en: 'B.Eng (Computer Engineering)',
-  //     faculty: ' Engineering',
-  //     student: 'ค.อ.บ'
-  //   },
-  //   {
-  //     id: 3,
-  //     year: '2566',
-  //     curriculum_th: 'วศ.บ วิศวกรรมคอมพิวเตอร์',
-  //     Curriculum_en: 'B.Eng (Computer Engineering)',
-  //     faculty: 'Engineering',
-  //     student: 'วศ.บ'
-  //   },
-  //   {
-  //     id: 4,
-  //     year: '2555',
-  //     curriculum_th: 'วศ.บ วิศวกรรมคอมพิวเตอร์',
-  //     Curriculum_en: 'B.Eng (Computer Engineering)',
-  //     faculty: 'Engineering',
-  //     student: 'ค.อ.บ'
-  //   },
-  //   {
-  //     id: 5,
-  //     year: '2560',
-  //     curriculum_th: 'วศ.บ วิศวกรรมคอมพิวเตอร์',
-  //     Curriculum_en: 'B.Eng (Computer Engineering)',
-  //     faculty: 'Engineering',
-  //     student: 'ค.อ.บ'
-  //   }
-  // ]
-
   const rows_details = [
     {
       id: 10,
@@ -241,6 +226,8 @@ const Curriculums = () => {
         <Grid item xs={12} sm={5} md={4} lg={4} minWidth={150}>
           <Selection
             label={'Faculty'}
+            height={40}
+            width={270}
             firstItemText={'แสดงทั้งหมด'}
             selectionValue={facultySelection}
             handleChange={e => setFacultySelection(e.target.value)}
@@ -261,7 +248,13 @@ const Curriculums = () => {
         </Grid>
       </Grid>
       <Grid container>
-        <AddCurriculumModal open={open} handleClose={handleClose} handleSubmit={() => console.log('Submit!')} />
+        <AddCurriculumModal
+          open={open}
+          handleClose={handleClose}
+          handleSubmit={() => handleSubmit(state)}
+          faculty={Faculty}
+          studentGroups={StudentGroups}
+        />
       </Grid>
 
       <Grid container>

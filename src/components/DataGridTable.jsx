@@ -4,7 +4,7 @@ import { DataGrid } from '@mui/x-data-grid'
 
 function DataGridTable({ rows, columns, uniqueKey }) {
   return (
-    <Box style={{ height: 400, width: '100%' }}>
+    <Box style={{ width: '100%' }}>
       <DataGrid
         rows={rows}
         columns={columns}
