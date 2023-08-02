@@ -2,13 +2,11 @@ import React, { useEffect, useState } from 'react'
 import { Dialog, Typography, DialogContent, Grid, TextField, DialogActions, Button, MenuItem } from '@mui/material'
 
 import Icon from '@mdi/react'
-import { mdiSitemapOutline } from '@mdi/js'
-import { mdiPen } from '@mdi/js/'
-import { mdiDelete } from '@mdi/js'
+import { mdiSitemapOutline, mdiPen, mdiDelete } from '@mdi/js'
 import Selection from 'src/components/Selection'
 import { handleChangeEN, handleChangeNumber, handleChangeTH } from 'src/hooks/useValidation'
 
-function CurriculumEditModal({ state, open, handleClose, faculty, studentGroups, handleUpdate }) {
+function CurriculumEditModal({ state, open, handleClose, faculty, studentGroups, handleUpdate, openConfirmDelete }) {
   // const initialsState = {
   //   faculty_id: 0,
   //   collegian_group_id: 0,
@@ -95,6 +93,7 @@ function CurriculumEditModal({ state, open, handleClose, faculty, studentGroups,
                 <Button
                   color='error'
                   variant='outlined'
+                  onClick={() => openConfirmDelete()}
                   startIcon={<Icon bgcolor='red' path={mdiDelete} size={0.75} />}
                 >
                   Delete

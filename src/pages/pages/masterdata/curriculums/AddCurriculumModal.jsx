@@ -121,7 +121,7 @@ function AddCurriculumModal({ open, handleClose, handleSubmit, curriculums, facu
                 name={'curriculum_short_name_th'}
                 label='Curriculum Short Name TH *'
                 placeholder='Thai Only'
-                onChange={() => handleChangeTH(e, setState)}
+                onChange={e => handleChangeTH(e, setState)}
                 value={state.curriculum_short_name_th}
               />
             </Grid>
