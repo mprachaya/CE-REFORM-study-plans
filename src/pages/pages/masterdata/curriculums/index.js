@@ -1,28 +1,17 @@
 import React from 'react'
-import Box from '@mui/material/Box'
-import Grid from '@mui/material/Grid'
-import Typography from '@mui/material/Typography'
-import Button from '@mui/material/Button'
-
-////////////////////Icon/////////////////////////
-import Icon from '@mdi/react'
-import { mdiPen } from '@mdi/js/'
-import { mdiDownload } from '@mdi/js'
-import { mdiDotsHorizontal } from '@mdi/js'
+import { MenuItem } from '@mui/material'
+import { useFetch, useSubmit, useUpdate, useDelete } from 'src/hooks'
 import { useMemo, useState } from 'react'
-import TextSearch from 'src/components/TextSearch'
-import Selection from 'src/components/Selection'
-import Btn from 'src/components/Button'
-import DataGridTable from 'src/components/DataGridTable'
+
+import { Btn, CircleLoading, ConfirmModal, DataGridTable, Selection, TextSearch } from 'src/components'
+import { Box, Grid, Typography, Button } from '@mui/material'
+import Icon from '@mdi/react'
+
+import { mdiPen, mdiDownload, mdiDotsHorizontal, mdiAlertRhombus } from '@mdi/js/'
+
 import AddCurriculumModal from './AddCurriculumModal'
 import CurriculumEditModal from './CurriculumEditModal'
 import CurriculumDetailsModal from './CurriculumDetailsModal'
-import useFetch from 'src/hooks/useFetch'
-
-import CircleLoading from 'src/components/CircleLoading'
-import { MenuItem } from '@mui/material'
-import useSubmit from 'src/hooks/useSubmit'
-import useUpdate from 'src/hooks/useUpdate'
 
 const Curriculums = () => {
   const [open, setOpen] = useState(false)
@@ -34,6 +23,7 @@ const Curriculums = () => {
   const URL_GET_STUDENT_GROUPS = `https://my-backend-adonis.onrender.com/api/v1/collegian-groups`
   const URL_INSERT = `https://my-backend-adonis.onrender.com/api/v1/curriculums/`
   const URL_UPDATE = `https://my-backend-adonis.onrender.com/api/v1/curriculums/${editState.curriculum_id}`
+  const URL_DELETE = `https://my-backend-adonis.onrender.com/api/v1/curriculums/${editState.curriculum_id}`
 
   const handleClickOpen = () => {
     setOpen(true)
@@ -56,12 +46,23 @@ const Curriculums = () => {
 
   const [openDetails, setOpenDetails] = useState(false)
 
-  const handleClickOpenDetails = () => {
+  const handleClickOpenDetails = value => {
+    setEditState(value)
     setOpenDetails(true)
   }
 
   const handleCloseDetails = () => {
     setOpenDetails(false)
+  }
+
+  const [openConfirmDelete, setOpenConfirmDelete] = useState(false)
+
+  const handleOpenConfirmDelete = () => {
+    setOpenConfirmDelete(true)
+  }
+
+  const handleCloseConfirmDelete = () => {
+    setOpenConfirmDelete(false)
   }
 
   const {
@@ -85,6 +86,17 @@ const Curriculums = () => {
 
   const handleUpdate = updateState => {
     useUpdate(URL_UPDATE, updateState, () => setOpenEdit(false), reFetchCurriculums)
+  }
+
+  const handleDelete = () => {
+    useDelete(
+      URL_DELETE,
+      () => {
+        setOpenConfirmDelete(false)
+        setOpenEdit(false)
+      },
+      reFetchCurriculums
+    )
   }
 
   const loadingState = CurriculumLoading && FacultyLoading && StudentGroupsLoading
@@ -143,63 +155,12 @@ const Curriculums = () => {
             </Button>
           </Grid>
           <Grid item>
-            <Button color='secondary' variant='outlined' onClick={handleClickOpenDetails}>
+            <Button color='secondary' variant='outlined' onClick={() => handleClickOpenDetails(params.row)}>
               <Icon path={mdiDotsHorizontal} size={1} />
             </Button>
           </Grid>
         </Grid>
       )
-    }
-  ]
-
-  const columns_details = [
-    { field: 'code', headerName: 'Code', width: 200 },
-    { field: 'subject_name_tH', headerName: ' Subject Name TH', width: 280 },
-    { field: 'subject_name_eH', headerName: 'Subject Name EH', width: 300 },
-    { field: 'credit', headerName: 'Credit', width: 140 },
-    { field: 'roup_type', headerName: 'Group Type', width: 160 }
-  ]
-
-  const rows_details = [
-    {
-      id: 10,
-      code: 'FUNSC101',
-      subject_name_tH: 'ฟิสิกส์ 1 สำหรับวิศวกร',
-      subject_name_eH: 'Physics 1 for Engineers',
-      credit: '3',
-      roup_type: 'วิชาพื้นฐานทางวิทยา...'
-    },
-    {
-      id: 20,
-      code: 'FUNSC102',
-      subject_name_tH: 'ปฎิบบัติการฟิสิกส์ 1 สำหรับวิศวกร',
-      subject_name_eH: 'Physics Laboratory 1 for Engineers',
-      credit: '1',
-      roup_type: 'วิชาพื่นฐานทางวิทยา...'
-    },
-    {
-      id: 30,
-      code: 'FUNSC103',
-      subject_name_tH: 'โครงสร้างข้อมูลและขั้นตอนวิธี',
-      subject_name_eH: 'Data Structures and Algorithms',
-      credit: '3',
-      roup_type: 'กลุ่มโครงสร้างพื้นฐาน...'
-    },
-    {
-      id: 40,
-      code: 'FUNSC104',
-      subject_name_tH: 'การวิเคราะห์และออกแบบระบบ',
-      subject_name_eH: 'System Analysis Design',
-      credit: '3',
-      roup_type: 'กลุ่มเทคโนโลยีและวิธี...'
-    },
-    {
-      id: 50,
-      code: 'FUNSC105',
-      subject_name_tH: 'สหกิจศึกษาทางวิศวกรรมคอมพิวเตอร์',
-      subject_name_eH: 'Co-operative Education in Computer...',
-      credit: '6',
-      roup_type: 'กลุ่มฝึกวิชาชีพและ...'
     }
   ]
 
@@ -254,15 +215,28 @@ const Curriculums = () => {
           handleUpdate={handleUpdate}
           faculty={Faculty}
           studentGroups={StudentGroups}
+          openConfirmDelete={handleOpenConfirmDelete}
         />
       </Grid>
 
       <Grid container>
         <CurriculumDetailsModal
+          state={editState}
           open={openDetails}
           handleClose={handleCloseDetails}
-          rows_details={rows_details}
-          columns_details={columns_details}
+          curriculumId={editState.curriculum_id}
+        />
+      </Grid>
+
+      <Grid container>
+        <ConfirmModal
+          title={`DELETE CURRICULUM`}
+          text={`Are you sure you want to delete ${editState.curriculum_name_th}?`}
+          displayIcon={mdiAlertRhombus}
+          submitLabel={'DELETE'}
+          open={openConfirmDelete}
+          handleClose={handleCloseConfirmDelete}
+          handleSubmit={handleDelete}
         />
       </Grid>
     </Box>
