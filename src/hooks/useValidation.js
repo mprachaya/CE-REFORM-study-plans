@@ -7,3 +7,22 @@ export default function useValidation() {
 
   return { validEmail, validThai, validEng, validNumber }
 }
+
+export const handleChangeTH = (e, setState) => {
+  const validThai = new RegExp('^[\u0E00-\u0E7F.-]{1,}(s[\u0E00-\u0E7F.-]{1,}){0,2}?$')
+  if (validThai.test(e.target.value) || e.target.value === '')
+    setState(pre => ({ ...pre, [e.target.name]: e.target.value }))
+}
+
+// handleChange for en
+export const handleChangeEN = (e, setState) => {
+  const validEng = new RegExp('^[a-zA-Z]+$')
+  if (validEng.test(e.target.value) || e.target.value === '')
+    setState(pre => ({ ...pre, [e.target.name]: e.target.value }))
+}
+
+// handleChange for number
+export const handleChangeNumber = (e, setState) => {
+  const validNumber = new RegExp('^[0-9]+$')
+  setState(pre => ({ ...pre, [e.target.name]: e.target.value }))
+}

@@ -21,40 +21,19 @@ import useFetch from 'src/hooks/useFetch'
 
 import CircleLoading from 'src/components/CircleLoading'
 import { MenuItem } from '@mui/material'
-import axios from 'axios'
-import { useRouter } from 'next/router'
 import useSubmit from 'src/hooks/useSubmit'
+import useUpdate from 'src/hooks/useUpdate'
 
 const Curriculums = () => {
   const [open, setOpen] = useState(false)
   const [facultySelection, setFacultySelection] = useState(0)
+  const [editState, setEditState] = useState([])
 
   const URL_GET_CURRICULUM = `https://my-backend-adonis.onrender.com/api/v1/curriculums/`
   const URL_GET_FACULTY = `https://my-backend-adonis.onrender.com/api/v1/faculties`
   const URL_GET_STUDENT_GROUPS = `https://my-backend-adonis.onrender.com/api/v1/collegian-groups`
   const URL_INSERT = `https://my-backend-adonis.onrender.com/api/v1/curriculums/`
-
-  const initialsState = {
-    faculty_id: 0,
-    collegian_group_id: 0,
-    curriculum_name_th: '',
-    curriculum_name_en: '',
-    curriculum_short_name_th: '',
-    curriculum_short_name_en: '',
-    curriculum_year: '',
-    ref_curriculum_id: ''
-  }
-
-  const [state, setState] = useState({
-    faculty_id: 5,
-    collegian_group_id: 1,
-    curriculum_name_th: 'test3',
-    curriculum_name_en: 'test3',
-    curriculum_short_name_th: 'test3',
-    curriculum_short_name_en: 'test3',
-    curriculum_year: 2699,
-    ref_curriculum_id: ''
-  })
+  const URL_UPDATE = `https://my-backend-adonis.onrender.com/api/v1/curriculums/${editState.curriculum_id}`
 
   const handleClickOpen = () => {
     setOpen(true)
@@ -66,7 +45,8 @@ const Curriculums = () => {
 
   const [openEdit, setOpenEdit] = useState(false)
 
-  const handleClickOpenEdit = () => {
+  const handleClickOpenEdit = value => {
+    setEditState(value)
     setOpenEdit(true)
   }
 
@@ -103,8 +83,16 @@ const Curriculums = () => {
     useSubmit(URL_INSERT, submitState, () => setOpen(false), reFetchCurriculums)
   }
 
+  const handleUpdate = updateState => {
+    useUpdate(URL_UPDATE, updateState, () => setOpenEdit(false), reFetchCurriculums)
+  }
+
   const loadingState = CurriculumLoading && FacultyLoading && StudentGroupsLoading
   const errorState = CurriculumError && FacultyError && StudentGroupsError
+
+  useMemo(() => {
+    console.log(editState)
+  }, [editState])
 
   useMemo(() => {
     console.log('Curriculums: ', Curriculums)
@@ -145,7 +133,7 @@ const Curriculums = () => {
       renderCell: params => (
         <Grid container spacing={2}>
           <Grid item>
-            <Button color='secondary' variant='outlined' onClick={handleClickOpenEdit}>
+            <Button color='secondary' variant='outlined' onClick={() => handleClickOpenEdit(params.row)}>
               <Icon path={mdiPen} size={1} />
             </Button>
           </Grid>
@@ -251,7 +239,8 @@ const Curriculums = () => {
         <AddCurriculumModal
           open={open}
           handleClose={handleClose}
-          handleSubmit={() => handleSubmit(state)}
+          handleSubmit={handleSubmit}
+          curriculums={Curriculums}
           faculty={Faculty}
           studentGroups={StudentGroups}
         />
@@ -259,9 +248,12 @@ const Curriculums = () => {
 
       <Grid container>
         <CurriculumEditModal
+          state={editState}
           open={openEdit}
           handleClose={handleCloseEdit}
-          handleUpdate={() => console.log('Update!')}
+          handleUpdate={handleUpdate}
+          faculty={Faculty}
+          studentGroups={StudentGroups}
         />
       </Grid>
 

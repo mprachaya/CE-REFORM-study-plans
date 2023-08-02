@@ -1,10 +1,10 @@
 //useFetch.js
 import axios from 'axios'
 
-export default function useSubmit(url, state, closemodal, refetch) {
+export default function useUpdate(url, state, closemodal, refetch) {
   if (state) {
     axios
-      .post(url, state)
+      .put(url, state)
       .then(response => response.data)
       .then(res => {
         console.log(res.data)

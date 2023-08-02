@@ -1,24 +1,77 @@
-import React from 'react'
-import {
-  Dialog,
-  Typography,
-  DialogContent,
-  Grid,
-  TextField,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  DialogActions,
-  Button
-} from '@mui/material'
+import React, { useEffect, useState } from 'react'
+import { Dialog, Typography, DialogContent, Grid, TextField, DialogActions, Button, MenuItem } from '@mui/material'
 
 import Icon from '@mdi/react'
 import { mdiSitemapOutline } from '@mdi/js'
 import { mdiPen } from '@mdi/js/'
 import { mdiDelete } from '@mdi/js'
+import Selection from 'src/components/Selection'
+import { handleChangeEN, handleChangeNumber, handleChangeTH } from 'src/hooks/useValidation'
 
-function CurriculumEditModal({ open, handleClose, handleUpdate }) {
+function CurriculumEditModal({ state, open, handleClose, faculty, studentGroups, handleUpdate }) {
+  // const initialsState = {
+  //   faculty_id: 0,
+  //   collegian_group_id: 0,
+  //   curriculum_name_th: '',
+  //   curriculum_name_en: '',
+  //   curriculum_short_name_th: '',
+  //   curriculum_short_name_en: '',
+  //   curriculum_year: '',
+  //   ref_curriculum_id: 0
+  // }
+
+  const [updateState, setUpdateState] = useState([])
+
+  const checkIsEmpty = object => {
+    var isEmpty = false
+
+    Object.keys(object).forEach(function (key) {
+      var val = object[key]
+      if (val === '') {
+        isEmpty = true
+      }
+    })
+
+    if (isEmpty) {
+      alert('Please Fill All TextFields')
+    }
+
+    return isEmpty
+  }
+
+  // new Object to get some properties
+  useEffect(() => {
+    if (open && state) {
+      const {
+        collegian_group_id,
+        curriculum_id,
+        curriculum_name_en,
+        curriculum_name_th,
+        curriculum_short_name_en,
+        curriculum_short_name_th,
+        curriculum_year,
+        faculty_id
+      } = state
+
+      const newObj = {
+        collegian_group_id: collegian_group_id,
+        curriculum_id: curriculum_id,
+        curriculum_name_en: curriculum_name_en,
+        curriculum_name_th: curriculum_name_th,
+        curriculum_short_name_en: curriculum_short_name_en,
+        curriculum_short_name_th: curriculum_short_name_th,
+        curriculum_year: curriculum_year,
+        faculty_id: faculty_id
+      }
+      console.log('newObj :', newObj)
+      setUpdateState(newObj)
+    }
+  }, [open, state])
+
+  useEffect(() => {
+    console.log(updateState)
+  }, [updateState])
+
   return (
     <Dialog open={open} onClose={handleClose} maxWidth={'lg'} fullWidth>
       <DialogContent sx={{ minHeight: 450 }}>
@@ -54,49 +107,86 @@ function CurriculumEditModal({ open, handleClose, handleUpdate }) {
         <DialogContent sx={{ display: 'flex' }}>
           <Grid container spacing={6}>
             <Grid item sm={12} md={12} lg={6}>
-              <TextField fullWidth label='Curriculum Name TH *' placeholder='Thai Only and Number' />
+              <TextField
+                fullWidth
+                name={'curriculum_name_th'}
+                label='Curriculum Name TH *'
+                placeholder='Thai Only'
+                onChange={e => handleChangeTH(e, setUpdateState)}
+                value={updateState.curriculum_name_th}
+              />
             </Grid>
             <Grid item sm={12} md={12} lg={6}>
-              <TextField fullWidth label='Curriculum Name EN *' placeholder='English Only and Number' />
+              <TextField
+                fullWidth
+                name={'curriculum_name_en'}
+                label='Curriculum Name EN *'
+                placeholder='English Only'
+                onChange={e => handleChangeEN(e, setUpdateState)}
+                value={updateState.curriculum_name_en}
+              />
+            </Grid>
+            <Grid item xs={12} sm={12} md={12} lg={6}>
+              <TextField
+                fullWidth
+                name={'curriculum_short_name_th'}
+                label='Curriculum Short Name TH *'
+                placeholder='Thai Only'
+                onChange={e => handleChangeTH(e, setUpdateState)}
+                value={updateState.curriculum_short_name_th}
+              />
+            </Grid>
+            <Grid item xs={12} sm={12} md={12} lg={6}>
+              <TextField
+                fullWidth
+                name={'curriculum_short_name_en'}
+                label='Curriculum Short Name EN *'
+                placeholder='English Only'
+                onChange={e => handleChangeEN(e, setUpdateState)}
+                value={updateState.curriculum_short_name_en}
+              />
             </Grid>
           </Grid>
         </DialogContent>
         <DialogContent sx={{ display: 'flex' }}>
           <Grid container spacing={6}>
-            <Grid item sm={12} md={12} lg={3}>
-              <FormControl fullWidth>
-                <InputLabel id='form-layouts-separator-select-label'>Faculty *</InputLabel>
-                <Select
-                  label='Category'
-                  defaultValue=''
-                  id='form-layouts-separator-select'
-                  labelId='form-layouts-separator-select-label'
-                >
-                  <MenuItem value='University 1'>* </MenuItem>
-                  <MenuItem value='University 2'>** </MenuItem>
-                  <MenuItem value='University 3'>*** </MenuItem>
-                  <MenuItem value='University 4'>**** </MenuItem>
-                </Select>
-              </FormControl>
+            <Grid item xs={12} sm={12} md={12} lg={6}>
+              <Selection
+                width={'100%'}
+                firstItemText={'Choose Faculty *'}
+                selectionValue={String(updateState.faculty_id)}
+                handleChange={e => setUpdateState(pre => ({ ...pre, faculty_id: parseInt(e.target.value) }))}
+                Items={Object.values(faculty)?.map(fac => (
+                  <MenuItem key={fac.faculty_id} value={fac.faculty_id}>
+                    {fac.faculty_name_th}
+                  </MenuItem>
+                ))}
+              />
             </Grid>
-            <Grid item sm={12} md={12} lg={3}>
-              <FormControl fullWidth>
-                <InputLabel id='form-layouts-separator-select-label'>Student Group *</InputLabel>
-                <Select
-                  label='Category'
-                  defaultValue=''
-                  id='form-layouts-separator-select'
-                  labelId='form-layouts-separator-select-label'
-                >
-                  <MenuItem value='University 1'>* </MenuItem>
-                  <MenuItem value='University 2'>** </MenuItem>
-                  <MenuItem value='University 3'>*** </MenuItem>
-                  <MenuItem value='University 4'>**** </MenuItem>
-                </Select>
-              </FormControl>
+            <Grid item xs={12} sm={12} md={12} lg={6}>
+              <Selection
+                width={'100%'}
+                firstItemText={'Choose Student Groups *'}
+                selectionValue={String(updateState.collegian_group_id)}
+                handleChange={e => setUpdateState(pre => ({ ...pre, collegian_group_id: parseInt(e.target.value) }))}
+                Items={Object.values(studentGroups)?.map(stdg => (
+                  <MenuItem key={stdg.collegian_group_id} value={stdg.collegian_group_id}>
+                    {stdg.collegian_group_short_name_th}
+                  </MenuItem>
+                ))}
+              />
             </Grid>
-            <Grid item sm={12} md={12} lg={6}>
-              <TextField fullWidth label='Year *' placeholder='Number Only ' />
+
+            <Grid item xs={12} sm={12} md={12} lg={6}>
+              <TextField
+                type='number'
+                name={'curriculum_year'}
+                value={updateState.curriculum_year}
+                onChange={e => handleChangeNumber(e, setUpdateState)}
+                fullWidth
+                label='Year *'
+                placeholder='Number Only '
+              />
             </Grid>
           </Grid>
         </DialogContent>
@@ -106,7 +196,7 @@ function CurriculumEditModal({ open, handleClose, handleUpdate }) {
         <Button onClick={handleClose} color='secondary'>
           Cancel
         </Button>
-        <Button onClick={handleUpdate}>Update</Button>
+        <Button onClick={() => !checkIsEmpty(updateState) && handleUpdate(updateState)}>Update</Button>
       </DialogActions>
     </Dialog>
   )
