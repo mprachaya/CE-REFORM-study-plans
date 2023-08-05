@@ -15,7 +15,7 @@ function Btn(props) {
       }}
       onClick={props.handleClick}
     >
-      Add New
+      {props.label}
     </Button>
   )
 }

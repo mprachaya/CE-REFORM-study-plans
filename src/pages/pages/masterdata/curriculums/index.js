@@ -7,11 +7,13 @@ import { Btn, CircleLoading, ConfirmModal, DataGridTable, Selection, TextSearch 
 import { Box, Grid, Typography, Button } from '@mui/material'
 import Icon from '@mdi/react'
 
-import { mdiPen, mdiDownload, mdiDotsHorizontal, mdiAlertRhombus } from '@mdi/js/'
+import { mdiPen, mdiDownload, mdiDotsHorizontal, mdiAlertRhombus, mdiFilter } from '@mdi/js/'
 
 import AddCurriculumModal from './AddCurriculumModal'
 import CurriculumEditModal from './CurriculumEditModal'
 import CurriculumDetailsModal from './CurriculumDetailsModal'
+import useSearchText from 'src/hooks/useSearchText'
+import useFilter from 'src/hooks/useFilter'
 
 const Curriculums = () => {
   const [open, setOpen] = useState(false)
@@ -68,9 +70,37 @@ const Curriculums = () => {
   const {
     error: CurriculumError,
     data: Curriculums,
+    setData: setCurriculums,
     loading: CurriculumLoading,
     reFetch: reFetchCurriculums
   } = useFetch(URL_GET_CURRICULUM)
+
+  const columnsCurriculum = [
+    'curriculum_name_th',
+    'curriculum_name_en',
+    'curriculum_short_name_th',
+    'curriculum_short_name_en',
+    'curriculum_year'
+  ]
+  const [curriculumsTemp, setCurriculumsTemp] = useState([])
+
+  const [searchText, setSearchText] = useState('')
+
+  const handleChangeSearch = text => {
+    useSearchText(text, setCurriculums, setSearchText, curriculumsTemp, columnsCurriculum)
+  }
+
+  const handleChangeFilter = value => {
+    setFacultySelection(value)
+    useFilter(value, 'faculty_id', setCurriculums, curriculumsTemp)
+  }
+
+  useMemo(() => {
+    if (!CurriculumLoading) {
+      setCurriculumsTemp(Curriculums)
+    } else {
+    }
+  }, [CurriculumLoading])
 
   const { error: FacultyError, data: Faculty, loading: FacultyLoading } = useFetch(URL_GET_FACULTY)
 
@@ -101,18 +131,6 @@ const Curriculums = () => {
 
   const loadingState = CurriculumLoading && FacultyLoading && StudentGroupsLoading
   const errorState = CurriculumError && FacultyError && StudentGroupsError
-
-  useMemo(() => {
-    console.log(editState)
-  }, [editState])
-
-  useMemo(() => {
-    console.log('Curriculums: ', Curriculums)
-  }, [Curriculums])
-
-  useMemo(() => {
-    console.log('Faculty: ', Faculty)
-  }, [Faculty])
 
   if (loadingState) {
     return <CircleLoading />
@@ -170,25 +188,30 @@ const Curriculums = () => {
       <Typography variant='h6'>Curriculums</Typography>
       <Grid container spacing={5} sx={{ mt: 5 }} justifyContent={'start'}>
         <Grid item xs={12} sm={3} lg={3} minWidth={250}>
-          <TextSearch />
+          <TextSearch onChange={e => handleChangeSearch(e.target.value)} />
         </Grid>
         <Grid item xs={12} sm={5} md={4} lg={4} minWidth={150}>
-          <Selection
-            label={'Faculty'}
-            height={40}
-            width={270}
-            firstItemText={'แสดงทั้งหมด'}
-            selectionValue={facultySelection}
-            handleChange={e => setFacultySelection(e.target.value)}
-            Items={Object.values(Faculty)?.map(fac => (
-              <MenuItem key={fac.faculty_id} value={fac.faculty_id}>
-                {fac.faculty_name_th}
-              </MenuItem>
-            ))}
-          />
+          <Box display={'flex'} flexDirection={'row'}>
+            <Box sx={{ m: 2 }}>
+              <Icon path={mdiFilter} size={1} />
+            </Box>
+            <Selection
+              label={'Faculty'}
+              height={40}
+              width={270}
+              firstItemText={'แสดงทั้งหมด'}
+              selectionValue={facultySelection}
+              handleChange={e => handleChangeFilter(e.target.value)}
+              Items={Object.values(Faculty)?.map(fac => (
+                <MenuItem key={fac.faculty_id} value={fac.faculty_id}>
+                  {fac.faculty_name_th}
+                </MenuItem>
+              ))}
+            />
+          </Box>
         </Grid>
         <Grid item xs={12} sm={4} md={4} lg={2} minWidth={150}>
-          <Btn handleClick={handleClickOpen} />
+          <Btn handleClick={handleClickOpen} label={'+ Add New'} />
         </Grid>
       </Grid>
       <Grid container>

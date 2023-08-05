@@ -3,9 +3,10 @@ import TextField from '@mui/material/TextField'
 import Magnify from 'mdi-material-ui/Magnify'
 import InputAdornment from '@mui/material/InputAdornment'
 
-function TextSearch() {
+function TextSearch(props) {
   return (
     <TextField
+      {...props}
       size='small'
       sx={{ '& .MuiOutlinedInput-root': { borderRadius: 4 } }}
       InputProps={{
