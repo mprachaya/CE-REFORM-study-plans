@@ -1,5 +1,5 @@
 import React from 'react'
-import { MenuItem } from '@mui/material'
+import { Hidden, MenuItem } from '@mui/material'
 import { useFetch, useSubmit, useUpdate, useDelete } from 'src/hooks'
 import { useMemo, useState } from 'react'
 
@@ -15,7 +15,7 @@ import CurriculumDetailsModal from './CurriculumDetailsModal'
 import useSearchText from 'src/hooks/useSearchText'
 import useFilter from 'src/hooks/useFilter'
 
-const Curriculums = () => {
+const curriculums = () => {
   const [open, setOpen] = useState(false)
   const [facultySelection, setFacultySelection] = useState(0)
   const [editState, setEditState] = useState([])
@@ -186,15 +186,15 @@ const Curriculums = () => {
     <Box>
       {/* // header */}
       <Typography variant='h6'>Curriculums</Typography>
-      <Grid container spacing={5} sx={{ mt: 5 }} justifyContent={'start'}>
-        <Grid item xs={12} sm={3} lg={3} minWidth={250}>
-          <TextSearch onChange={e => handleChangeSearch(e.target.value)} />
-        </Grid>
-        <Grid item xs={12} sm={5} md={4} lg={4} minWidth={150}>
+      <Grid container spacing={6} sx={{ mt: 5 }}>
+        <Grid item xs={12} sm={12} md={8} lg={4}>
           <Box display={'flex'} flexDirection={'row'}>
-            <Box sx={{ m: 2 }}>
-              <Icon path={mdiFilter} size={1} />
-            </Box>
+            <TextSearch onChange={e => handleChangeSearch(e.target.value)} />
+            <Hidden only={'xs'}>
+              <Box sx={{ m: 2 }}>
+                <Icon path={mdiFilter} size={1} />
+              </Box>
+            </Hidden>
             <Selection
               label={'Faculty'}
               height={40}
@@ -210,7 +210,7 @@ const Curriculums = () => {
             />
           </Box>
         </Grid>
-        <Grid item xs={12} sm={4} md={4} lg={2} minWidth={150}>
+        <Grid item xs={12} sm={4} md={4} lg={8}>
           <Btn handleClick={handleClickOpen} label={'+ Add New'} />
         </Grid>
       </Grid>
@@ -266,4 +266,4 @@ const Curriculums = () => {
   )
 }
 
-export default Curriculums
+export default curriculums

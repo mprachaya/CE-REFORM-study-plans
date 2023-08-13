@@ -22,9 +22,11 @@ const AppBarContent = props => {
   const hiddenSm = useMediaQuery(theme => theme.breakpoints.down('sm'))
 
   return (
-    <Box sx={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'end' }}>
+    <Box
+      sx={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: { xs: 'space-between', lg: 'end' } }}
+    >
       <Box className='actions-left' sx={{ mr: 2, display: 'flex', alignItems: 'center' }}>
-        {/* {hidden ? (
+        {hidden ? (
           <IconButton
             color='inherit'
             onClick={toggleNavVisibility}
@@ -32,7 +34,9 @@ const AppBarContent = props => {
           >
             <Menu />
           </IconButton>
-        ) : null} */}
+        ) : null}
+      </Box>
+      <Box className='actions-right' sx={{ display: 'flex', alignItems: 'center' }}>
         <TextField
           size='small'
           sx={{ '& .MuiOutlinedInput-root': { borderRadius: 4 } }}
@@ -44,8 +48,6 @@ const AppBarContent = props => {
             )
           }}
         />
-      </Box>
-      <Box className='actions-right' sx={{ display: 'flex', alignItems: 'center' }}>
         {/* {hiddenSm ? null : (
           <Box
             component='a'

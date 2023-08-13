@@ -5,6 +5,7 @@ import Icon from '@mdi/react'
 import { mdiSitemapOutline, mdiPen, mdiDelete } from '@mdi/js'
 import Selection from 'src/components/Selection'
 import { handleChangeEN, handleChangeNumber, handleChangeTH } from 'src/hooks/useValidation'
+import { useRouter } from 'next/router'
 
 function CurriculumEditModal({ state, open, handleClose, faculty, studentGroups, handleUpdate, openConfirmDelete }) {
   // const initialsState = {
@@ -17,6 +18,8 @@ function CurriculumEditModal({ state, open, handleClose, faculty, studentGroups,
   //   curriculum_year: '',
   //   ref_curriculum_id: 0
   // }
+
+  const router = useRouter()
 
   const [updateState, setUpdateState] = useState([])
 
@@ -85,7 +88,20 @@ function CurriculumEditModal({ state, open, handleClose, faculty, studentGroups,
                 </Button>
               </Grid>
               <Grid item>
-                <Button color='secondary' variant='outlined' startIcon={<Icon path={mdiPen} size={0.75} />}>
+                <Button
+                  onClick={() =>
+                    router.push(
+                      {
+                        pathname: '/pages/masterdata/subjects',
+                        query: { curriculum_id: state.curriculum_id }
+                      },
+                      '/pages/masterdata/subjects'
+                    )
+                  }
+                  color='secondary'
+                  variant='outlined'
+                  startIcon={<Icon path={mdiPen} size={0.75} />}
+                >
                   Subject Management
                 </Button>
               </Grid>
