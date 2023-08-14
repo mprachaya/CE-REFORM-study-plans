@@ -9,18 +9,18 @@ import Icon from '@mdi/react'
 import { mdiPen, mdiAlertRhombus } from '@mdi/js/'
 
 import useSearchText from 'src/hooks/useSearchText'
-import AddFacultyModal from './AddFacultyModal'
-import EditFacultyModal from './EditFacultyModal'
+import AddStudentGroupsModal from './AddStudentGroupsModal'
+import EditStudentGroupModal from './EditStudentGroupModal'
 
-const faculty = () => {
+const studentgroups = () => {
   const [open, setOpen] = useState(false)
   const [editState, setEditState] = useState([])
 
-  const URL_GET_FACULTY = `https://my-backend-adonis.onrender.com/api/v1/faculties`
+  const URL_GET_STUDENT_GROUPS = `https://my-backend-adonis.onrender.com/api/v1/collegian-groups`
 
-  const URL_INSERT = `https://my-backend-adonis.onrender.com/api/v1/faculties/`
-  const URL_UPDATE = `https://my-backend-adonis.onrender.com/api/v1/faculties/${editState.faculty_id}`
-  const URL_DELETE = `https://my-backend-adonis.onrender.com/api/v1/faculties/${editState.faculty_id}`
+  const URL_INSERT = `https://my-backend-adonis.onrender.com/api/v1/collegian-groups/`
+  const URL_UPDATE = `https://my-backend-adonis.onrender.com/api/v1/collegian-groups/${editState.collegian_group_id}`
+  const URL_DELETE = `https://my-backend-adonis.onrender.com/api/v1/collegian-groups/${editState.collegian_group_id}`
 
   const handleClickOpen = () => {
     setOpen(true)
@@ -56,36 +56,41 @@ const faculty = () => {
   }
 
   const {
-    error: FacultyError,
-    data: FACULTY,
-    setData: setFACULTY,
-    loading: FacultyLoading,
-    reFetch: reFetchFACULTY
-  } = useFetch(URL_GET_FACULTY)
+    error: StudentGroupsError,
+    data: STUDENT_GROUPS,
+    setData: setSTUDENT_GROUPS,
+    loading: StudentGroupsLoading,
+    reFetch: reFetchSTUDENT_GROUPS
+  } = useFetch(URL_GET_STUDENT_GROUPS)
 
-  const columnsFaculty = ['faculty_name_th', 'faculty_name_en']
+  const columnsStudentGroups = [
+    'collegian_group_name_th',
+    'collegian_group_name_en',
+    'collegian_group_short_name_th',
+    'collegian_group_short_name_en'
+  ]
 
-  const [FACULTYTemp, setFACULTYTemp] = useState([])
+  const [STUDENT_GROUPSTemp, setSTUDENT_GROUPSTemp] = useState([])
 
   const [searchText, setSearchText] = useState('')
 
   const handleChangeSearch = text => {
-    useSearchText(text, setFACULTY, setSearchText, FACULTYTemp, columnsFaculty)
+    useSearchText(text, setSTUDENT_GROUPS, setSearchText, STUDENT_GROUPSTemp, columnsStudentGroups)
   }
 
   useMemo(() => {
-    if (!FacultyLoading) {
-      setFACULTYTemp(FACULTY)
+    if (!StudentGroupsLoading) {
+      setSTUDENT_GROUPSTemp(STUDENT_GROUPS)
     } else {
     }
-  }, [FacultyLoading])
+  }, [StudentGroupsLoading])
 
   const handleSubmit = submitState => {
-    useSubmit(URL_INSERT, submitState, () => setOpen(false), reFetchFACULTY)
+    useSubmit(URL_INSERT, submitState, () => setOpen(false), reFetchSTUDENT_GROUPS)
   }
 
   const handleUpdate = updateState => {
-    useUpdate(URL_UPDATE, updateState, () => setOpenEdit(false), reFetchFACULTY)
+    useUpdate(URL_UPDATE, updateState, () => setOpenEdit(false), reFetchSTUDENT_GROUPS)
   }
 
   const handleDelete = () => {
@@ -95,12 +100,12 @@ const faculty = () => {
         setOpenConfirmDelete(false)
         setOpenEdit(false)
       },
-      reFetchFACULTY
+      reFetchSTUDENT_GROUPS
     )
   }
 
-  const loadingState = FacultyLoading
-  const errorState = FacultyError
+  const loadingState = StudentGroupsLoading
+  const errorState = StudentGroupsError
 
   if (loadingState) {
     return <CircleLoading />
@@ -110,8 +115,10 @@ const faculty = () => {
   }
 
   const columns = [
-    { field: 'faculty_name_th', headerName: 'Faculty Name TH', width: 300 },
-    { field: 'faculty_name_en', headerName: 'Faculty Name EN', width: 300 },
+    { field: 'collegian_group_name_th', headerName: 'Group Name TH', width: 200 },
+    { field: 'collegian_group_name_en', headerName: 'Group Name EN', width: 200 },
+    { field: 'collegian_group_short_name_th', headerName: 'Group Short Name TH', width: 200 },
+    { field: 'collegian_group_short_name_en', headerName: 'Group Short Name EN', width: 200 },
     {
       field: 'fn',
       headerName: '',
@@ -132,7 +139,7 @@ const faculty = () => {
     <Box>
       {/* // header */}
       <Box display={'flex'} flexDirection={'row'}>
-        <Typography variant='h6'>Faculty</Typography>
+        <Typography variant='h6'>Student Groups</Typography>
       </Box>
 
       <Grid container spacing={6} sx={{ mt: 5 }}>
@@ -147,19 +154,19 @@ const faculty = () => {
       </Grid>
       <Grid container>
         <Grid item xs={12} sm={12} lg={12} mt={6}>
-          {FACULTY.length !== 0 ? (
-            <DataGridTable rows={FACULTY} columns={columns} uniqueKey={'faculty_id'} />
+          {STUDENT_GROUPS.length !== 0 ? (
+            <DataGridTable rows={STUDENT_GROUPS} columns={columns} uniqueKey={'collegian_group_id'} />
           ) : (
-            <Typography>ยังไม่มีคณะอยู่ในระบบ</Typography>
+            <Typography>ยังไม่มีข้อมูลกลุ่มนักศึกษาอยู่ในระบบ</Typography>
           )}
         </Grid>
       </Grid>
       <Grid container>
-        <AddFacultyModal open={open} handleClose={handleClose} handleSubmit={handleSubmit} />
+        <AddStudentGroupsModal open={open} handleClose={handleClose} handleSubmit={handleSubmit} />
       </Grid>
 
       <Grid container>
-        <EditFacultyModal
+        <EditStudentGroupModal
           state={editState}
           open={openEdit}
           handleClose={handleCloseEdit}
@@ -170,8 +177,8 @@ const faculty = () => {
 
       <Grid container>
         <ConfirmModal
-          title={`DELETE Faculty`}
-          text={`Are you sure you want to delete ${editState.faculty_name_th}?`}
+          title={`DELETE Student Groups`}
+          text={`Are you sure you want to delete ${editState.collegian_group_name_th}?`}
           displayIcon={mdiAlertRhombus}
           submitLabel={'DELETE'}
           open={openConfirmDelete}
@@ -183,4 +190,4 @@ const faculty = () => {
   )
 }
 
-export default faculty
+export default studentgroups
