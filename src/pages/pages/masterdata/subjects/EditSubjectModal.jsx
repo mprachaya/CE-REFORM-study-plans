@@ -77,7 +77,7 @@ function EditSubjectModal({ state, open, handleClose, curriculumId, subjectGroup
       <DialogContent sx={{ minHeight: 450 }}>
         <Box display={'flex'} justifyContent={'space-between'}>
           <Typography variant='h6' sx={{ mt: 5, ml: 5 }}>
-            Add new subject
+            Update subject
           </Typography>
           <Button
             color='error'

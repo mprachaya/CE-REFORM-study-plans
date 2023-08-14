@@ -56,15 +56,6 @@ const subjects = () => {
 
   const [openDetails, setOpenDetails] = useState(false)
 
-  // const handleClickOpenDetails = value => {
-  //   setEditState(value)
-  //   setOpenDetails(true)
-  // }
-
-  // const handleCloseDetails = () => {
-  //   setOpenDetails(false)
-  // }
-
   const [openConfirmDelete, setOpenConfirmDelete] = useState(false)
 
   const handleOpenConfirmDelete = () => {
@@ -123,12 +114,6 @@ const subjects = () => {
     loading: SubjectGroupLoading
   } = useFetch(URL_GET_SUBJECT_GROUPS)
 
-  // const {
-  //   error: StudentGroupsError,
-  //   data: StudentGroups,
-  //   loading: StudentGroupsLoading
-  // } = useFetch(URL_GET_STUDENT_GROUPS)
-
   const handleSubmit = submitState => {
     useSubmit(URL_INSERT, submitState, () => setOpen(false), reFetchSubjects)
   }
@@ -150,7 +135,6 @@ const subjects = () => {
 
   useMemo(() => {
     if (!CurriculumLoading) {
-      // const latestId = Math.max(...Curriculums.map(o => o.curriculum_id))
       setCurriculumSelection(router.query.curriculum_id)
     }
   }, [CurriculumLoading])
@@ -199,16 +183,6 @@ const subjects = () => {
               <Icon path={mdiPen} size={1} />
             </Button>
           </Grid>
-          {/* <Grid item>
-            <Button color='secondary' variant='outlined'>
-              <Icon path={mdiDownload} size={1} />
-            </Button>
-          </Grid>
-          <Grid item>
-            <Button color='secondary' variant='outlined' onClick={() => handleClickOpenDetails(params.row)}>
-              <Icon path={mdiDotsHorizontal} size={1} />
-            </Button>
-          </Grid> */}
         </Grid>
       )
     }
@@ -280,7 +254,6 @@ const subjects = () => {
           handleSubmit={handleSubmit}
           curriculumId={parseInt(curriculumSelection)}
           subjectGroups={SubjectGroup}
-          // studentGroups={StudentGroups}
         />
       </Grid>
 

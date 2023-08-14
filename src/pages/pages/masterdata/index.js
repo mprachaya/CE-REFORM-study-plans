@@ -8,8 +8,6 @@ function MasterDataPage() {
   useEffect(() => {
     router.push('/pages/masterdata/curriculums')
   }, [])
-
-  return <Box className='content-center'>index</Box>
 }
 
 export default MasterDataPage
