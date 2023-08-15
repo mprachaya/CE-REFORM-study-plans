@@ -4,15 +4,13 @@ import { useEffect } from 'react'
 import { useState } from 'react'
 import { handleChangeEN, handleChangeTH } from 'src/hooks/useValidation'
 
-function AddFacultyModal({ open, handleClose, handleSubmit }) {
+function AddSubjectCategoriesModal({ open, handleClose, handleSubmit }) {
   const initialsState = {
-    faculty_name_th: '',
-    faculty_name_en: ''
+    subject_category_name: ''
   }
 
   const [state, setState] = useState({
-    faculty_name_th: '',
-    faculty_name_en: ''
+    subject_category_name: ''
   })
 
   const checkIsEmpty = object => {
@@ -40,28 +38,18 @@ function AddFacultyModal({ open, handleClose, handleSubmit }) {
     <Dialog open={open} onClose={() => handleClose(setState(initialsState))} maxWidth={'lg'} fullWidth>
       <DialogContent sx={{ minHeight: 450 }}>
         <Typography variant='h6' sx={{ mt: 5, ml: 5 }}>
-          Add new Faculty
+          Add new Subject Category
         </Typography>
         <DialogContent sx={{ display: 'flex' }}>
           <Grid container spacing={6}>
             <Grid item xs={12} sm={12} md={12} lg={6}>
               <TextField
                 fullWidth
-                name={'faculty_name_th'}
-                label='Faculty Name TH*'
+                name={'subject_category_name'}
+                label='Subject Category Name TH*'
                 placeholder='Thai Only'
                 onChange={e => handleChangeTH(e, setState)}
-                value={state.faculty_name_th}
-              />
-            </Grid>
-            <Grid item xs={12} sm={12} md={12} lg={6}>
-              <TextField
-                fullWidth
-                name={'faculty_name_en'}
-                label='Faculty Name EN*'
-                placeholder='English Only'
-                onChange={e => handleChangeEN(e, setState)}
-                value={state.faculty_name_en}
+                value={state.subject_category_name}
               />
             </Grid>
           </Grid>
@@ -78,4 +66,4 @@ function AddFacultyModal({ open, handleClose, handleSubmit }) {
   )
 }
 
-export default AddFacultyModal
+export default AddSubjectCategoriesModal

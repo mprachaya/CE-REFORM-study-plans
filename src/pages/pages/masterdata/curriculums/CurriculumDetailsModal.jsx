@@ -4,6 +4,7 @@ import DataGridTable from 'src/components/DataGridTable'
 import { useFetch } from 'src/hooks'
 import { CircleLoading } from 'src/components'
 import { useEffect } from 'react'
+import { url } from 'src/configs/urlConfig'
 
 function CurriculumDetailsModal({ curriculumId, state, open, handleClose, rows_details, columns_details }) {
   const [nullSubjects, setNullSubjects] = useState(null)
@@ -11,7 +12,7 @@ function CurriculumDetailsModal({ curriculumId, state, open, handleClose, rows_d
   const [getCurriculumId, setCurriculumId] = useState(0)
   const [delay, setDelay] = useState(true)
 
-  const URL_GET_SUBJECT = `https://my-backend-adonis.onrender.com/api/v1/subjects/${getCurriculumId}`
+  const URL_GET_SUBJECT = `${url.BASE_URL}/subjects/${getCurriculumId}`
   const { error: SubjectsError, data: Subjects, loading: SubjectsLoading } = useFetch(URL_GET_SUBJECT)
 
   const details_columns = [

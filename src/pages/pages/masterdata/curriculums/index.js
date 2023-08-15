@@ -14,18 +14,19 @@ import CurriculumEditModal from './CurriculumEditModal'
 import CurriculumDetailsModal from './CurriculumDetailsModal'
 import useSearchText from 'src/hooks/useSearchText'
 import useFilter from 'src/hooks/useFilter'
+import { url } from 'src/configs/urlConfig'
 
 const curriculums = () => {
   const [open, setOpen] = useState(false)
   const [facultySelection, setFacultySelection] = useState(0)
   const [editState, setEditState] = useState([])
 
-  const URL_GET_CURRICULUM = `https://my-backend-adonis.onrender.com/api/v1/curriculums/`
-  const URL_GET_FACULTY = `https://my-backend-adonis.onrender.com/api/v1/faculties`
-  const URL_GET_STUDENT_GROUPS = `https://my-backend-adonis.onrender.com/api/v1/collegian-groups`
-  const URL_INSERT = `https://my-backend-adonis.onrender.com/api/v1/curriculums/`
-  const URL_UPDATE = `https://my-backend-adonis.onrender.com/api/v1/curriculums/${editState.curriculum_id}`
-  const URL_DELETE = `https://my-backend-adonis.onrender.com/api/v1/curriculums/${editState.curriculum_id}`
+  const URL_GET_CURRICULUM = `${url.BASE_URL}/curriculums/`
+  const URL_GET_FACULTY = `${url.BASE_URL}/faculties`
+  const URL_GET_STUDENT_GROUPS = `${url.BASE_URL}/collegian-groups`
+  const URL_INSERT = `${url.BASE_URL}/curriculums/`
+  const URL_UPDATE = `${url.BASE_URL}/curriculums/${editState.curriculum_id}`
+  const URL_DELETE = `${url.BASE_URL}/curriculums/${editState.curriculum_id}`
 
   const handleClickOpen = () => {
     setOpen(true)

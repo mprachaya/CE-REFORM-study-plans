@@ -22,6 +22,12 @@ const navigation = () => {
       icon: Domain,
       path: '/pages/masterdata/studentgroups'
       // openInNewTab: true
+    },
+    {
+      title: 'Subject Categories',
+      icon: Domain,
+      path: '/pages/masterdata/subjectcategories'
+      // openInNewTab: true
     }
   ]
 }

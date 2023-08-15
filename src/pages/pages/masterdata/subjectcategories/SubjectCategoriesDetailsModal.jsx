@@ -6,7 +6,7 @@ import { CircleLoading } from 'src/components'
 import { useEffect } from 'react'
 import { url } from 'src/configs/urlConfig'
 
-function FacultyDetailsModal({ facultyId, state, open, handleClose }) {
+function SubjectCategoriesDetailsModal({ facultyId, state, open, handleClose }) {
   const [nullCurriculums, setNullCurriculums] = useState(null)
   const [textNullSubject, setTextNullSubject] = useState('')
   const [getfacultyId, setfacultyId] = useState(0)
@@ -132,4 +132,4 @@ function FacultyDetailsModal({ facultyId, state, open, handleClose }) {
   )
 }
 
-export default FacultyDetailsModal
+export default SubjectCategoriesDetailsModal

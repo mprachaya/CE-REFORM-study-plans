@@ -8,17 +8,6 @@ import { handleChangeEN, handleChangeNumber, handleChangeTH } from 'src/hooks/us
 import { useRouter } from 'next/router'
 
 function CurriculumEditModal({ state, open, handleClose, faculty, studentGroups, handleUpdate, openConfirmDelete }) {
-  // const initialsState = {
-  //   faculty_id: 0,
-  //   collegian_group_id: 0,
-  //   curriculum_name_th: '',
-  //   curriculum_name_en: '',
-  //   curriculum_short_name_th: '',
-  //   curriculum_short_name_en: '',
-  //   curriculum_year: '',
-  //   ref_curriculum_id: 0
-  // }
-
   const router = useRouter()
 
   const [updateState, setUpdateState] = useState([])

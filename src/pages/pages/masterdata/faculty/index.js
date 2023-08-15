@@ -6,21 +6,23 @@ import { Btn, CircleLoading, ConfirmModal, DataGridTable, TextSearch } from 'src
 import { Box, Grid, Typography, Button } from '@mui/material'
 import Icon from '@mdi/react'
 
-import { mdiPen, mdiAlertRhombus } from '@mdi/js/'
+import { mdiPen, mdiAlertRhombus, mdiDotsHorizontal } from '@mdi/js/'
 
 import useSearchText from 'src/hooks/useSearchText'
 import AddFacultyModal from './AddFacultyModal'
 import EditFacultyModal from './EditFacultyModal'
+import { url } from 'src/configs/urlConfig'
+import FacultyDetailsModal from '../studentgroups/FacultyDetails'
 
 const faculty = () => {
   const [open, setOpen] = useState(false)
   const [editState, setEditState] = useState([])
 
-  const URL_GET_FACULTY = `https://my-backend-adonis.onrender.com/api/v1/faculties`
+  const URL_GET_FACULTY = `${url.BASE_URL}/faculties`
 
-  const URL_INSERT = `https://my-backend-adonis.onrender.com/api/v1/faculties/`
-  const URL_UPDATE = `https://my-backend-adonis.onrender.com/api/v1/faculties/${editState.faculty_id}`
-  const URL_DELETE = `https://my-backend-adonis.onrender.com/api/v1/faculties/${editState.faculty_id}`
+  const URL_INSERT = `${url.BASE_URL}/faculties/`
+  const URL_UPDATE = `${url.BASE_URL}/faculties/${editState.faculty_id}`
+  const URL_DELETE = `${url.BASE_URL}/faculties/${editState.faculty_id}`
 
   const handleClickOpen = () => {
     setOpen(true)
@@ -46,6 +48,15 @@ const faculty = () => {
   const [openDetails, setOpenDetails] = useState(false)
 
   const [openConfirmDelete, setOpenConfirmDelete] = useState(false)
+
+  const handleClickOpenDetails = value => {
+    setEditState(value)
+    setOpenDetails(true)
+  }
+
+  const handleCloseDetails = () => {
+    setOpenDetails(false)
+  }
 
   const handleOpenConfirmDelete = () => {
     setOpenConfirmDelete(true)
@@ -123,6 +134,11 @@ const faculty = () => {
               <Icon path={mdiPen} size={1} />
             </Button>
           </Grid>
+          <Grid item>
+            <Button color='secondary' variant='outlined' onClick={() => handleClickOpenDetails(params.row)}>
+              <Icon path={mdiDotsHorizontal} size={1} />
+            </Button>
+          </Grid>
         </Grid>
       )
     }
@@ -167,7 +183,14 @@ const faculty = () => {
           openConfirmDelete={handleOpenConfirmDelete}
         />
       </Grid>
-
+      <Grid container>
+        <FacultyDetailsModal
+          state={editState}
+          open={openDetails}
+          handleClose={handleCloseDetails}
+          facultyId={editState.faculty_id}
+        />
+      </Grid>
       <Grid container>
         <ConfirmModal
           title={`DELETE Faculty`}

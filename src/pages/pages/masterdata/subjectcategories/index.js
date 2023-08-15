@@ -9,19 +9,19 @@ import Icon from '@mdi/react'
 import { mdiPen, mdiAlertRhombus } from '@mdi/js/'
 
 import useSearchText from 'src/hooks/useSearchText'
-import AddStudentGroupsModal from './AddStudentGroupsModal'
-import EditStudentGroupModal from './EditStudentGroupModal'
 import { url } from 'src/configs/urlConfig'
+import EditSubjectCategoriesModal from './EditSubjectCategoriesModal'
+import AddSubjectCategoriesGroupsModal from './AddSubjectCategoriesModal'
 
-const studentgroups = () => {
+const subjectcategories = () => {
   const [open, setOpen] = useState(false)
   const [editState, setEditState] = useState([])
 
-  const URL_GET_STUDENT_GROUPS = `${url.BASE_URL}/collegian-groups`
+  const URL_GET_SUBJECT_CATEGORY = `${url.BASE_URL}/subject-categories/`
 
-  const URL_INSERT = `${url.BASE_URL}/collegian-groups/`
-  const URL_UPDATE = `${url.BASE_URL}/collegian-groups/${editState.collegian_group_id}`
-  const URL_DELETE = `${url.BASE_URL}/collegian-groups/${editState.collegian_group_id}`
+  const URL_INSERT = `${url.BASE_URL}/subject-categories/`
+  const URL_UPDATE = `${url.BASE_URL}/subject-categories/${editState.subject_category_id}`
+  const URL_DELETE = `${url.BASE_URL}/subject-categories/${editState.subject_category_id}`
 
   const handleClickOpen = () => {
     setOpen(true)
@@ -57,41 +57,36 @@ const studentgroups = () => {
   }
 
   const {
-    error: StudentGroupsError,
-    data: STUDENT_GROUPS,
-    setData: setSTUDENT_GROUPS,
-    loading: StudentGroupsLoading,
-    reFetch: reFetchSTUDENT_GROUPS
-  } = useFetch(URL_GET_STUDENT_GROUPS)
+    error: SubjectCategoryError,
+    data: SUBJECT_CATEGORY,
+    setData: setSUBJECT_CATEGORY,
+    loading: SubjectCategoryLoading,
+    reFetch: reFetchSUBJECT_CATEGORY
+  } = useFetch(URL_GET_SUBJECT_CATEGORY)
 
-  const columnsStudentGroups = [
-    'collegian_group_name_th',
-    'collegian_group_name_en',
-    'collegian_group_short_name_th',
-    'collegian_group_short_name_en'
-  ]
+  const columnsSubjectCategory = ['subject_category_name']
 
-  const [STUDENT_GROUPSTemp, setSTUDENT_GROUPSTemp] = useState([])
+  const [SUBJECT_CATEGORYTemp, setSUBJECT_CATEGORYTemp] = useState([])
 
   const [searchText, setSearchText] = useState('')
 
   const handleChangeSearch = text => {
-    useSearchText(text, setSTUDENT_GROUPS, setSearchText, STUDENT_GROUPSTemp, columnsStudentGroups)
+    useSearchText(text, setSUBJECT_CATEGORY, setSearchText, SUBJECT_CATEGORYTemp, columnsSubjectCategory)
   }
 
   useMemo(() => {
-    if (!StudentGroupsLoading) {
-      setSTUDENT_GROUPSTemp(STUDENT_GROUPS)
+    if (!SubjectCategoryLoading) {
+      setSUBJECT_CATEGORYTemp(SUBJECT_CATEGORY)
     } else {
     }
-  }, [StudentGroupsLoading])
+  }, [SubjectCategoryLoading])
 
   const handleSubmit = submitState => {
-    useSubmit(URL_INSERT, submitState, () => setOpen(false), reFetchSTUDENT_GROUPS)
+    useSubmit(URL_INSERT, submitState, () => setOpen(false), reFetchSUBJECT_CATEGORY)
   }
 
   const handleUpdate = updateState => {
-    useUpdate(URL_UPDATE, updateState, () => setOpenEdit(false), reFetchSTUDENT_GROUPS)
+    useUpdate(URL_UPDATE, updateState, () => setOpenEdit(false), reFetchSUBJECT_CATEGORY)
   }
 
   const handleDelete = () => {
@@ -101,12 +96,12 @@ const studentgroups = () => {
         setOpenConfirmDelete(false)
         setOpenEdit(false)
       },
-      reFetchSTUDENT_GROUPS
+      reFetchSUBJECT_CATEGORY
     )
   }
 
-  const loadingState = StudentGroupsLoading
-  const errorState = StudentGroupsError
+  const loadingState = SubjectCategoryLoading
+  const errorState = SubjectCategoryError
 
   if (loadingState) {
     return <CircleLoading />
@@ -116,10 +111,7 @@ const studentgroups = () => {
   }
 
   const columns = [
-    { field: 'collegian_group_name_th', headerName: 'Group Name TH', width: 200 },
-    { field: 'collegian_group_name_en', headerName: 'Group Name EN', width: 200 },
-    { field: 'collegian_group_short_name_th', headerName: 'Group Short Name TH', width: 200 },
-    { field: 'collegian_group_short_name_en', headerName: 'Group Short Name EN', width: 200 },
+    { field: 'subject_category_name', headerName: 'Category Name', width: 200 },
     {
       field: 'fn',
       headerName: '',
@@ -140,7 +132,7 @@ const studentgroups = () => {
     <Box>
       {/* // header */}
       <Box display={'flex'} flexDirection={'row'}>
-        <Typography variant='h6'>Student Groups</Typography>
+        <Typography variant='h6'>SubjectCategory Groups</Typography>
       </Box>
 
       <Grid container spacing={6} sx={{ mt: 5 }}>
@@ -155,19 +147,19 @@ const studentgroups = () => {
       </Grid>
       <Grid container>
         <Grid item xs={12} sm={12} lg={12} mt={6}>
-          {STUDENT_GROUPS.length !== 0 ? (
-            <DataGridTable rows={STUDENT_GROUPS} columns={columns} uniqueKey={'collegian_group_id'} />
+          {SUBJECT_CATEGORY.length !== 0 ? (
+            <DataGridTable rows={SUBJECT_CATEGORY} columns={columns} uniqueKey={'subject_category_id'} />
           ) : (
-            <Typography>ยังไม่มีข้อมูลกลุ่มนักศึกษาอยู่ในระบบ</Typography>
+            <Typography>ยังไม่มีข้อมูลหมวดวิชาอยู่ในระบบ</Typography>
           )}
         </Grid>
       </Grid>
       <Grid container>
-        <AddStudentGroupsModal open={open} handleClose={handleClose} handleSubmit={handleSubmit} />
+        <AddSubjectCategoriesGroupsModal open={open} handleClose={handleClose} handleSubmit={handleSubmit} />
       </Grid>
 
       <Grid container>
-        <EditStudentGroupModal
+        <EditSubjectCategoriesModal
           state={editState}
           open={openEdit}
           handleClose={handleCloseEdit}
@@ -178,8 +170,8 @@ const studentgroups = () => {
 
       <Grid container>
         <ConfirmModal
-          title={`DELETE Student Groups`}
-          text={`Are you sure you want to delete ${editState.collegian_group_name_th}?`}
+          title={`DELETE SubjectCategory Groups`}
+          text={`Are you sure you want to delete ${editState.subject_category_name}?`}
           displayIcon={mdiAlertRhombus}
           submitLabel={'DELETE'}
           open={openConfirmDelete}
@@ -191,4 +183,4 @@ const studentgroups = () => {
   )
 }
 
-export default studentgroups
+export default subjectcategories
