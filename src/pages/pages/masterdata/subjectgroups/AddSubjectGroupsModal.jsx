@@ -3,20 +3,20 @@ import React from 'react'
 import { useEffect } from 'react'
 import { useState } from 'react'
 import { Selection } from 'src/components'
-import { handleChangeEN, handleChangeTH } from 'src/hooks/useValidation'
+import { handleChangeTH } from 'src/hooks/useValidation'
 
-function AddSubjectTypesModal({ Categories, open, handleClose, handleSubmit }) {
+function AddSubjectGroupsModal({ Categories, open, handleClose, handleSubmit }) {
   const initialsState = {
-    subject_category_id: '',
-    subject_type_name: ''
+    subject_type_id: '',
+    subject_group_name: ''
   }
 
   const [state, setState] = useState({
-    subject_category_id: '',
-    subject_type_name: ''
+    subject_type_id: '',
+    subject_group_name: ''
   })
 
-  const [categorySelection, setCategorySelection] = useState(0)
+  const [typeSelection, setTypeSelection] = useState(0)
 
   const checkIsEmpty = object => {
     var isEmpty = false
@@ -36,8 +36,8 @@ function AddSubjectTypesModal({ Categories, open, handleClose, handleSubmit }) {
   }
 
   useEffect(() => {
-    setState(pre => ({ ...pre, subject_category_id: categorySelection }))
-  }, [categorySelection])
+    setState(pre => ({ ...pre, subject_type_id: typeSelection }))
+  }, [typeSelection])
 
   useEffect(() => {
     console.log(state)
@@ -47,19 +47,19 @@ function AddSubjectTypesModal({ Categories, open, handleClose, handleSubmit }) {
     <Dialog open={open} onClose={() => handleClose(setState(initialsState))} maxWidth={'lg'} fullWidth>
       <DialogContent sx={{ minHeight: 450 }}>
         <Typography variant='h6' sx={{ mt: 5, ml: 5 }}>
-          Add new Subject Type
+          Add new Subject Group
         </Typography>
         <DialogContent sx={{ display: 'flex' }}>
           <Grid container spacing={6}>
             <Grid item xs={12} sm={12} md={12} lg={6}>
               <Selection
                 width={'100%'}
-                firstItemText={'Choose Category*'}
-                selectionValue={categorySelection}
-                handleChange={e => setCategorySelection(e.target.value)}
+                firstItemText={'Choose Type*'}
+                selectionValue={typeSelection}
+                handleChange={e => setTypeSelection(e.target.value)}
                 Items={Object.values(Categories)?.map(category => (
-                  <MenuItem key={category.subject_category_id} value={category.subject_category_id}>
-                    {category.subject_category_name}
+                  <MenuItem key={category.subject_type_id} value={category.subject_type_id}>
+                    {category.subject_type_name}
                   </MenuItem>
                 ))}
               />
@@ -67,11 +67,11 @@ function AddSubjectTypesModal({ Categories, open, handleClose, handleSubmit }) {
             <Grid item xs={12} sm={12} md={12} lg={6}>
               <TextField
                 fullWidth
-                name={'subject_type_name'}
-                label='Subject Type Name*'
+                name={'subject_group_name'}
+                label='Subject Group Name*'
                 placeholder='Thai Only'
                 onChange={e => handleChangeTH(e, setState)}
-                value={state.subject_type_name}
+                value={state.subject_group_name}
               />
             </Grid>
           </Grid>
@@ -88,4 +88,4 @@ function AddSubjectTypesModal({ Categories, open, handleClose, handleSubmit }) {
   )
 }
 
-export default AddSubjectTypesModal
+export default AddSubjectGroupsModal

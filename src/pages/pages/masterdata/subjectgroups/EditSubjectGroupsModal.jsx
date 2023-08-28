@@ -1,16 +1,19 @@
 import React, { useEffect, useState } from 'react'
-import { Dialog, Typography, DialogContent, Grid, TextField, DialogActions, Button, Box } from '@mui/material'
+import { Dialog, Typography, DialogContent, Grid, TextField, DialogActions, Button, Box, MenuItem } from '@mui/material'
 
 import Icon from '@mdi/react'
 import { mdiDelete } from '@mdi/js'
 import { handleChangeEN, handleChangeTH } from 'src/hooks/useValidation'
+import { Selection } from 'src/components'
 
-function EditSubjectCategoriesModal({ state, open, handleClose, handleUpdate, openConfirmDelete }) {
+function EditSubjectGroupsModal({ state, open, handleClose, handleUpdate, openConfirmDelete, Categories }) {
   const initialsState = {
-    subject_category_name: ''
+    subject_type_id: '',
+    subject_group_name: ''
   }
-
   const [updateState, setUpdateState] = useState([])
+
+  const [typeSelection, setTypeSelection] = useState(0)
 
   const checkIsEmpty = object => {
     var isEmpty = false
@@ -32,10 +35,13 @@ function EditSubjectCategoriesModal({ state, open, handleClose, handleUpdate, op
   // new Object to get some properties
   useEffect(() => {
     if (open && state) {
-      const { subject_category_name } = state
+      const { subject_group_name, subject_type_id } = state
+
+      setTypeSelection(subject_type_id)
 
       const newObj = {
-        subject_category_name: subject_category_name
+        subject_type_id: subject_type_id,
+        subject_group_name: subject_group_name
       }
 
       console.log('newObj :', newObj)
@@ -52,7 +58,7 @@ function EditSubjectCategoriesModal({ state, open, handleClose, handleUpdate, op
       <DialogContent sx={{ minHeight: 450 }}>
         <Box display={'flex'} justifyContent={'space-between'}>
           <Typography variant='h6' sx={{ mt: 5, ml: 5 }}>
-            Update Subject Category
+            Update Subject Group
           </Typography>
           <Button
             color='error'
@@ -66,13 +72,29 @@ function EditSubjectCategoriesModal({ state, open, handleClose, handleUpdate, op
         <DialogContent sx={{ display: 'flex' }}>
           <Grid container spacing={6}>
             <Grid item xs={12} sm={12} md={12} lg={6}>
+              <Selection
+                width={'100%'}
+                firstItemText={'Choose Type*'}
+                selectionValue={typeSelection}
+                handleChange={e => {
+                  setTypeSelection(e.target.value)
+                  setUpdateState(pre => ({ ...pre, subject_type_id: e.target.value }))
+                }}
+                Items={Object.values(Categories)?.map(category => (
+                  <MenuItem key={category.subject_type_id} value={category.subject_type_id}>
+                    {category.subject_type_name}
+                  </MenuItem>
+                ))}
+              />
+            </Grid>
+            <Grid item xs={12} sm={12} md={12} lg={6}>
               <TextField
                 fullWidth
-                name={'subject_category_name'}
-                label='Subject Category Name TH*'
+                name={'subject_group_name'}
+                label='Subject Group Name*'
                 placeholder='Thai Only'
                 onChange={e => handleChangeTH(e, setUpdateState)}
-                value={updateState.subject_category_name}
+                value={updateState.subject_group_name}
               />
             </Grid>
           </Grid>
@@ -88,4 +110,4 @@ function EditSubjectCategoriesModal({ state, open, handleClose, handleUpdate, op
   )
 }
 
-export default EditSubjectCategoriesModal
+export default EditSubjectGroupsModal

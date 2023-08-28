@@ -54,11 +54,21 @@ function EditSubjectTypesModal({ state, open, handleClose, handleUpdate, openCon
   }, [updateState])
 
   return (
-    <Dialog open={open} onClose={() => handleClose(setState(initialsState))} maxWidth={'lg'} fullWidth>
+    <Dialog open={open} onClose={() => handleClose(setUpdateState(initialsState))} maxWidth={'lg'} fullWidth>
       <DialogContent sx={{ minHeight: 450 }}>
-        <Typography variant='h6' sx={{ mt: 5, ml: 5 }}>
-          Add new Subject Category
-        </Typography>
+        <Box display={'flex'} justifyContent={'space-between'}>
+          <Typography variant='h6' sx={{ mt: 5, ml: 5 }}>
+            Update Subject Type
+          </Typography>
+          <Button
+            color='error'
+            variant='outlined'
+            onClick={() => openConfirmDelete()}
+            startIcon={<Icon bgcolor='red' path={mdiDelete} size={0.75} />}
+          >
+            Delete
+          </Button>
+        </Box>
         <DialogContent sx={{ display: 'flex' }}>
           <Grid container spacing={6}>
             <Grid item xs={12} sm={12} md={12} lg={6}>

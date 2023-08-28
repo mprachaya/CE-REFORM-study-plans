@@ -132,7 +132,7 @@ const subjectcategories = () => {
     <Box>
       {/* // header */}
       <Box display={'flex'} flexDirection={'row'}>
-        <Typography variant='h6'>SubjectCategory Groups</Typography>
+        <Typography variant='h6'>Subject Category</Typography>
       </Box>
 
       <Grid container spacing={6} sx={{ mt: 5 }}>

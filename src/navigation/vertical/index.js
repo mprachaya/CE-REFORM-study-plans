@@ -28,6 +28,18 @@ const navigation = () => {
       icon: Domain,
       path: '/pages/masterdata/subjectcategories'
       // openInNewTab: true
+    },
+    {
+      title: 'Subject Types',
+      icon: Domain,
+      path: '/pages/masterdata/subjecttypes'
+      // openInNewTab: true
+    },
+    {
+      title: 'Subject Groups',
+      icon: Domain,
+      path: '/pages/masterdata/subjectgroups'
+      // openInNewTab: true
     }
   ]
 }

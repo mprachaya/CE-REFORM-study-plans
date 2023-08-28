@@ -10,19 +10,19 @@ import { mdiPen, mdiAlertRhombus } from '@mdi/js/'
 
 import useSearchText from 'src/hooks/useSearchText'
 import { url } from 'src/configs/urlConfig'
-import EditSubjectCategoriesModal from './EditSubjectTypesModal'
-import AddSubjectCategoriesGroupsModal from './AddSubjectTypesModal'
+import EditSubjectCategoriesModal from './EditSubjectGroupsModal'
+import AddSubjectCategoriesGroupsModal from './AddSubjectGroupsModal'
 
-const subjecttypes = () => {
+const subjectgroups = () => {
   const [open, setOpen] = useState(false)
   const [editState, setEditState] = useState([])
 
-  const URL_GET_SUBJECT_TYPES = `${url.BASE_URL}/subject-types/`
-  const URL_GET_SUBJECT_CATEGORY = `${url.BASE_URL}/subject-categories/`
+  const URL_GET_SUBJECT_GROUPS = `${url.BASE_URL}/subject-groups/`
+  const URL_GET_SUBJECT_CATEGORY = `${url.BASE_URL}/subject-types/`
 
-  const URL_INSERT = `${url.BASE_URL}/subject-types/`
-  const URL_UPDATE = `${url.BASE_URL}/subject-types/${editState.subject_type_id}`
-  const URL_DELETE = `${url.BASE_URL}/subject-types/${editState.subject_type_id}`
+  const URL_INSERT = `${url.BASE_URL}/subject-groups/`
+  const URL_UPDATE = `${url.BASE_URL}/subject-groups/${editState.subject_group_id}`
+  const URL_DELETE = `${url.BASE_URL}/subject-groups/${editState.subject_group_id}`
 
   const handleClickOpen = () => {
     setOpen(true)
@@ -58,12 +58,12 @@ const subjecttypes = () => {
   }
 
   const {
-    error: SubjectTypeError,
-    data: SUBJECT_TYPES,
-    setData: setSUBJECT_TYPES,
-    loading: SubjectTypeLoading,
-    reFetch: reFetchSUBJECT_TYPES
-  } = useFetch(URL_GET_SUBJECT_TYPES)
+    error: SubjectGroupError,
+    data: SUBJECT_GROUPS,
+    setData: setSUBJECT_GROUPS,
+    loading: SubjectGroupLoading,
+    reFetch: reFetchSUBJECT_GROUPS
+  } = useFetch(URL_GET_SUBJECT_GROUPS)
 
   const {
     error: CategoriesError,
@@ -73,29 +73,29 @@ const subjecttypes = () => {
     reFetch: reFetchCategories
   } = useFetch(URL_GET_SUBJECT_CATEGORY)
 
-  const columnsSubjectType = ['subject_type_name', 'subject_category_name']
+  const columnsSubjectType = ['subject_group_name', 'subject_type_name']
 
-  const [SUBJECT_TYPESTemp, setSUBJECT_TYPESTemp] = useState([])
+  const [SUBJECT_GROUPSTemp, setSUBJECT_GROUPSTemp] = useState([])
 
   const [searchText, setSearchText] = useState('')
 
   const handleChangeSearch = text => {
-    useSearchText(text, setSUBJECT_TYPES, setSearchText, SUBJECT_TYPESTemp, columnsSubjectType)
+    useSearchText(text, setSUBJECT_GROUPS, setSearchText, SUBJECT_GROUPSTemp, columnsSubjectType)
   }
 
   useMemo(() => {
-    if (!SubjectTypeLoading) {
-      setSUBJECT_TYPESTemp(SUBJECT_TYPES)
+    if (!SubjectGroupLoading) {
+      setSUBJECT_GROUPSTemp(SUBJECT_GROUPS)
     } else {
     }
-  }, [SubjectTypeLoading])
+  }, [SubjectGroupLoading])
 
   const handleSubmit = submitState => {
-    useSubmit(URL_INSERT, submitState, () => setOpen(false), reFetchSUBJECT_TYPES)
+    useSubmit(URL_INSERT, submitState, () => setOpen(false), reFetchSUBJECT_GROUPS)
   }
 
   const handleUpdate = updateState => {
-    useUpdate(URL_UPDATE, updateState, () => setOpenEdit(false), reFetchSUBJECT_TYPES)
+    useUpdate(URL_UPDATE, updateState, () => setOpenEdit(false), reFetchSUBJECT_GROUPS)
   }
 
   const handleDelete = () => {
@@ -105,12 +105,12 @@ const subjecttypes = () => {
         setOpenConfirmDelete(false)
         setOpenEdit(false)
       },
-      reFetchSUBJECT_TYPES
+      reFetchSUBJECT_GROUPS
     )
   }
 
-  const loadingState = SubjectTypeLoading
-  const errorState = SubjectTypeError
+  const loadingState = SubjectGroupLoading
+  const errorState = SubjectGroupError
 
   if (loadingState && CategoriesLoading) {
     return <CircleLoading />
@@ -120,12 +120,12 @@ const subjecttypes = () => {
   }
 
   const columns = [
-    { field: 'subject_type_name', headerName: 'Type Name', width: 200 },
+    { field: 'subject_group_name', headerName: 'Group Name', width: 200 },
     {
-      field: 'subject_category_name',
-      headerName: 'Category Name',
+      field: 'subject_type_name',
+      headerName: 'Type Name',
       width: 200,
-      valueGetter: params => params.row?.subject_categories.subject_category_name
+      valueGetter: params => params.row?.subject_types.subject_type_name
     },
     {
       field: 'fn',
@@ -162,10 +162,10 @@ const subjecttypes = () => {
       </Grid>
       <Grid container>
         <Grid item xs={12} sm={12} lg={12} mt={6}>
-          {SUBJECT_TYPES.length !== 0 ? (
-            <DataGridTable rows={SUBJECT_TYPES} columns={columns} uniqueKey={'subject_type_id'} />
+          {SUBJECT_GROUPS.length !== 0 ? (
+            <DataGridTable rows={SUBJECT_GROUPS} columns={columns} uniqueKey={'subject_group_id'} />
           ) : (
-            <Typography>ยังไม่มีข้อมูลประเภทวิชาอยู่ในระบบ</Typography>
+            <Typography>ยังไม่มีข้อมูลกลุ่มวิชาอยู่ในระบบ</Typography>
           )}
         </Grid>
       </Grid>
@@ -191,8 +191,8 @@ const subjecttypes = () => {
 
       <Grid container>
         <ConfirmModal
-          title={`DELETE SubjectType Groups`}
-          text={`Are you sure you want to delete ${editState.subject_type_name}?`}
+          title={`DELETE Subject Group`}
+          text={`Are you sure you want to delete ${editState.subject_group_name}?`}
           displayIcon={mdiAlertRhombus}
           submitLabel={'DELETE'}
           open={openConfirmDelete}
@@ -204,4 +204,4 @@ const subjecttypes = () => {
   )
 }
 
-export default subjecttypes
+export default subjectgroups

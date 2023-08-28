@@ -4,10 +4,17 @@ import { FormControl, InputLabel, MenuItem, Select } from '@mui/material'
 function Selection({ label, firstItemText, selectionValue, Items, handleChange, height, width, disabled }) {
   return (
     <FormControl sx={{ width: width }}>
-      <InputLabel sx={{ m: -2 }} id='form-layouts-separator-select-label'>
+      <InputLabel size='small' id='form-layouts-separator-select-label'>
         {label}
       </InputLabel>
-      <Select disabled={disabled} sx={{ height: height }} label={label} value={selectionValue} onChange={handleChange}>
+      <Select
+        size='small'
+        disabled={disabled}
+        sx={{ height: height }}
+        label={label}
+        value={selectionValue}
+        onChange={handleChange}
+      >
         <MenuItem value={0}>{firstItemText}</MenuItem>
         {Items}
         {/* sample items
