@@ -1,4 +1,17 @@
-import { Box, Button, Divider, Grid, MenuItem, TextField, Typography } from '@mui/material'
+import {
+  Box,
+  Button,
+  Divider,
+  Grid,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  MenuItem,
+  TextField,
+  Typography
+} from '@mui/material'
+import Icon from '@mdi/react'
+import { mdiCheckboxBlankCircle } from '@mdi/js'
 import React, { useEffect, useState } from 'react'
 import { CircleLoading, Selection } from 'src/components'
 import { url } from 'src/configs/urlConfig'
@@ -12,6 +25,12 @@ function curriculumstructure() {
   const [state, setState] = useState({
     subjectGroups: []
   })
+  const [subjectCategory, setSubjectCategory] = useState({
+    category: []
+  })
+  const [subjectTypes, setSubjectTypes] = useState({
+    type: []
+  })
   const [row, setRow] = useState(null)
   const [subjectGroupSelected, setSubjectGroupSelected] = useState(0)
 
@@ -24,9 +43,13 @@ function curriculumstructure() {
   const handleAddSubjectGroups = () => {
     if (row !== null) {
       const newObject = {
+        subject_category_id: row.subject_types.subject_category_id,
+        subject_category_name: row.subject_types.subject_categories.subject_category_name,
+        subject_type_id: row.subject_types.subject_type_id,
+        subject_type_name: row.subject_types.subject_type_name,
         subject_group_id: row.subject_group_id,
         subject_group_name: row.subject_group_name,
-        total_credit: 0
+        total_credit: 3
       }
       setState(prevState => ({
         ...prevState,
@@ -41,8 +64,58 @@ function curriculumstructure() {
     setSubjectGroupSelected(0)
   }
 
+  const handleChangeTotalCredit = (row, updateCredit) => {
+    // const findById = Object.values(state.subjectGroups).find(x => x.subject_group_id === row.subject_group_id)
+    // console.log(findById)
+    const cloneState = [...state.subjectGroups]
+    Object.values(state.subjectGroups)?.map((x, index) => {
+      if (x.subject_group_id === row.subject_group_id) {
+        if (row.total_credit[0] === '0' || updateCredit === '0')
+          cloneState[index].total_credit = String(row.total_credit).replace(/[0]/gi, '')
+        else cloneState[index].total_credit = String(updateCredit)
+      }
+    })
+    // console.log(cloneState)
+    setState({ subjectGroups: cloneState })
+  }
+
   useEffect(() => {
-    console.log(state)
+    if (state.subjectGroups.length !== 0) {
+      const uniqueSubjectTypes = []
+      const subjectTypeSet = new Set()
+
+      const subjectGroups = Object.values(state.subjectGroups)
+
+      for (const subject of subjectGroups) {
+        if (!subjectTypeSet.has(subject.subject_type_id)) {
+          subjectTypeSet.add(subject.subject_type_id)
+          uniqueSubjectTypes.push({
+            subject_type_id: subject.subject_type_id,
+            subject_type_name: subject.subject_type_name,
+            subject_category_id: subject.subject_category_id
+          })
+        }
+      }
+      setSubjectTypes(uniqueSubjectTypes)
+
+      const uniqueSubjectCategory = []
+      const subjectCategorySet = new Set()
+
+      const subjectCategory = Object.values(state.subjectGroups)
+
+      for (const subject of subjectCategory) {
+        if (!subjectCategorySet.has(subject.subject_category_id)) {
+          subjectCategorySet.add(subject.subject_category_id)
+          uniqueSubjectCategory.push({
+            subject_category_id: subject.subject_category_id,
+            subject_category_name: subject.subject_category_name
+          })
+        }
+      }
+      setSubjectCategory(uniqueSubjectCategory)
+      // console.log('get Subject Category ', uniqueSubjectCategory)
+    }
+    // console.log(state.subjectGroups)
   }, [state])
 
   const CurriculumDetails = () => (
@@ -130,7 +203,13 @@ function curriculumstructure() {
                 {index + 1} . {' ' + sjg.subject_group_name}
               </Typography>
               <Box display={'flex'} flexDirection={'row'}>
-                <TextField sx={{ width: 80, m: 2 }} size={'small'} fullWidth value={sjg.total_credit} />
+                <TextField
+                  sx={{ width: 80, m: 2 }}
+                  size={'small'}
+                  fullWidth
+                  value={sjg.total_credit}
+                  onChange={e => handleChangeTotalCredit(sjg, e.target.value)}
+                />
                 <Button
                   variant={'text'}
                   sx={{ px: 9 }}
@@ -181,7 +260,59 @@ function curriculumstructure() {
           </Box>
         </Grid>
         <Grid item xs={12} my={4}>
-          <Box borderRadius={2} bgcolor={'AppWorkspace'} minHeight={500}></Box>
+          <Box borderRadius={2} minHeight={500}>
+            <Box display={'flex'} justifyContent={'space-between'}>
+              <Typography>Conclusions</Typography>
+              <Typography sx={{ mr: 4 }}>Total</Typography>
+            </Box>
+            <Divider sx={{ mt: 2, mb: 4 }} />
+
+            {Object.values(subjectCategory)?.map(sjc => (
+              <Box key={sjc.subject_category_id}>
+                <Box display={'flex'} justifyContent={'space-between'}>
+                  <Typography fontWeight={'bold'}>{sjc.subject_category_name}</Typography>
+                </Box>
+                {Object.values(subjectTypes)?.map(sjt => (
+                  <Box sx={{ ml: 6 }} key={sjt.subject_type_id}>
+                    {sjc.subject_category_id === sjt.subject_category_id && (
+                      <Box display={'flex'} justifyContent={'space-between'}>
+                        <Typography fontWeight={'bold'}>{sjt.subject_type_name}</Typography>
+                      </Box>
+                    )}
+                    {state.subjectGroups?.map(
+                      sjg =>
+                        sjt.subject_type_id === sjg.subject_type_id &&
+                        sjc.subject_category_id === sjt.subject_category_id && (
+                          <Box
+                            key={sjg.subject_group_id}
+                            flexDirection={'row'}
+                            display={'flex'}
+                            justifyContent={'space-between'}
+                          >
+                            <ListItem>
+                              <ListItemIcon>
+                                <Box sx={{ m: 0.4, mr: 1.5 }}>
+                                  <Icon path={mdiCheckboxBlankCircle} size={0.4} color='primary' />
+                                </Box>
+                                <Typography>{sjg.subject_group_name}</Typography>
+                              </ListItemIcon>
+                            </ListItem>
+                            <Box textAlign={'right'}>
+                              <Typography sx={{ mr: 6, minWidth: 120, color: 'gray' }}>
+                                {sjg.total_credit !== '' ? sjg.total_credit + ' Credit' : 'ยังไม่ได้กำหนด'}
+                              </Typography>
+                            </Box>
+                          </Box>
+                        )
+                    )}
+                  </Box>
+                ))}
+              </Box>
+            ))}
+
+            {/* ))
+            )} */}
+          </Box>
         </Grid>
       </Grid>
     </Box>
