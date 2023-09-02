@@ -31,6 +31,7 @@ function curriculumstructure() {
   const [subjectTypes, setSubjectTypes] = useState({
     type: []
   })
+  const [totalSubjectType, setTotalSubjectType] = useState(null)
   const [row, setRow] = useState(null)
   const [subjectGroupSelected, setSubjectGroupSelected] = useState(0)
 
@@ -79,7 +80,41 @@ function curriculumstructure() {
     setState({ subjectGroups: cloneState })
   }
 
+  function sumTotalCreditsByUniqueValue(data, field) {
+    const uniqueValues = new Set()
+    const sums = {}
+
+    for (let i = 0; i < data.length; i++) {
+      const value = data[i][field]
+
+      if (value) {
+        // Add the value to the uniqueValues set only if it's not already present
+        if (!uniqueValues.has(value)) {
+          uniqueValues.add(value)
+          sums[value] = parseInt(data[i].total_credit, 10)
+        } else {
+          // If the value is already in uniqueValues, update the total_credit
+          sums[value] += parseInt(data[i].total_credit, 10)
+        }
+      }
+    }
+
+    // Convert the sums object into an array of objects
+    const sumsArray = Array.from(uniqueValues).map(value => ({
+      [field]: value,
+      sum: sums[value]
+    }))
+
+    return sumsArray
+  }
+
   useEffect(() => {
+    const sumCreditSJC = sumTotalCreditsByUniqueValue(state.subjectGroups, 'subject_category_id')
+    const sumCreditSJT = sumTotalCreditsByUniqueValue(state.subjectGroups, 'subject_type_id')
+    console.log('test function sum SJC: ', Object.values(sumCreditSJC))
+    console.log('test function sum SJT: ', Object.values(sumCreditSJT))
+    setTotalSubjectType(Object.values(sumCreditSJT))
+
     if (state.subjectGroups.length !== 0) {
       const uniqueSubjectTypes = []
       const subjectTypeSet = new Set()
@@ -115,7 +150,7 @@ function curriculumstructure() {
       setSubjectCategory(uniqueSubjectCategory)
       // console.log('get Subject Category ', uniqueSubjectCategory)
     }
-    // console.log(state.subjectGroups)
+    console.log(state.subjectGroups)
   }, [state])
 
   const CurriculumDetails = () => (
@@ -177,7 +212,16 @@ function curriculumstructure() {
 
       <Grid container display={'flex'} my={6} ml={0}>
         <Grid item xs={12}>
-          <Box mr={4} mb={2} mt={2} ml={0} display={'flex'} justifyContent={'space-between'}>
+          <Box
+            mr={4}
+            mb={2}
+            mt={2}
+            ml={0}
+            display={'flex'}
+            justifyContent={'space-between'}
+            minWidth={500}
+            maxWidth={1000}
+          >
             <Typography sx={{ m: 2 }} fontSize={12}>
               Subject Group
             </Typography>
@@ -189,45 +233,57 @@ function curriculumstructure() {
             </Box>
           </Box>
           <Divider sx={{ mt: 2, mb: 4 }} />
-          {Object.values(state.subjectGroups)?.map((sjg, index) => (
-            <Box
-              mr={4}
-              pb={2}
-              mt={2}
-              ml={0}
-              display={'flex'}
-              justifyContent={'space-between'}
-              key={sjg.subject_group_id}
-            >
-              <Typography sx={{ m: 2 }} variant='body1'>
-                {index + 1} . {' ' + sjg.subject_group_name}
-              </Typography>
-              <Box display={'flex'} flexDirection={'row'}>
-                <TextField
-                  sx={{ width: 80, m: 2 }}
-                  size={'small'}
-                  fullWidth
-                  value={sjg.total_credit}
-                  onChange={e => handleChangeTotalCredit(sjg, e.target.value)}
-                />
-                <Button
-                  variant={'text'}
-                  sx={{ px: 9 }}
-                  onClick={() => {
-                    const findById = Object.values(state.subjectGroups)?.find(
-                      s => s.subject_group_id === sjg.subject_group_id
-                    )
-                    const UpdateState = Object.values(state.subjectGroups)?.filter(sj => sj !== findById)
-                    UpdateState.length !== 0 ? setState({ subjectGroups: UpdateState }) : setState(initialize)
-                    // console.log(UpdateState)
-                  }}
-                >
-                  X
-                </Button>
+          <Box my={6} minWidth={500} maxWidth={1000}>
+            {Object.values(state.subjectGroups)?.map((sjg, index) => (
+              <Box
+                mr={4}
+                // mt={1}
+                // mb={6}
+                ml={0}
+                display={'flex'}
+                justifyContent={'space-between'}
+                key={sjg.subject_group_id}
+              >
+                <Typography sx={{ m: 2 }} variant='body1'>
+                  {index + 1} . {' ' + sjg.subject_group_name}
+                </Typography>
+                <Box display={'flex'} flexDirection={'row'}>
+                  <TextField
+                    sx={{ width: 80, m: 1 }}
+                    size={'small'}
+                    fullWidth
+                    value={sjg.total_credit}
+                    onChange={e => handleChangeTotalCredit(sjg, e.target.value)}
+                  />
+                  <Button
+                    variant={'text'}
+                    sx={{ px: 9 }}
+                    onClick={() => {
+                      const findById = Object.values(state.subjectGroups)?.find(
+                        s => s.subject_group_id === sjg.subject_group_id
+                      )
+                      const UpdateState = Object.values(state.subjectGroups)?.filter(sj => sj !== findById)
+                      UpdateState.length !== 0 ? setState({ subjectGroups: UpdateState }) : setState(initialize)
+                      // console.log(UpdateState)
+                    }}
+                  >
+                    X
+                  </Button>
+                </Box>
               </Box>
-            </Box>
-          ))}
-          <Box my={6} mr={4} mb={2} mt={2} ml={0} display={'flex'} justifyContent={'space-between'} minWidth={200}>
+            ))}
+          </Box>
+          <Box
+            my={6}
+            mr={4}
+            mb={2}
+            mt={2}
+            ml={0}
+            display={'flex'}
+            justifyContent={'space-between'}
+            minWidth={500}
+            maxWidth={1000}
+          >
             <Selection
               firstItemText={'เลือกกลุ่มวิชา'}
               label={'Subject Group'}
@@ -260,7 +316,7 @@ function curriculumstructure() {
           </Box>
         </Grid>
         <Grid item xs={12} my={4}>
-          <Box borderRadius={2} minHeight={500}>
+          <Box mt={6} borderRadius={2} minHeight={800} minWidth={500} maxWidth={1000}>
             <Box display={'flex'} justifyContent={'space-between'}>
               <Typography>Conclusions</Typography>
               <Typography sx={{ mr: 4 }}>Total</Typography>
@@ -275,8 +331,9 @@ function curriculumstructure() {
                 {Object.values(subjectTypes)?.map(sjt => (
                   <Box sx={{ ml: 6 }} key={sjt.subject_type_id}>
                     {sjc.subject_category_id === sjt.subject_category_id && (
-                      <Box display={'flex'} justifyContent={'space-between'}>
+                      <Box mt={1} display={'flex'} justifyContent={'space-between'}>
                         <Typography fontWeight={'bold'}>{sjt.subject_type_name}</Typography>
+                        <Typography>{}</Typography>
                       </Box>
                     )}
                     {state.subjectGroups?.map(
@@ -284,6 +341,7 @@ function curriculumstructure() {
                         sjt.subject_type_id === sjg.subject_type_id &&
                         sjc.subject_category_id === sjt.subject_category_id && (
                           <Box
+                            mb={-2}
                             key={sjg.subject_group_id}
                             flexDirection={'row'}
                             display={'flex'}
