@@ -108,12 +108,26 @@ function curriculumstructure() {
     return sumsArray
   }
 
+  const [sumCreditSJC, setSumCreditSJC] = useState({})
+  const [sumCreditSJT, setSumCreditSJT] = useState({})
+
+  // useEffect(() => {
+  //   console.log('sumCreditSJC: ', sumCreditSJC)
+  //     console.log('sumCreditSJC: ', Object,vasumCreditSJC)
+  // }, [sumCreditSJC])
+
+  // useEffect(() => {
+  //   console.log('sumCreditSJT: ', sumCreditSJT)
+  // }, [sumCreditSJT])
+
   useEffect(() => {
-    const sumCreditSJC = sumTotalCreditsByUniqueValue(state.subjectGroups, 'subject_category_id')
-    const sumCreditSJT = sumTotalCreditsByUniqueValue(state.subjectGroups, 'subject_type_id')
-    console.log('test function sum SJC: ', Object.values(sumCreditSJC))
-    console.log('test function sum SJT: ', Object.values(sumCreditSJT))
-    setTotalSubjectType(Object.values(sumCreditSJT))
+    setSumCreditSJC(sumTotalCreditsByUniqueValue(state.subjectGroups, 'subject_category_id'))
+    setSumCreditSJT(sumTotalCreditsByUniqueValue(state.subjectGroups, 'subject_type_id'))
+    // const sumCreditSJC = sumTotalCreditsByUniqueValue(state.subjectGroups, 'subject_category_id')
+    // const sumCreditSJT = sumTotalCreditsByUniqueValue(state.subjectGroups, 'subject_type_id')
+    // console.log('test function sum SJC: ', Object.values(sumCreditSJC))
+    // console.log('test function sum SJT: ', Object.values(sumCreditSJT))
+    // setTotalSubjectType(Object.values(sumCreditSJT))
 
     if (state.subjectGroups.length !== 0) {
       const uniqueSubjectTypes = []
@@ -324,16 +338,31 @@ function curriculumstructure() {
             <Divider sx={{ mt: 2, mb: 4 }} />
 
             {Object.values(subjectCategory)?.map(sjc => (
-              <Box key={sjc.subject_category_id}>
-                <Box display={'flex'} justifyContent={'space-between'}>
-                  <Typography fontWeight={'bold'}>{sjc.subject_category_name}</Typography>
+              <Box sx={{ mb: 6 }} key={sjc.subject_category_id}>
+                <Box display={'flex'}>
+                  <Typography fontWeight={'bold'}>{sjc.subject_category_name} </Typography>
+                  {Object.values(sumCreditSJC)?.map(
+                    totalSJC =>
+                      totalSJC.subject_category_id === sjc.subject_category_id && (
+                        <Typography sx={{ mr: 6, fontSize: '14', fontWeight: 'bold' }}>
+                          {' (Total ' + totalSJC.sum + ' ' + 'Credit) '}
+                        </Typography>
+                      )
+                  )}
                 </Box>
                 {Object.values(subjectTypes)?.map(sjt => (
                   <Box sx={{ ml: 6 }} key={sjt.subject_type_id}>
                     {sjc.subject_category_id === sjt.subject_category_id && (
-                      <Box mt={1} display={'flex'} justifyContent={'space-between'}>
+                      <Box mt={1} display={'flex'}>
                         <Typography fontWeight={'bold'}>{sjt.subject_type_name}</Typography>
-                        <Typography>{}</Typography>
+                        {Object.values(sumCreditSJT)?.map(
+                          totalSJT =>
+                            totalSJT.subject_type_id === sjt.subject_type_id && (
+                              <Typography sx={{ mr: 6, fontSize: '14' }}>
+                                {' (Total ' + totalSJT.sum + ' ' + 'Credit) '}
+                              </Typography>
+                            )
+                        )}
                       </Box>
                     )}
                     {state.subjectGroups?.map(
