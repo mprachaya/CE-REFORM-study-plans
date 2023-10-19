@@ -10,8 +10,8 @@ import { mdiPen, mdiAlertRhombus } from '@mdi/js/'
 
 import useSearchText from 'src/hooks/useSearchText'
 import { url } from 'src/configs/urlConfig'
-import EditSubjectCategoriesModal from './EditSubjectGroupsModal'
-import AddSubjectCategoriesGroupsModal from './AddSubjectGroupsModal'
+import EditSubjectCategoriesModal from '../../../../views/subjectgroups/EditSubjectGroupsModal'
+import AddSubjectCategoriesGroupsModal from '../../../../views/subjectgroups/AddSubjectGroupsModal'
 
 const subjectgroups = () => {
   const [open, setOpen] = useState(false)
@@ -147,7 +147,7 @@ const subjectgroups = () => {
     <Box>
       {/* // header */}
       <Box display={'flex'} flexDirection={'row'}>
-        <Typography variant='h6'>Subject Type</Typography>
+        <Typography variant='h6'>Subject Group</Typography>
       </Box>
 
       <Grid container spacing={6} sx={{ mt: 5 }}>

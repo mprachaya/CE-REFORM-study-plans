@@ -9,10 +9,10 @@ import Icon from '@mdi/react'
 import { mdiPen, mdiAlertRhombus, mdiDotsHorizontal } from '@mdi/js/'
 
 import useSearchText from 'src/hooks/useSearchText'
-import AddFacultyModal from './AddFacultyModal'
-import EditFacultyModal from './EditFacultyModal'
+import AddFacultyModal from 'src/views/faculty/AddFacultyModal'
+import EditFacultyModal from 'src/views/faculty/EditFacultyModal'
 import { url } from 'src/configs/urlConfig'
-import FacultyDetailsModal from '../studentgroups/FacultyDetails'
+import FacultyDetailsModal from 'src/views/faculty/FacultyDetails'
 
 const faculty = () => {
   const [open, setOpen] = useState(false)

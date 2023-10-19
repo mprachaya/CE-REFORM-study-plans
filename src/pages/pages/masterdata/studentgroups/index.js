@@ -9,8 +9,8 @@ import Icon from '@mdi/react'
 import { mdiPen, mdiAlertRhombus } from '@mdi/js/'
 
 import useSearchText from 'src/hooks/useSearchText'
-import AddStudentGroupsModal from './AddStudentGroupsModal'
-import EditStudentGroupModal from './EditStudentGroupModal'
+import AddStudentGroupsModal from 'src/views/studentgroups/AddStudentGroupsModal'
+import EditStudentGroupModal from 'src/views/studentgroups/EditStudentGroupModal'
 import { url } from 'src/configs/urlConfig'
 
 const studentgroups = () => {

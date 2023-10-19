@@ -10,8 +10,8 @@ import { mdiPen, mdiAlertRhombus } from '@mdi/js/'
 
 import useSearchText from 'src/hooks/useSearchText'
 import { url } from 'src/configs/urlConfig'
-import EditSubjectCategoriesModal from './EditSubjectTypesModal'
-import AddSubjectCategoriesGroupsModal from './AddSubjectTypesModal'
+import EditSubjectCategoriesModal from '../../../../views/subjecttypes/EditSubjectTypesModal'
+import AddSubjectCategoriesGroupsModal from '../../../../views/subjecttypes/AddSubjectTypesModal'
 
 const subjecttypes = () => {
   const [open, setOpen] = useState(false)

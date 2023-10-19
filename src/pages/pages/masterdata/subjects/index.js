@@ -15,8 +15,8 @@ import { mdiPen, mdiDownload, mdiDotsHorizontal, mdiAlertRhombus, mdiFilter } fr
 import useSearchText from 'src/hooks/useSearchText'
 import useFilter from 'src/hooks/useFilter'
 import { useRouter } from 'next/router'
-import AddSubjectModal from './AddSubjectModal'
-import EditSubjectModal from './EditSubjectModal'
+import AddSubjectModal from '../../../../views/subjects/AddSubjectModal'
+import EditSubjectModal from '../../../../views/subjects/EditSubjectModal'
 
 const subjects = () => {
   const [open, setOpen] = useState(false)
