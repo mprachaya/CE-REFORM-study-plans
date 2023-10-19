@@ -7,20 +7,20 @@ import { Btn, CircleLoading, ConfirmModal, DataGridTable, Selection, TextSearch 
 import { Box, Grid, Typography, Button } from '@mui/material'
 import Icon from '@mdi/react'
 
-import { mdiPen, mdiDownload, mdiDotsHorizontal, mdiAlertRhombus, mdiFilter } from '@mdi/js/'
+import { mdiPen, mdiAlertRhombus, mdiFilter, mdiCircle } from '@mdi/js/'
 
-// import AddSubjectModal from './AddSubjectModal'
-// import SubjectEditModal from './SubjectEditModal'
-// import SubjectDetailsModal from './SubjectDetailsModal'
 import useSearchText from 'src/hooks/useSearchText'
 import useFilter from 'src/hooks/useFilter'
 import { useRouter } from 'next/router'
 import AddSubjectModal from '../../../../views/subjects/AddSubjectModal'
 import EditSubjectModal from '../../../../views/subjects/EditSubjectModal'
+import AddSubjectCompetency from 'src/views/competencies/AddSubjectCompetency'
 
 const subjects = () => {
   const [open, setOpen] = useState(false)
+  const [openCompetency, setOpenCompetency] = useState(false)
   const [curriculumSelection, setCurriculumSelection] = useState(0)
+  const [subjectSelection, setSubjectSelection] = useState([])
   const [subjectGroupSelection, setSubjectGroupSelection] = useState(0)
   const [editState, setEditState] = useState([])
   const router = useRouter()
@@ -47,6 +47,11 @@ const subjects = () => {
   const handleClickOpenEdit = value => {
     setEditState(value)
     setOpenEdit(true)
+  }
+  const handleClickOpenCompetency = (subject) => {
+    setOpenCompetency(true)
+    setSubjectSelection(subject)
+
   }
 
   const handleCloseEdit = setInitialState => {
@@ -175,12 +180,19 @@ const subjects = () => {
     {
       field: 'fn',
       headerName: '',
-      width: 200,
+      width: 500,
       renderCell: params => (
         <Grid container spacing={2}>
           <Grid item>
             <Button color='secondary' variant='outlined' onClick={() => handleClickOpenEdit(params.row)}>
               <Icon path={mdiPen} size={1} />
+            </Button>
+          </Grid>
+          <Grid item>
+            <Button color='secondary' variant='outlined' endIcon={<Icon path={mdiCircle} size={0.4} color={'red'} />} onClick={
+              () => handleClickOpenCompetency(params.row)
+            }>
+              สมรรถนะ
             </Button>
           </Grid>
         </Grid>
@@ -278,6 +290,15 @@ const subjects = () => {
           open={openConfirmDelete}
           handleClose={handleCloseConfirmDelete}
           handleSubmit={handleDelete}
+        />
+
+      </Grid>
+      <Grid container>
+        <AddSubjectCompetency
+          subject={subjectSelection}
+          open={openCompetency}
+          handleClose={() => setOpenCompetency(false)}
+        // handleSubmit={handleDelete}
         />
       </Grid>
     </Box>
