@@ -9,9 +9,9 @@ import Icon from '@mdi/react'
 
 import { mdiPen, mdiDownload, mdiDotsHorizontal, mdiAlertRhombus, mdiFilter } from '@mdi/js/'
 
-import AddCurriculumModal from './AddCurriculumModal'
-import CurriculumEditModal from './CurriculumEditModal'
-import CurriculumDetailsModal from './CurriculumDetailsModal'
+import AddCurriculumModal from 'src/views/curriculums/AddCurriculumModal'
+import CurriculumEditModal from 'src/views/curriculums/CurriculumEditModal'
+import CurriculumDetailsModal from 'src/views/curriculums/CurriculumDetailsModal'
 import useSearchText from 'src/hooks/useSearchText'
 import useFilter from 'src/hooks/useFilter'
 import { url } from 'src/configs/urlConfig'
