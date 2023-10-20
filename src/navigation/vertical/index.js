@@ -18,11 +18,18 @@ const navigation = () => {
       // openInNewTab: true
     },
     {
+      title: 'Subject',
+      icon: Domain,
+      path: '/pages/masterdata/subjects'
+      // openInNewTab: true
+    },
+    {
       title: 'Student Groups',
       icon: Domain,
       path: '/pages/masterdata/studentgroups'
       // openInNewTab: true
     },
+
     {
       title: 'Subject Categories',
       icon: Domain,

@@ -162,7 +162,7 @@ const subjecttypes = () => {
       </Grid>
       <Grid container>
         <Grid item xs={12} sm={12} lg={12} mt={6}>
-          {SUBJECT_TYPES.length !== 0 ? (
+          {SUBJECT_TYPES.length !== 0 || !SubjectTypeLoading || !CategoriesLoading ? (
             <DataGridTable rows={SUBJECT_TYPES} columns={columns} uniqueKey={'subject_type_id'} />
           ) : (
             <Typography>ยังไม่มีข้อมูลประเภทวิชาอยู่ในระบบ</Typography>

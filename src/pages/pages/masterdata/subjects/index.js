@@ -15,6 +15,7 @@ import { useRouter } from 'next/router'
 import AddSubjectModal from '../../../../views/subjects/AddSubjectModal'
 import EditSubjectModal from '../../../../views/subjects/EditSubjectModal'
 import AddSubjectCompetency from 'src/views/competencies/AddSubjectCompetency'
+import curriculums from '../curriculums'
 
 const subjects = () => {
   const [open, setOpen] = useState(false)
@@ -48,10 +49,9 @@ const subjects = () => {
     setEditState(value)
     setOpenEdit(true)
   }
-  const handleClickOpenCompetency = (subject) => {
+  const handleClickOpenCompetency = subject => {
     setOpenCompetency(true)
     setSubjectSelection(subject)
-
   }
 
   const handleCloseEdit = setInitialState => {
@@ -140,7 +140,17 @@ const subjects = () => {
 
   useMemo(() => {
     if (!CurriculumLoading) {
-      setCurriculumSelection(router.query.curriculum_id)
+      if (router.query.curriculum_id) setCurriculumSelection(router.query.curriculum_id)
+      else {
+        const findCurrent =
+          Curriculums.length !== 0 &&
+          Curriculums.reduce(
+            (max, obj) => (obj.curriculum_id > max ? obj.curriculum_id : max, Curriculums[0].curriculum_id)
+          )
+
+        // console.log('current: ', findCurrent)
+        setCurriculumSelection(findCurrent)
+      }
     }
   }, [CurriculumLoading])
 
@@ -189,9 +199,12 @@ const subjects = () => {
             </Button>
           </Grid>
           <Grid item>
-            <Button color='secondary' variant='outlined' endIcon={<Icon path={mdiCircle} size={0.4} color={'red'} />} onClick={
-              () => handleClickOpenCompetency(params.row)
-            }>
+            <Button
+              color='secondary'
+              variant='outlined'
+              endIcon={<Icon path={mdiCircle} size={0.4} color={'red'} />}
+              onClick={() => handleClickOpenCompetency(params.row)}
+            >
               สมรรถนะ
             </Button>
           </Grid>
@@ -205,6 +218,7 @@ const subjects = () => {
       {/* // header */}
       <Box display={'flex'} flexDirection={'row'}>
         <Typography variant='h6'>Subjects</Typography>
+
         <Typography m={1} pl={4} pr={2} variant='subtitle1'>
           Curriculum
         </Typography>
@@ -252,7 +266,7 @@ const subjects = () => {
       </Grid>
       <Grid container>
         <Grid item xs={12} sm={12} lg={12} mt={6}>
-          {Subjects.length !== 0 ? (
+          {Subjects.length !== 0 || !SubjectLoading || !CurriculumLoading ? (
             <DataGridTable rows={Subjects} columns={columns} uniqueKey={'subject_id'} />
           ) : (
             <Typography>ยังไม่มีรายวิชาในหลักสูตร</Typography>
@@ -291,14 +305,13 @@ const subjects = () => {
           handleClose={handleCloseConfirmDelete}
           handleSubmit={handleDelete}
         />
-
       </Grid>
       <Grid container>
         <AddSubjectCompetency
           subject={subjectSelection}
           open={openCompetency}
           handleClose={() => setOpenCompetency(false)}
-        // handleSubmit={handleDelete}
+          // handleSubmit={handleDelete}
         />
       </Grid>
     </Box>

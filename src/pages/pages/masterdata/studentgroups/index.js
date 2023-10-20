@@ -155,7 +155,7 @@ const studentgroups = () => {
       </Grid>
       <Grid container>
         <Grid item xs={12} sm={12} lg={12} mt={6}>
-          {STUDENT_GROUPS.length !== 0 ? (
+          {STUDENT_GROUPS.length !== 0 || !StudentGroupsLoading ? (
             <DataGridTable rows={STUDENT_GROUPS} columns={columns} uniqueKey={'collegian_group_id'} />
           ) : (
             <Typography>ยังไม่มีข้อมูลกลุ่มนักศึกษาอยู่ในระบบ</Typography>
