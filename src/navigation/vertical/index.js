@@ -23,12 +23,6 @@ const navigation = () => {
       path: '/pages/masterdata/subjects'
       // openInNewTab: true
     },
-    {
-      title: 'Student Groups',
-      icon: Domain,
-      path: '/pages/masterdata/studentgroups'
-      // openInNewTab: true
-    },
 
     {
       title: 'Subject Categories',
@@ -46,6 +40,18 @@ const navigation = () => {
       title: 'Subject Groups',
       icon: Domain,
       path: '/pages/masterdata/subjectgroups'
+      // openInNewTab: true
+    },
+    {
+      title: 'Student Groups',
+      icon: Domain,
+      path: '/pages/masterdata/studentgroups'
+      // openInNewTab: true
+    },
+    {
+      title: 'Job Position',
+      icon: Domain,
+      path: '/pages/masterdata/jobposition'
       // openInNewTab: true
     }
   ]

@@ -8,7 +8,7 @@ function Selection({ label, firstItemText, selectionValue, Items, handleChange, 
         {label}
       </InputLabel>
       <Select
-        size='small'
+        // size='small'
         disabled={disabled}
         sx={{ height: height }}
         label={label}

@@ -7,30 +7,18 @@ import { useEffect } from 'react'
 import { url } from 'src/configs/urlConfig'
 
 function FacultyDetailsModal({ facultyId, state, open, handleClose }) {
-  const [nullCurriculums, setNullCurriculums] = useState(null)
+  const [nullCurriculums, setNullCurriculums] = useState(true)
   const [textNullSubject, setTextNullSubject] = useState('')
   const [getfacultyId, setfacultyId] = useState(0)
   const [delay, setDelay] = useState(true)
 
-  const URL_GET_CURRICULUM = `${url.BASE_URL}/curriculums/${getfacultyId}`
+  const URL_GET_CURRICULUM = `${url.BASE_URL}/faculties/${getfacultyId}`
   const { error: CurriculumsError, data: Curriculums, loading: CurriculumsLoading } = useFetch(URL_GET_CURRICULUM)
 
   const details_columns = [
     { field: 'curriculum_year', headerName: 'Year', width: 100 },
-    { field: 'curriculum_name_th', headerName: 'Curriculum Name TH', width: 210 },
-    { field: 'curriculum_name_en', headerName: 'Curriculum Name EN', width: 230 },
-    {
-      field: 'faculty',
-      headerName: 'Faculty',
-      width: 130,
-      valueGetter: params => params.row?.faculty?.faculty_name_th
-    },
-    {
-      field: 'collegian_groups',
-      headerName: 'Student',
-      width: 100,
-      valueGetter: params => params.row?.collegian_groups?.collegian_group_short_name_th
-    }
+    { field: 'curriculum_name_th', headerName: 'Curriculum Name TH', width: 300 },
+    { field: 'curriculum_name_en', headerName: 'Curriculum Name EN', width: 300 }
   ]
 
   useEffect(() => {
@@ -48,13 +36,13 @@ function FacultyDetailsModal({ facultyId, state, open, handleClose }) {
   useEffect(() => {
     if (CurriculumsLoading) {
     } else {
-      if (!CurriculumsLoading && Curriculums.length > 0) {
-        setNullCurriculums(false)
-        setTextNullSubject('')
-      } else {
-        setNullCurriculums(true)
-        setTextNullSubject('Not Have Any Curriculums.')
-      }
+      // if (!CurriculumsLoading && Curriculums[0].curriculumlength > 0) {
+      //   setNullCurriculums(false)
+      //   setTextNullSubject('')
+      // } else {
+      //   setNullCurriculums(true)
+      //   setTextNullSubject('Not Have Any Curriculums.')
+      // }
     }
   }, [CurriculumsLoading])
 
@@ -109,16 +97,16 @@ function FacultyDetailsModal({ facultyId, state, open, handleClose }) {
             </Grid>
           </Grid>
           <Grid container>
-            {!nullCurriculums ? (
-              <Grid item sx={{ ml: 10, mr: 10 }}>
+            {Object.values(Curriculums.curriculums).length !== 0 ? (
+              <Grid container item sx={{ ml: 10, mr: 10 }} xs={12}>
                 <Grid item xs={12}>
-                  <DataGridTable rows={Curriculums} columns={details_columns} uniqueKey={'subject_id'} />
+                  <DataGridTable rows={Curriculums.curriculums} columns={details_columns} uniqueKey={'curriculum_id'} />
                 </Grid>
               </Grid>
             ) : (
               <Grid item sx={{ ml: 10, mr: 10 }}>
                 <Grid item xs={12} sm={12} lg={12}>
-                  <Typography>{textNullSubject}</Typography>
+                  <Typography>{'ยังไม่มีหลักสูตร'}</Typography>
                 </Grid>
               </Grid>
             )}

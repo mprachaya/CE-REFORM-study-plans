@@ -218,26 +218,23 @@ const subjects = () => {
       {/* // header */}
       <Box display={'flex'} flexDirection={'row'}>
         <Typography variant='h6'>Subjects</Typography>
-
-        <Typography m={1} pl={4} pr={2} variant='subtitle1'>
-          Curriculum
-        </Typography>
-        <Selection
-          label={'หลักสูตร'}
-          height={40}
-          width={220}
-          selectionValue={curriculumSelection}
-          handleChange={e => handleChangeCurriculum(e.target.value)}
-          Items={Object.values(Curriculums)?.map(curri => (
-            <MenuItem key={curri.curriculum_id} value={curri.curriculum_id}>
-              {curri.curriculum_name_th + ' ' + curri.curriculum_year}
-            </MenuItem>
-          ))}
-        />
+        <Box sx={{ ml: 6 }}>
+          <Selection
+            label={'หลักสูตร'}
+            height={40}
+            width={220}
+            selectionValue={curriculumSelection}
+            handleChange={e => handleChangeCurriculum(e.target.value)}
+            Items={Object.values(Curriculums)?.map(curri => (
+              <MenuItem key={curri.curriculum_id} value={curri.curriculum_id}>
+                {curri.curriculum_name_th + ' ' + curri.curriculum_year}
+              </MenuItem>
+            ))}
+          />
+        </Box>
       </Box>
-
       <Grid container spacing={6} sx={{ mt: 5 }}>
-        <Grid item xs={12} sm={12} md={8} lg={4}>
+        <Grid item xs={12} sm={12} md={8} lg={6}>
           <Box display={'flex'} flexDirection={'row'}>
             <TextSearch onChange={e => handleChangeSearch(e.target.value)} />
             <Hidden only={'xs'}>
@@ -260,7 +257,7 @@ const subjects = () => {
             />
           </Box>
         </Grid>
-        <Grid item xs={12} sm={4} md={4} lg={8}>
+        <Grid item xs={12} sm={4} md={4} lg={6}>
           <Btn handleClick={handleClickOpen} label={'+ Add New'} />
         </Grid>
       </Grid>
