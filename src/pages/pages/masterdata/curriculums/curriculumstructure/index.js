@@ -302,7 +302,7 @@ function curriculumstructure() {
               firstItemText={'เลือกกลุ่มวิชา'}
               label={'Subject Group'}
               width={200}
-              selectionValue={String(subjectGroupSelected)}
+              selectionValue={String(subjectGroupSelected) || ''}
               handleChange={e => setSubjectGroupSelected(e.target.value)}
               Items={Object.values(SubjectGroups)?.map(sjg => (
                 <MenuItem
@@ -394,6 +394,7 @@ function curriculumstructure() {
                     )}
                   </Box>
                 ))}
+                {state.subjectGroups.length !== 0 && <Divider sx={{ mt: 2, mb: 4 }} />}
               </Box>
             ))}
 
