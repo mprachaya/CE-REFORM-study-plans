@@ -1,15 +1,4 @@
-import {
-  Box,
-  Button,
-  Divider,
-  Grid,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
-  MenuItem,
-  TextField,
-  Typography
-} from '@mui/material'
+import { Box, Button, Divider, Grid, ListItem, ListItemIcon, MenuItem, TextField, Typography } from '@mui/material'
 import Icon from '@mdi/react'
 import { mdiCheckboxBlankCircle } from '@mdi/js'
 import React, { useEffect, useState } from 'react'
@@ -41,15 +30,17 @@ function curriculumstructure() {
     loading: SubjectGroupsLoading
   } = useFetch(URL_GET_SUBJECT_GROUPS)
 
+  console.log(SubjectGroups)
+
   const handleAddSubjectGroups = () => {
     if (row !== null) {
       const newObject = {
-        subject_category_id: row.subject_types.subject_category_id,
-        subject_category_name: row.subject_types.subject_categories.subject_category_name,
-        subject_type_id: row.subject_types.subject_type_id,
-        subject_type_name: row.subject_types.subject_type_name,
-        subject_group_id: row.subject_group_id,
-        subject_group_name: row.subject_group_name,
+        subject_category_id: row?.subject_types.subject_category_id,
+        subject_category_name: row?.subject_types.subject_categories.subject_category_name,
+        subject_type_id: row?.subject_types.subject_type_id,
+        subject_type_name: row?.subject_types.subject_type_name,
+        subject_group_id: row?.subject_group_id,
+        subject_group_name: row?.subject_group_name,
         total_credit: 3
       }
       setState(prevState => ({
