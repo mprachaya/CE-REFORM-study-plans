@@ -26,7 +26,7 @@ const subjects = () => {
   const [editState, setEditState] = useState([])
   const router = useRouter()
 
-  const URL_GET_SUBJECTS = `https://my-backend-adonis.onrender.com/api/v1/subjects/${curriculumSelection}`
+  const URL_GET_SUBJECTS = `https://my-backend-adonis.onrender.com/api/v1/subjects-by-curriculum/${curriculumSelection}`
   const URL_GET_SUBJECT_GROUPS = `https://my-backend-adonis.onrender.com/api/v1/subject-groups/`
   const URL_GET_CURRICULUM = `https://my-backend-adonis.onrender.com/api/v1/curriculums/`
 
@@ -155,10 +155,20 @@ const subjects = () => {
   }, [CurriculumLoading])
 
   useMemo(() => {
+    if (Subjects) console.log(Subjects)
+  }, [Subjects])
+
+  useMemo(() => {
     if (curriculumSelection) {
       reFetchSubjects(URL_GET_SUBJECTS)
     }
   }, [curriculumSelection])
+
+  // useEffect(() => {
+  //   // if (!openCompetency) {
+  //   //   router.reload()
+  //   // }
+  // }, [openCompetency])
 
   const loadingState = SubjectLoading && SubjectGroupLoading && CurriculumLoading
   const errorState = SubjectError && SubjectGroupError && CurriculumError
@@ -202,7 +212,9 @@ const subjects = () => {
             <Button
               color='secondary'
               variant='outlined'
-              endIcon={<Icon path={mdiCircle} size={0.4} color={'red'} />}
+              endIcon={
+                <Icon path={mdiCircle} size={0.4} color={params.row.competencies.length > 0 ? 'green' : 'red'} />
+              }
               onClick={() => handleClickOpenCompetency(params.row)}
             >
               สมรรถนะ
@@ -306,8 +318,12 @@ const subjects = () => {
       <Grid container>
         <AddSubjectCompetency
           subject={subjectSelection}
+          subjects={SubjectsTemp}
           open={openCompetency}
-          handleClose={() => setOpenCompetency(false)}
+          setSubjects={setSubjectsTemp}
+          handleClose={() => {
+            setOpenCompetency(false)
+          }}
           // handleSubmit={handleDelete}
         />
       </Grid>

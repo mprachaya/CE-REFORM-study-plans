@@ -13,6 +13,7 @@ import {
   DialogTitle,
   DialogContentText
 } from '@mui/material'
+import axios from 'axios'
 import React from 'react'
 import { useEffect } from 'react'
 import { useState } from 'react'
@@ -23,7 +24,7 @@ import { useFetch } from 'src/hooks'
 // import Selection from 'src/components/Selection'
 // import { handleChangeEN, handleChangeNumber, handleChangeTH } from 'src/hooks/useValidation'
 
-function AddSubjectCompetency({ open, handleClose, handleSubmit, subject }) {
+function AddSubjectCompetency({ open, handleClose, subject, subjects, setSubjects }) {
   const [competencieName, setCompetencieName] = useState('')
   const [subjectSelection, setsubjectSelection] = useState(subject.subject_id)
   const [delay, setDelay] = useState(false)
@@ -43,21 +44,25 @@ function AddSubjectCompetency({ open, handleClose, handleSubmit, subject }) {
   const [MainBySubject, setMainBySubject] = useState([])
 
   useEffect(() => {
-    // console.log('MainCompetency', MainCompetency)
     if (MainCompetency) {
       const filterBySubjectId = MainCompetency?.filter(mainCom => {
         return mainCom.subject_id === subject.subject_id
       })
+      // console.log('1')
       setMainBySubject(filterBySubjectId)
     }
-    console.log('test', filterBySubjectId)
   }, [MainCompetency])
+
+  useEffect(() => {
+    console.log('MainBySubject', MainBySubject)
+  }, [MainBySubject])
 
   useEffect(() => {
     if (open) {
       console.log('subject', subject)
       reFetchCom()
       setDelay(true)
+    } else {
     }
   }, [open])
   useEffect(() => {
@@ -74,89 +79,94 @@ function AddSubjectCompetency({ open, handleClose, handleSubmit, subject }) {
     { competency_id: 1, competency_sub_id: 2, competency_sub_name: 'subtest2' }
   ])
 
-  // const [MainCompetency, setMainCompetency] = useState([
-  //   { competency_id: 1, competency_name: 'test1' },
-  //   { competency_id: 2, competency_name: 'test2' }
-  // ])
+  const updateComSubjects = com => {
+    let obj = subject
+    const removeById = subjects.filter(data => {
+      return data.subject_id !== obj.subject_id
+    })
+    obj.competencies = com
+    const mainTemp = [...removeById, obj]
+    setSubjects(mainTemp)
+  }
 
-  // const [subCompetency, setSubCompetency] = useState([])
   const submitMain = comName => {
-    const obj = {
-      competency_id: Date.now(),
+    let obj = {
+      competency_id: 0,
       competency_name: comName
     }
-    const mainTemp = [...MainCompetency, obj]
-    setMainCompetency(mainTemp)
-    setCompetencieName('')
+    axios
+      .post(URL_GET_MAIN_COMPETENCIES, { subject_id: subject.subject_id, competency_name: comName })
+      .then(res => {
+        obj.competency_id = res.data.data.competency_id
+        const mainTemp = [...MainBySubject, obj]
+        updateComSubjects(mainTemp)
+        setSnackMassage('Insert Success!')
+      })
+      .catch(err => setSnackMassage(err))
+      .finally(() => {
+        setOpenSnackbar(true)
+        const mainTemp = [...MainBySubject, obj]
+        setMainBySubject(mainTemp)
+        setCompetencieName('')
+      })
   }
   const deleteMain = id => {
-    // const obj = {
-    //   competency_id: parseInt(MainCompetency.length) + 1,
-    //   competency_name: 'test' + (parseInt(MainCompetency.length) + 1)
-    // }
-    const obj = MainCompetency
-    const removeById = obj.filter(data => {
-      return data.competency_id !== id
-    })
-    // console.log(removeById)
-    // const mainTemp = [...MainCompetency, obj]
-    setMainCompetency(removeById)
+    let result = window.confirm('Confirm to Delete?')
+    if (result) {
+      axios
+        .delete(URL_GET_MAIN_COMPETENCIES + id)
+        .then(res => {
+          setSnackMassage('Delete Success!')
+          const obj = MainBySubject
+          const removeById = obj.filter(data => {
+            return data.competency_id !== id
+          })
+          setMainCompetency(removeById)
+          updateComSubjects(removeById)
+          // console.log('update delete', removeById)
+        })
+        .catch(err => setSnackMassage(err))
+        .finally(() => {
+          setOpenSnackbar(true)
+
+          // setSubjects()
+        })
+    } else {
+    }
   }
 
   const updateById = (e, id) => {
     const updateValue = { competency_id: id, competency_name: e.target.value }
-    const removeById = MainCompetency.filter(data => {
+    const removeById = MainBySubject.filter(data => {
       return data.competency_id !== id
     })
 
     const updateState = [updateValue, ...removeById]
     const sortState = updateState.sort((a, b) => (a.competency_id > b.competency_id ? 1 : -1))
-    setMainCompetency(sortState)
+    setMainBySubject(sortState)
     // console.log(sortState)
   }
-  // const initialsState = {
-  //   subject_id: subject.subject_id,
-  //   compettencie_name: ''
-  // }
 
-  // const [state, setState] = useState(initialsState)
-
-  const checkIsEmpty = object => {
-    var isEmpty = false
-
-    Object.keys(object).forEach(function (key) {
-      var val = object[key]
-      if (val === '' || (val === 0 && key !== 'ref_curriculum_id')) {
-        isEmpty = true
-      }
-    })
-
-    if (isEmpty) {
-      alert('Please Fill All TextFields')
+  const confirmUpdateMain = (id, value) => {
+    if (value !== '') {
+      axios
+        .put(URL_GET_MAIN_COMPETENCIES + id, { competency_name: value })
+        .then(res => setSnackMassage('Update Success'))
+        .catch(err => setSnackMassage(err))
+        .finally(() => {
+          setOpenSnackbar(true)
+          // reFetchCom()
+        })
+    } else {
+      alert('Value can not be null')
     }
-
-    return isEmpty
   }
-
-  // useEffect(() => {
-  //   // setState(pre => ({ ...pre, subject_id: subjectSelection }))
-  // }, [subjectSelection])
-
-  // reset state when open/close
-  // useEffect(() => {
-  //   // setState(initialsState)
-  //   console.log(MainCompetency)
-  // }, [open])
-
-  // useEffect(() => {
-  //   console.log(state)
-  // }, [state])
 
   return (
     <Dialog open={open} onClose={handleClose} maxWidth={'lg'} fullWidth>
       <DialogContent sx={{ minHeight: 450 }}>
         {delay ? (
-          <Box sx={{ m: 12 }}>
+          <Box sx={{ m: 12, width: '100%', height: '100%' }}>
             <CircleLoading />
           </Box>
         ) : (
@@ -219,7 +229,7 @@ function AddSubjectCompetency({ open, handleClose, handleSubmit, subject }) {
                         <Button
                           variant='outlined'
                           sx={{ px: 2, width: '100%', height: '100%' }}
-                          // onClick={submitMain}
+                          onClick={() => confirmUpdateMain(mainCom.competency_id, mainCom.competency_name)}
                         >
                           Update
                         </Button>
