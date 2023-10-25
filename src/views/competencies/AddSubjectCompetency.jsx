@@ -26,6 +26,7 @@ import { useFetch } from 'src/hooks'
 
 function AddSubjectCompetency({ open, handleClose, subject, subjects, setSubjects }) {
   const [competencieName, setCompetencieName] = useState('')
+  const [competencieSubName, setCompetencieSubName] = useState('')
   // const [subjectSelection, setsubjectSelection] = useState(subject.subject_id)
   // const [delay, setDelay] = useState(false)
   const [openSnackbar, setOpenSnackbar] = useState(false)
@@ -34,6 +35,7 @@ function AddSubjectCompetency({ open, handleClose, subject, subjects, setSubject
 
   const URL_GET_SUBJECT_COMPETENCIES_BY_ID = `${url.BASE_URL}/subjects/${subject.subject_id}`
   const URL_GET_MAIN_COMPETENCIES = `${url.BASE_URL}/competencies/`
+  const URL_SUB_COMPETENCIES = `${url.BASE_URL}/competency-subs/`
 
   // const {
   //   error: MainCompetencyError,
@@ -129,12 +131,6 @@ function AddSubjectCompetency({ open, handleClose, subject, subjects, setSubject
       .catch(err => setSnackMassage(err))
       .finally(() => {
         setOpenSnackbar(true)
-        // const mainCom = [...Competencies.competencies, obj]
-
-        // tempCom.competencies = [...tempCom, obj]
-        // console.log(mainCom)
-        // const mainTemp = [...Competencies, obj]
-        // setCompetencyTemp(mainTemp)
         setCompetencieName('')
       })
   }
@@ -151,13 +147,10 @@ function AddSubjectCompetency({ open, handleClose, subject, subjects, setSubject
           })
           setCompetencyTemp(pre => ({ ...pre, competencies: removeById }))
           updateComSubjects(removeById)
-          // console.log('update delete', removeById)
         })
         .catch(err => setSnackMassage(err))
         .finally(() => {
           setOpenSnackbar(true)
-
-          // setSubjects()
         })
     } else {
     }
@@ -194,6 +187,20 @@ function AddSubjectCompetency({ open, handleClose, subject, subjects, setSubject
     if (value !== '') {
       axios
         .put(URL_GET_MAIN_COMPETENCIES + id, { competency_name: value })
+        .then(res => setSnackMassage('Update Success'))
+        .catch(err => setSnackMassage(err))
+        .finally(() => {
+          setOpenSnackbar(true)
+          // reFetchCom()
+        })
+    } else {
+      alert('Value can not be null')
+    }
+  }
+  const confirmUpdateSub = (id, name, description) => {
+    if (name !== '') {
+      axios
+        .put(URL_SUB_COMPETENCIES + id, { competency_sub_name: name, competency_sub_description: description })
         .then(res => setSnackMassage('Update Success'))
         .catch(err => setSnackMassage(err))
         .finally(() => {
@@ -321,7 +328,13 @@ function AddSubjectCompetency({ open, handleClose, subject, subjects, setSubject
                                       <Button
                                         variant='outlined'
                                         sx={{ px: 2, width: '100%', height: '100%' }}
-                                        // onClick={submitMain}
+                                        onClick={e =>
+                                          confirmUpdateSub(
+                                            filterSub.competency_sub_id,
+                                            filterSub.competency_sub_name,
+                                            filterSub.competency_sub_description
+                                          )
+                                        }
                                       >
                                         Update
                                       </Button>
