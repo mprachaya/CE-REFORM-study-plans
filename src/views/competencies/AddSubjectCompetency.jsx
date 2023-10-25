@@ -26,52 +26,72 @@ import { useFetch } from 'src/hooks'
 
 function AddSubjectCompetency({ open, handleClose, subject, subjects, setSubjects }) {
   const [competencieName, setCompetencieName] = useState('')
-  const [subjectSelection, setsubjectSelection] = useState(subject.subject_id)
-  const [delay, setDelay] = useState(false)
+  // const [subjectSelection, setsubjectSelection] = useState(subject.subject_id)
+  // const [delay, setDelay] = useState(false)
   const [openSnackbar, setOpenSnackbar] = useState(false)
   const [snackMassage, setSnackMassage] = useState('')
   const [openDescription, setOpenDescription] = useState(false)
 
-  const URL_GET_MAIN_COMPETENCIES = `${url.BASE_URL}/competencies/`
+  const URL_GET_SUBJECT_COMPETENCIES_BY_ID = `${url.BASE_URL}/subjects/${subject.subject_id}`
+  // const URL_GET_MAIN_COMPETENCIES = `${url.BASE_URL}/competencies/`
+
+  // const {
+  //   error: MainCompetencyError,
+  //   data: MainCompetency,
+  //   setData: setMainCompetency,
+  //   reFetch: reFetchCom,
+  //   loading: Competencies_Loading
+  // } = useFetch(URL_GET_MAIN_COMPETENCIES)
+
   const {
-    error: MainCompetencyError,
-    data: MainCompetency,
-    setData: setMainCompetency,
-    reFetch: reFetchCom,
-    loading: Competencies_Loading
-  } = useFetch(URL_GET_MAIN_COMPETENCIES)
+    error: CompetenciesError,
+    data: Competencies,
+    setData: setCompetencies,
+    reFetch: reFetchCompetencies,
+    loading: CompetenciesLoading
+  } = useFetch(URL_GET_SUBJECT_COMPETENCIES_BY_ID)
 
   const [MainBySubject, setMainBySubject] = useState([])
+  const [CompetenciesTemp, setCompetencyTemp] = useState([])
+
+  // useEffect(() => {
+  //   if (MainCompetency) {
+  //     const filterBySubjectId = MainCompetency?.filter(mainCom => {
+  //       return mainCom.subject_id === subject.subject_id
+  //     })
+  //     // console.log('1')
+  //     setMainBySubject(filterBySubjectId)
+  //   }
+  // }, [MainCompetency])
+
+  // useEffect(() => {
+  //   console.log('MainBySubject', MainBySubject)
+  // }, [MainBySubject])
 
   useEffect(() => {
-    if (MainCompetency) {
-      const filterBySubjectId = MainCompetency?.filter(mainCom => {
-        return mainCom.subject_id === subject.subject_id
-      })
-      // console.log('1')
-      setMainBySubject(filterBySubjectId)
+    if (!CompetenciesLoading) {
+      console.log('Competencies', Competencies)
+      setCompetencyTemp(Competencies)
     }
-  }, [MainCompetency])
-
-  useEffect(() => {
-    console.log('MainBySubject', MainBySubject)
-  }, [MainBySubject])
+  }, [CompetenciesLoading])
 
   useEffect(() => {
     if (open) {
       console.log('subject', subject)
-      reFetchCom()
-      setDelay(true)
+      // reFetchCom()
+      reFetchCompetencies()
+      // setDelay(true)
     } else {
+      setCompetencyTemp([])
     }
   }, [open])
-  useEffect(() => {
-    if (delay) {
-      setTimeout(() => {
-        setDelay(false)
-      }, 500)
-    }
-  }, [delay])
+  // useEffect(() => {
+  //   if (delay) {
+  //     setTimeout(() => {
+  //       setDelay(false)
+  //     }, 500)
+  //   }
+  // }, [delay])
   // console.log(MainCompetency)
 
   const [subCompetency, setSubCompetency] = useState([
@@ -98,15 +118,19 @@ function AddSubjectCompetency({ open, handleClose, subject, subjects, setSubject
       .post(URL_GET_MAIN_COMPETENCIES, { subject_id: subject.subject_id, competency_name: comName })
       .then(res => {
         obj.competency_id = res.data.data.competency_id
-        const mainTemp = [...MainBySubject, obj]
+        const mainTemp = [...Competencies.competencies, obj]
         updateComSubjects(mainTemp)
         setSnackMassage('Insert Success!')
       })
       .catch(err => setSnackMassage(err))
       .finally(() => {
         setOpenSnackbar(true)
-        const mainTemp = [...MainBySubject, obj]
-        setMainBySubject(mainTemp)
+        const mainCom = [...Competencies.competencies, obj]
+        setCompetencyTemp(pre => ({ ...pre, competencies: mainCom }))
+        // tempCom.competencies = [...tempCom, obj]
+        console.log(mainCom)
+        // const mainTemp = [...Competencies, obj]
+        // setCompetencyTemp(mainTemp)
         setCompetencieName('')
       })
   }
@@ -117,11 +141,11 @@ function AddSubjectCompetency({ open, handleClose, subject, subjects, setSubject
         .delete(URL_GET_MAIN_COMPETENCIES + id)
         .then(res => {
           setSnackMassage('Delete Success!')
-          const obj = MainBySubject
+          const obj = Competencies.competencies
           const removeById = obj.filter(data => {
             return data.competency_id !== id
           })
-          setMainCompetency(removeById)
+          setCompetencyTemp(pre => ({ ...pre, competencies: removeById }))
           updateComSubjects(removeById)
           // console.log('update delete', removeById)
         })
@@ -165,8 +189,8 @@ function AddSubjectCompetency({ open, handleClose, subject, subjects, setSubject
   return (
     <Dialog open={open} onClose={handleClose} maxWidth={'lg'} fullWidth>
       <DialogContent sx={{ minHeight: 450 }}>
-        {delay ? (
-          <Box sx={{ m: 12, width: '100%', height: '100%' }}>
+        {CompetenciesLoading ? (
+          <Box sx={{ width: '100%', height: '100%', mt: 12 }}>
             <CircleLoading />
           </Box>
         ) : (
@@ -205,7 +229,7 @@ function AddSubjectCompetency({ open, handleClose, subject, subjects, setSubject
                 <Typography sx={{ p: 2, pb: 1 }} variant='body1'>
                   รายการสมรรถนะหลัก
                 </Typography>
-                {MainBySubject?.map((mainCom, index) => (
+                {CompetenciesTemp?.competencies?.map((mainCom, index) => (
                   <Box
                     key={mainCom.competency_id}
                     sx={{ width: '100%', p: 2, m: 2, border: 1, borderColor: 'lightgray', borderRadius: 2 }}
@@ -250,59 +274,55 @@ function AddSubjectCompetency({ open, handleClose, subject, subjects, setSubject
                         <Grid container spacing={2}>
                           <Grid item xs={12}>
                             <List>
-                              {Object.values(subCompetency)
-                                .filter(sub => {
-                                  return sub.competency_id === mainCom.competency_id
-                                })
-                                .map(filterSub => (
-                                  <ListItem key={filterSub.competency_sub_id}>
-                                    {/* <ListItemText primary={'- ' + filterSub.competency_sub_name} /> */}
-                                    <Grid container spacing={2}>
-                                      <Grid item xs={6}>
-                                        <TextField
-                                          fullWidth
-                                          // name={'curriculum_name_th'}
-                                          label='สมรรถนะย่อย'
-                                          // onChange={e => handleChangeTH(e, setState)}
-                                          value={filterSub.competency_sub_name}
-                                        />
-                                      </Grid>
-                                      <Grid item xs={2}>
-                                        <Button
-                                          variant='outlined'
-                                          sx={{ px: 2, width: '100%', height: '100%' }}
-                                          onClick={() => setOpenDescription(true)}
-                                        >
-                                          Description
-                                        </Button>
-                                      </Grid>
-                                      <Grid item xs={2}>
-                                        <Button
-                                          variant='outlined'
-                                          sx={{ px: 2, width: '100%', height: '100%' }}
-                                          // onClick={submitMain}
-                                        >
-                                          Update
-                                        </Button>
-                                      </Grid>
-                                      <Grid item xs={2}>
-                                        <Button
-                                          variant='outlined'
-                                          sx={{
-                                            px: 2,
-                                            width: '100%',
-                                            height: '100%',
-                                            color: 'red',
-                                            borderColor: 'red'
-                                          }}
-                                          // onClick={submitMain}
-                                        >
-                                          Delete
-                                        </Button>
-                                      </Grid>
+                              {Object.values(mainCom.competency_sub).map(filterSub => (
+                                <ListItem key={filterSub.competency_sub_id}>
+                                  {/* <ListItemText primary={'- ' + filterSub.competency_sub_name} /> */}
+                                  <Grid container spacing={2}>
+                                    <Grid item xs={6}>
+                                      <TextField
+                                        fullWidth
+                                        // name={'curriculum_name_th'}
+                                        label='สมรรถนะย่อย'
+                                        // onChange={e => handleChangeTH(e, setState)}
+                                        value={filterSub.competency_sub_name}
+                                      />
                                     </Grid>
-                                  </ListItem>
-                                ))}
+                                    <Grid item xs={2}>
+                                      <Button
+                                        variant='outlined'
+                                        sx={{ px: 2, width: '100%', height: '100%' }}
+                                        onClick={() => setOpenDescription(true)}
+                                      >
+                                        Description
+                                      </Button>
+                                    </Grid>
+                                    <Grid item xs={2}>
+                                      <Button
+                                        variant='outlined'
+                                        sx={{ px: 2, width: '100%', height: '100%' }}
+                                        // onClick={submitMain}
+                                      >
+                                        Update
+                                      </Button>
+                                    </Grid>
+                                    <Grid item xs={2}>
+                                      <Button
+                                        variant='outlined'
+                                        sx={{
+                                          px: 2,
+                                          width: '100%',
+                                          height: '100%',
+                                          color: 'red',
+                                          borderColor: 'red'
+                                        }}
+                                        // onClick={submitMain}
+                                      >
+                                        Delete
+                                      </Button>
+                                    </Grid>
+                                  </Grid>
+                                </ListItem>
+                              ))}
                             </List>
                           </Grid>
                           <Grid item xs={8}>

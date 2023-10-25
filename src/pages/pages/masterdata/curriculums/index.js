@@ -142,7 +142,7 @@ const curriculums = () => {
 
   const columns = [
     { field: 'curriculum_year', headerName: 'Year', width: 100 },
-    { field: 'curriculum_name_th', headerName: 'Curriculum Name TH', width: 210 },
+    { field: 'curriculum_name_th', headerName: 'Curriculum Name TH', width: 330 },
     { field: 'curriculum_name_en', headerName: 'Curriculum Name EN', width: 230 },
     {
       field: 'faculty',

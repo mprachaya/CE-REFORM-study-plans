@@ -170,8 +170,8 @@ const subjects = () => {
   //   // }
   // }, [openCompetency])
 
-  const loadingState = SubjectLoading && SubjectGroupLoading && CurriculumLoading
-  const errorState = SubjectError && SubjectGroupError && CurriculumError
+  const loadingState = SubjectLoading || SubjectGroupLoading || CurriculumLoading
+  const errorState = SubjectError || SubjectGroupError || CurriculumError
 
   if (loadingState) {
     return <CircleLoading />
