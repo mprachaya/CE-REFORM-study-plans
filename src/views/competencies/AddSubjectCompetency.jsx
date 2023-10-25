@@ -163,21 +163,31 @@ function AddSubjectCompetency({ open, handleClose, subject, subjects, setSubject
     }
   }
 
+  // for main competencies
   const updateById = (e, id) => {
-    // const updateValue = { competency_id: id, competency_name: e.target.value }
-    const removeById = CompetenciesTemp.competencies.filter(data => {
-      return data.competency_id !== id
-    })
     const findById = CompetenciesTemp.competencies.filter(data => {
       return data.competency_id === id
     })
     findById[0].competency_name = e.target.value
-    console.log(findById[0])
-    // const updateState = [findById, ...removeById]
+
     const sortState = findById.sort((a, b) => (a.competency_id > b.competency_id ? 1 : -1))
     setCompetencyTemp(pre => ({ ...pre, sortState }))
-    // console.log(sortState)
-    // console.log(sortState)
+  }
+  // for sub competencies
+  const updateSubById = (e, mainId, subId) => {
+    const findMainById = CompetenciesTemp.competencies?.filter(data => {
+      return data.competency_id === mainId
+    })
+    const findSubById = findMainById[0].competency_sub?.filter(data => {
+      return data.competency_sub_id === subId
+    })
+
+    console.log('main', findMainById)
+    console.log('sub', findSubById)
+    findSubById[0].competency_sub_name = e.target.value
+    // console.log(findSubById[0])
+    const sortState = findSubById.sort((a, b) => (a.competency_sub_id > b.competency_sub_id ? 1 : -1))
+    setCompetencyTemp(pre => ({ ...pre, sortState }))
   }
 
   const confirmUpdateMain = (id, value) => {
@@ -292,7 +302,9 @@ function AddSubjectCompetency({ open, handleClose, subject, subjects, setSubject
                                         fullWidth
                                         // name={'curriculum_name_th'}
                                         label='สมรรถนะย่อย'
-                                        // onChange={e => handleChangeTH(e, setState)}
+                                        onChange={e =>
+                                          updateSubById(e, mainCom.competency_id, filterSub.competency_sub_id)
+                                        }
                                         value={filterSub.competency_sub_name}
                                       />
                                     </Grid>
