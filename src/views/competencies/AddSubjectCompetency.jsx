@@ -33,7 +33,7 @@ function AddSubjectCompetency({ open, handleClose, subject, subjects, setSubject
   const [openDescription, setOpenDescription] = useState(false)
 
   const URL_GET_SUBJECT_COMPETENCIES_BY_ID = `${url.BASE_URL}/subjects/${subject.subject_id}`
-  // const URL_GET_MAIN_COMPETENCIES = `${url.BASE_URL}/competencies/`
+  const URL_GET_MAIN_COMPETENCIES = `${url.BASE_URL}/competencies/`
 
   // const {
   //   error: MainCompetencyError,
@@ -75,16 +75,17 @@ function AddSubjectCompetency({ open, handleClose, subject, subjects, setSubject
     }
   }, [CompetenciesLoading])
 
-  useEffect(() => {
-    if (open) {
-      console.log('subject', subject)
-      // reFetchCom()
-      reFetchCompetencies()
-      // setDelay(true)
-    } else {
-      setCompetencyTemp([])
-    }
-  }, [open])
+  // useEffect(() => {
+  //   if (open) {
+  //     console.log('subject', subject)
+  //     // reFetchCom()
+  //     // reFetchCompetencies()
+  //     console.log(Competencies)
+  //     // setDelay(true)
+  //   } else {
+  //     // setCompetencyTemp([])
+  //   }
+  // }, [open])
   // useEffect(() => {
   //   if (delay) {
   //     setTimeout(() => {
@@ -112,23 +113,26 @@ function AddSubjectCompetency({ open, handleClose, subject, subjects, setSubject
   const submitMain = comName => {
     let obj = {
       competency_id: 0,
-      competency_name: comName
+      competency_name: comName,
+      competency_sub: []
     }
     axios
       .post(URL_GET_MAIN_COMPETENCIES, { subject_id: subject.subject_id, competency_name: comName })
       .then(res => {
         obj.competency_id = res.data.data.competency_id
-        const mainTemp = [...Competencies.competencies, obj]
+        const mainTemp = [...CompetenciesTemp.competencies, obj]
+        console.log(mainTemp)
         updateComSubjects(mainTemp)
+        setCompetencyTemp(pre => ({ ...pre, competencies: mainTemp }))
         setSnackMassage('Insert Success!')
       })
       .catch(err => setSnackMassage(err))
       .finally(() => {
         setOpenSnackbar(true)
-        const mainCom = [...Competencies.competencies, obj]
-        setCompetencyTemp(pre => ({ ...pre, competencies: mainCom }))
+        // const mainCom = [...Competencies.competencies, obj]
+
         // tempCom.competencies = [...tempCom, obj]
-        console.log(mainCom)
+        // console.log(mainCom)
         // const mainTemp = [...Competencies, obj]
         // setCompetencyTemp(mainTemp)
         setCompetencieName('')
@@ -141,7 +145,7 @@ function AddSubjectCompetency({ open, handleClose, subject, subjects, setSubject
         .delete(URL_GET_MAIN_COMPETENCIES + id)
         .then(res => {
           setSnackMassage('Delete Success!')
-          const obj = Competencies.competencies
+          const obj = CompetenciesTemp.competencies
           const removeById = obj.filter(data => {
             return data.competency_id !== id
           })
@@ -160,14 +164,19 @@ function AddSubjectCompetency({ open, handleClose, subject, subjects, setSubject
   }
 
   const updateById = (e, id) => {
-    const updateValue = { competency_id: id, competency_name: e.target.value }
-    const removeById = MainBySubject.filter(data => {
+    // const updateValue = { competency_id: id, competency_name: e.target.value }
+    const removeById = CompetenciesTemp.competencies.filter(data => {
       return data.competency_id !== id
     })
-
-    const updateState = [updateValue, ...removeById]
-    const sortState = updateState.sort((a, b) => (a.competency_id > b.competency_id ? 1 : -1))
-    setMainBySubject(sortState)
+    const findById = CompetenciesTemp.competencies.filter(data => {
+      return data.competency_id === id
+    })
+    findById[0].competency_name = e.target.value
+    console.log(findById[0])
+    // const updateState = [findById, ...removeById]
+    const sortState = findById.sort((a, b) => (a.competency_id > b.competency_id ? 1 : -1))
+    setCompetencyTemp(pre => ({ ...pre, sortState }))
+    // console.log(sortState)
     // console.log(sortState)
   }
 
