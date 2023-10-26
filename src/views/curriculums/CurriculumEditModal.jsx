@@ -31,7 +31,7 @@ function CurriculumEditModal({ state, open, handleClose, faculty, studentGroups,
 
   // new Object to get some properties
   useEffect(() => {
-    if (open && state) {
+    if (state) {
       const {
         collegian_group_id,
         curriculum_id,
@@ -56,7 +56,7 @@ function CurriculumEditModal({ state, open, handleClose, faculty, studentGroups,
       console.log('newObj :', newObj)
       setUpdateState(newObj)
     }
-  }, [open, state])
+  }, [state])
 
   useEffect(() => {
     console.log(updateState)
@@ -72,14 +72,17 @@ function CurriculumEditModal({ state, open, handleClose, faculty, studentGroups,
             </Grid>
             <Grid container item xs={8} spacing={2} justifyContent={'end'}>
               <Grid item>
-                <Button color='secondary' variant='outlined' startIcon={<Icon path={mdiSitemapOutline} size={0.75} />} onClick={() =>
-                  router.push(
-                    {
-                      pathname: '/pages/masterdata/curriculums/curriculumstructure',
+                <Button
+                  color='secondary'
+                  variant='outlined'
+                  startIcon={<Icon path={mdiSitemapOutline} size={0.75} />}
+                  onClick={() =>
+                    router.push({
+                      pathname: '/pages/masterdata/curriculums/curriculumstructure'
                       // query: { curriculum_id: state.curriculum_id }
-                    },
-                  )
-                }>
+                    })
+                  }
+                >
                   Curriculum Structure
                 </Button>
               </Grid>

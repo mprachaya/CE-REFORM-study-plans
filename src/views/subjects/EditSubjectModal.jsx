@@ -40,7 +40,7 @@ function EditSubjectModal({ state, open, handleClose, curriculumId, subjectGroup
 
   // new Object to get some properties
   useEffect(() => {
-    if (open && state) {
+    if (state) {
       const {
         curriculum_id,
         subject_group_id,
@@ -66,7 +66,7 @@ function EditSubjectModal({ state, open, handleClose, curriculumId, subjectGroup
       console.log('newObj :', newObj)
       setUpdateState(newObj)
     }
-  }, [open, state])
+  }, [state])
 
   useEffect(() => {
     console.log(updateState)

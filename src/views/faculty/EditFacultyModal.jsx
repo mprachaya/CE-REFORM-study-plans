@@ -32,7 +32,7 @@ function EditFacultyModal({ state, open, handleClose, handleUpdate, openConfirmD
 
   // new Object to get some properties
   useEffect(() => {
-    if (open && state) {
+    if (state) {
       const { faculty_name_th, faculty_name_en } = state
 
       const newObj = {
@@ -43,7 +43,7 @@ function EditFacultyModal({ state, open, handleClose, handleUpdate, openConfirmD
       console.log('newObj :', newObj)
       setUpdateState(newObj)
     }
-  }, [open, state])
+  }, [state])
 
   useEffect(() => {
     console.log(updateState)

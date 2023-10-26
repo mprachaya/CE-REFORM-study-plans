@@ -34,7 +34,7 @@ function EditSubjectGroupsModal({ state, open, handleClose, handleUpdate, openCo
 
   // new Object to get some properties
   useEffect(() => {
-    if (open && state) {
+    if (state) {
       const { subject_group_name, subject_type_id } = state
 
       setTypeSelection(subject_type_id)
@@ -47,7 +47,7 @@ function EditSubjectGroupsModal({ state, open, handleClose, handleUpdate, openCo
       console.log('newObj :', newObj)
       setUpdateState(newObj)
     }
-  }, [open, state])
+  }, [state])
 
   useEffect(() => {
     console.log(updateState)

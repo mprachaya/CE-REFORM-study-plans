@@ -31,7 +31,7 @@ function EditSubjectCategoriesModal({ state, open, handleClose, handleUpdate, op
 
   // new Object to get some properties
   useEffect(() => {
-    if (open && state) {
+    if (state) {
       const { subject_category_name } = state
 
       const newObj = {
@@ -41,7 +41,7 @@ function EditSubjectCategoriesModal({ state, open, handleClose, handleUpdate, op
       console.log('newObj :', newObj)
       setUpdateState(newObj)
     }
-  }, [open, state])
+  }, [state])
 
   useEffect(() => {
     console.log(updateState)
