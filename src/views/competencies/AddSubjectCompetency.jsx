@@ -26,7 +26,8 @@ import { useFetch } from 'src/hooks'
 
 function AddSubjectCompetency({ open, handleClose, subject, subjects, setSubjects }) {
   const [competencieName, setCompetencieName] = useState('')
-  const [competencieSubName, setCompetencieSubName] = useState('')
+  const [competencieSubName, setCompetencieSubName] = useState([])
+  // const [competencieSubName, setCompetencieSubName] = useState('')
   // const [subjectSelection, setsubjectSelection] = useState(subject.subject_id)
   // const [delay, setDelay] = useState(false)
   const [openSnackbar, setOpenSnackbar] = useState(false)
@@ -55,6 +56,22 @@ function AddSubjectCompetency({ open, handleClose, subject, subjects, setSubject
     }
   }, [CompetenciesLoading])
 
+  useEffect(() => {
+    if (CompetenciesTemp) {
+      const DetectMainCom = CompetenciesTemp.competencies?.length
+      if (DetectMainCom > 0) {
+        // console.log('DetectMainCom', DetectMainCom)
+        // const newArraySubName = Array.from(DetectMainCom, (_, i) => ({ index: i, subName: '' }))
+        const newArraySubName = Object.values(CompetenciesTemp.competencies)?.map((data, i) => ({
+          index: i,
+          subName: ''
+        }))
+        setCompetencieSubName(newArraySubName)
+        // console.log(newArraySubName)
+      }
+    }
+  }, [CompetenciesTemp])
+
   // useEffect(()=>{
   //   if(CompetenciesTemp){
   //     const newNameArray = Competencies.competencies?.map((data) => )
@@ -64,12 +81,14 @@ function AddSubjectCompetency({ open, handleClose, subject, subjects, setSubject
 
   const updateComSubjects = com => {
     let obj = subject
-    const removeById = subjects.filter(data => {
-      return data.subject_id !== obj.subject_id
-    })
-    obj.competencies = com
-    const mainTemp = [...removeById, obj]
-    setSubjects(mainTemp)
+    if (obj) {
+      const removeById = subjects.filter(data => {
+        return data.subject_id !== obj.subject_id
+      })
+      obj.competencies = com
+      const mainTemp = [...removeById, obj]
+      setSubjects(mainTemp)
+    }
   }
 
   const submitMain = comName => {
@@ -353,14 +372,26 @@ function AddSubjectCompetency({ open, handleClose, subject, subjects, setSubject
                             <TextField
                               fullWidth
                               label='สมรรถนะย่อย'
-                              onChange={e => setCompetencieSubName(e.target.value)}
-                              value={competencieSubName}
+                              onChange={e => {
+                                const indexCheck = competencieSubName?.filter(check => check.index === index)
+                                // console.log(indexCheck)
+                                if (indexCheck) {
+                                  indexCheck[0].subName = e.target.value
+                                  const preState = competencieSubName?.filter(preData => preData.index !== index)
+                                  const updateState = [...preState, ...indexCheck]
+                                  setCompetencieSubName(updateState.sort((a, b) => a.index - b.index))
+                                  // console.log(updateState.sort((a, b) => a.index - b.index))
+                                }
+                                // if()
+                              }}
+                              value={competencieSubName[index]?.subName}
                             />
                           </Grid>
                           <Grid item xs={4}>
                             <Button
                               onClick={() =>
-                                competencieSubName !== '' && submitSub(mainCom.competency_id, competencieSubName)
+                                competencieSubName !== '' &&
+                                submitSub(mainCom.competency_id, competencieSubName[index].subName)
                               }
                               variant='contained'
                               sx={{ height: '100%', width: '100%' }}
