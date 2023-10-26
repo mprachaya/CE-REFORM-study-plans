@@ -34,7 +34,7 @@ function EditSubjectGroupsModal({ state, open, handleClose, handleUpdate, openCo
 
   // new Object to get some properties
   useEffect(() => {
-    if (state) {
+    if (open) {
       const { subject_group_name, subject_type_id } = state
 
       setTypeSelection(subject_type_id)
@@ -47,7 +47,7 @@ function EditSubjectGroupsModal({ state, open, handleClose, handleUpdate, openCo
       console.log('newObj :', newObj)
       setUpdateState(newObj)
     }
-  }, [state])
+  }, [open])
 
   useEffect(() => {
     console.log(updateState)
@@ -94,7 +94,7 @@ function EditSubjectGroupsModal({ state, open, handleClose, handleUpdate, openCo
                 label='Subject Group Name*'
                 placeholder='Thai Only'
                 onChange={e => handleChangeTH(e, setUpdateState)}
-                value={updateState.subject_group_name}
+                value={updateState.subject_group_name || ''}
               />
             </Grid>
           </Grid>

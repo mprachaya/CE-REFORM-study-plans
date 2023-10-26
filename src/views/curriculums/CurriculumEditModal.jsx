@@ -31,7 +31,7 @@ function CurriculumEditModal({ state, open, handleClose, faculty, studentGroups,
 
   // new Object to get some properties
   useEffect(() => {
-    if (state) {
+    if (open) {
       const {
         collegian_group_id,
         curriculum_id,
@@ -56,7 +56,7 @@ function CurriculumEditModal({ state, open, handleClose, faculty, studentGroups,
       console.log('newObj :', newObj)
       setUpdateState(newObj)
     }
-  }, [state])
+  }, [open])
 
   useEffect(() => {
     console.log(updateState)
@@ -127,7 +127,7 @@ function CurriculumEditModal({ state, open, handleClose, faculty, studentGroups,
                 label='Curriculum Name TH *'
                 placeholder='Thai Only'
                 onChange={e => handleChangeTH(e, setUpdateState)}
-                value={updateState.curriculum_name_th}
+                value={updateState.curriculum_name_th || ''}
               />
             </Grid>
             <Grid item sm={12} md={12} lg={6}>
@@ -137,7 +137,7 @@ function CurriculumEditModal({ state, open, handleClose, faculty, studentGroups,
                 label='Curriculum Name EN *'
                 placeholder='English Only'
                 onChange={e => handleChangeEN(e, setUpdateState)}
-                value={updateState.curriculum_name_en}
+                value={updateState.curriculum_name_en || ''}
               />
             </Grid>
             <Grid item xs={12} sm={12} md={12} lg={6}>
@@ -147,7 +147,7 @@ function CurriculumEditModal({ state, open, handleClose, faculty, studentGroups,
                 label='Curriculum Short Name TH *'
                 placeholder='Thai Only'
                 onChange={e => handleChangeTH(e, setUpdateState)}
-                value={updateState.curriculum_short_name_th}
+                value={updateState.curriculum_short_name_th || ''}
               />
             </Grid>
             <Grid item xs={12} sm={12} md={12} lg={6}>
@@ -157,7 +157,7 @@ function CurriculumEditModal({ state, open, handleClose, faculty, studentGroups,
                 label='Curriculum Short Name EN *'
                 placeholder='English Only'
                 onChange={e => handleChangeEN(e, setUpdateState)}
-                value={updateState.curriculum_short_name_en}
+                value={updateState.curriculum_short_name_en || ''}
               />
             </Grid>
           </Grid>
@@ -195,7 +195,7 @@ function CurriculumEditModal({ state, open, handleClose, faculty, studentGroups,
               <TextField
                 type='number'
                 name={'curriculum_year'}
-                value={updateState.curriculum_year}
+                value={updateState.curriculum_year || ''}
                 onChange={e => handleChangeNumber(e, setUpdateState)}
                 fullWidth
                 label='Year *'

@@ -34,7 +34,7 @@ function EditStudentGroupModal({ state, open, handleClose, handleUpdate, openCon
 
   // new Object to get some properties
   useEffect(() => {
-    if (state) {
+    if (open) {
       const {
         collegian_group_name_th,
         collegian_group_name_en,
@@ -52,7 +52,7 @@ function EditStudentGroupModal({ state, open, handleClose, handleUpdate, openCon
       console.log('newObj :', newObj)
       setUpdateState(newObj)
     }
-  }, [state])
+  }, [open])
 
   useEffect(() => {
     console.log(updateState)
@@ -83,7 +83,7 @@ function EditStudentGroupModal({ state, open, handleClose, handleUpdate, openCon
                 label='Group Name TH*'
                 placeholder='Thai Only'
                 onChange={e => handleChangeTH(e, setUpdateState)}
-                value={updateState.collegian_group_name_th}
+                value={updateState.collegian_group_name_th || ''}
               />
             </Grid>
             <Grid item xs={12} sm={12} md={12} lg={6}>
@@ -93,7 +93,7 @@ function EditStudentGroupModal({ state, open, handleClose, handleUpdate, openCon
                 label='Group Name EN*'
                 placeholder='English Only'
                 onChange={e => handleChangeEN(e, setUpdateState)}
-                value={updateState.collegian_group_name_en}
+                value={updateState.collegian_group_name_en || ''}
               />
             </Grid>
             <Grid item xs={12} sm={12} md={12} lg={6}>
@@ -103,7 +103,7 @@ function EditStudentGroupModal({ state, open, handleClose, handleUpdate, openCon
                 label='Group Short Name TH*'
                 placeholder='Thai Only'
                 onChange={e => handleChangeTH(e, setUpdateState)}
-                value={updateState.collegian_group_short_name_th}
+                value={updateState.collegian_group_short_name_th || ''}
               />
             </Grid>
             <Grid item xs={12} sm={12} md={12} lg={6}>
@@ -113,7 +113,7 @@ function EditStudentGroupModal({ state, open, handleClose, handleUpdate, openCon
                 label='Group Short Name EN*'
                 placeholder='English Only'
                 onChange={e => handleChangeEN(e, setUpdateState)}
-                value={updateState.collegian_group_short_name_en}
+                value={updateState.collegian_group_short_name_en || ''}
               />
             </Grid>
           </Grid>

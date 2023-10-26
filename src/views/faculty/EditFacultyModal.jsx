@@ -32,7 +32,7 @@ function EditFacultyModal({ state, open, handleClose, handleUpdate, openConfirmD
 
   // new Object to get some properties
   useEffect(() => {
-    if (state) {
+    if (open) {
       const { faculty_name_th, faculty_name_en } = state
 
       const newObj = {
@@ -43,7 +43,7 @@ function EditFacultyModal({ state, open, handleClose, handleUpdate, openConfirmD
       console.log('newObj :', newObj)
       setUpdateState(newObj)
     }
-  }, [state])
+  }, [open])
 
   useEffect(() => {
     console.log(updateState)
@@ -74,7 +74,7 @@ function EditFacultyModal({ state, open, handleClose, handleUpdate, openConfirmD
                 label='Faculty Name TH*'
                 placeholder='Thai Only'
                 onChange={e => handleChangeTH(e, setUpdateState)}
-                value={updateState.faculty_name_th}
+                value={updateState.faculty_name_th || ''}
               />
             </Grid>
             <Grid item xs={12} sm={12} md={12} lg={6}>
@@ -84,7 +84,7 @@ function EditFacultyModal({ state, open, handleClose, handleUpdate, openConfirmD
                 label='Faculty Name EN*'
                 placeholder='English Only'
                 onChange={e => handleChangeEN(e, setUpdateState)}
-                value={updateState.faculty_name_en}
+                value={updateState.faculty_name_en || ''}
               />
             </Grid>
           </Grid>

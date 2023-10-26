@@ -40,7 +40,7 @@ function EditSubjectModal({ state, open, handleClose, curriculumId, subjectGroup
 
   // new Object to get some properties
   useEffect(() => {
-    if (state) {
+    if (open) {
       const {
         curriculum_id,
         subject_group_id,
@@ -66,7 +66,7 @@ function EditSubjectModal({ state, open, handleClose, curriculumId, subjectGroup
       console.log('newObj :', newObj)
       setUpdateState(newObj)
     }
-  }, [state])
+  }, [open])
 
   useEffect(() => {
     console.log(updateState)
@@ -110,7 +110,7 @@ function EditSubjectModal({ state, open, handleClose, curriculumId, subjectGroup
                 label='Subject Code*'
                 placeholder='English Only'
                 onChange={e => setUpdateState(pre => ({ ...pre, subject_code: e.target.value }))}
-                value={updateState.subject_code}
+                value={updateState.subject_code || ''}
               />
             </Grid>
             <Grid item xs={12} sm={12} md={12} lg={6}>
@@ -120,7 +120,7 @@ function EditSubjectModal({ state, open, handleClose, curriculumId, subjectGroup
                 label='Subject Name TH*'
                 placeholder='Thai Only'
                 onChange={e => handleChangeTH(e, setUpdateState)}
-                value={updateState.subject_name_th}
+                value={updateState.subject_name_th || ''}
               />
             </Grid>
             <Grid item xs={12} sm={12} md={8} lg={4}>
@@ -130,7 +130,7 @@ function EditSubjectModal({ state, open, handleClose, curriculumId, subjectGroup
                 label='Subject Name EN*'
                 placeholder='English Only'
                 onChange={e => handleChangeEN(e, setUpdateState)}
-                value={updateState.subject_name_en}
+                value={updateState.subject_name_en || ''}
               />
             </Grid>
             <Grid item xs={12} sm={12} md={4} lg={2}>
@@ -140,7 +140,7 @@ function EditSubjectModal({ state, open, handleClose, curriculumId, subjectGroup
                 label='Subject Credit*'
                 placeholder='Number Only'
                 onChange={e => handleChangeNumber(e, setUpdateState)}
-                value={updateState.subject_credit}
+                value={updateState.subject_credit || ''}
               />
             </Grid>
           </Grid>
@@ -155,7 +155,7 @@ function EditSubjectModal({ state, open, handleClose, curriculumId, subjectGroup
                 rows={4}
                 multiline
                 onChange={e => setUpdateState(pre => ({ ...pre, subject_description: e.target.value }))}
-                value={updateState.subject_description}
+                value={updateState.subject_description || ''}
               />
             </Grid>
           </Grid>
