@@ -110,10 +110,10 @@ function AddSubjectCompetency({ open, handleClose, subject, subjects, setSubject
       .catch(err => setSnackMassage(err))
       .finally(() => {
         setOpenSnackbar(true)
-        setCompetencieSubName('')
+        setCompetencieName('')
       })
   }
-  const submitSub = (mainId, comName) => {
+  const submitSub = (mainId, comName, subIndex) => {
     if (mainId && comName) {
       let obj = {
         competency_sub_id: 0,
@@ -139,7 +139,19 @@ function AddSubjectCompetency({ open, handleClose, subject, subjects, setSubject
         .catch(err => setSnackMassage(err))
         .finally(() => {
           setOpenSnackbar(true)
-          setCompetencieSubName('')
+
+          const DetectMainCom = CompetenciesTemp.competencies?.length
+          if (DetectMainCom > 0) {
+            // console.log('DetectMainCom', DetectMainCom)
+            // const newArraySubName = Array.from(DetectMainCom, (_, i) => ({ index: i, subName: '' }))
+            const newArraySubName = Object.values(CompetenciesTemp.competencies)?.map((data, i) => ({
+              index: i,
+              subName: ''
+            }))
+            setCompetencieSubName(newArraySubName)
+            // console.log(newArraySubName)
+          }
+          // setCompetencieSubName(clearSubName)
         })
     }
   }
@@ -162,6 +174,54 @@ function AddSubjectCompetency({ open, handleClose, subject, subjects, setSubject
           setOpenSnackbar(true)
         })
     } else {
+    }
+  }
+
+  const deleteSub = (mainId, subId) => {
+    let result = window.confirm('Confirm to Delete?')
+    // if (result) {
+    //   const obj = CompetenciesTemp.competencies?.filter(mData => mData.competency_id === mainId)
+    //   const removeSubById = obj[0].competency_sub?.filter(data => {
+    //     return data.competency_sub_id !== subId
+    //   })
+    //   // console.log('obj', obj[0])
+    //   // console.log('removeSubById', removeSubById)
+    //   obj[0].competency_sub = removeSubById
+    //   const preCompetencies = CompetenciesTemp.competencies?.filter(pData => pData.competency_id !== mainId)
+    //   const updateObj = [...preCompetencies, obj[0]]
+    //   // console.log(obj)
+    //   console.log(updateObj)
+    //   setCompetencyTemp(pre => ({
+    //     ...pre,
+    //     competencies: updateObj.sort((a, b) => (a.competency_id > b.competency_id ? 1 : -1))
+    //   }))
+    //   // updateComSubjects(removeById)
+    // }
+    if (result) {
+      axios
+        .delete(URL_SUB_COMPETENCIES + subId)
+        .then(res => {
+          setSnackMassage('Delete Success!')
+          const obj = CompetenciesTemp.competencies?.filter(mData => mData.competency_id === mainId)
+          const removeSubById = obj[0].competency_sub?.filter(data => {
+            return data.competency_sub_id !== subId
+          })
+          // console.log('obj', obj[0])
+          // console.log('removeSubById', removeSubById)
+          obj[0].competency_sub = removeSubById
+          const preCompetencies = CompetenciesTemp.competencies?.filter(pData => pData.competency_id !== mainId)
+          const updateObj = [...preCompetencies, obj[0]]
+          // console.log(obj)
+          console.log(updateObj)
+          setCompetencyTemp(pre => ({
+            ...pre,
+            competencies: updateObj.sort((a, b) => (a.competency_id > b.competency_id ? 1 : -1))
+          }))
+        })
+        .catch(err => setSnackMassage(err))
+        .finally(() => {
+          setOpenSnackbar(true)
+        })
     }
   }
 
@@ -358,7 +418,7 @@ function AddSubjectCompetency({ open, handleClose, subject, subjects, setSubject
                                           color: 'red',
                                           borderColor: 'red'
                                         }}
-                                        // onClick={submitMain}
+                                        onClick={() => deleteSub(mainCom.competency_id, filterSub.competency_sub_id)}
                                       >
                                         Delete
                                       </Button>
@@ -391,7 +451,7 @@ function AddSubjectCompetency({ open, handleClose, subject, subjects, setSubject
                             <Button
                               onClick={() =>
                                 competencieSubName !== '' &&
-                                submitSub(mainCom.competency_id, competencieSubName[index].subName)
+                                submitSub(mainCom.competency_id, competencieSubName[index].subName, index)
                               }
                               variant='contained'
                               sx={{ height: '100%', width: '100%' }}
