@@ -5,12 +5,18 @@ import React, { useEffect, useState } from 'react'
 import { CircleLoading, Selection } from 'src/components'
 import { url } from 'src/configs/urlConfig'
 import { useFetch } from 'src/hooks'
+import { useRouter } from 'next/router'
 
 function curriculumstructure() {
   const textSize = 14
   const detailColor = 'gray'
   const URL_GET_SUBJECT_GROUPS = `${url.BASE_URL}/subject-groups/`
+  const URL_GET_CURRICULUM = `${url.BASE_URL}/curriculums/`
+  const URL_GET_STRUCTURE = `${url.BASE_URL}/curriculum-structures/`
   const initialize = { subjectGroups: [] }
+
+  const router = useRouter()
+
   const [state, setState] = useState({
     subjectGroups: []
   })
@@ -20,8 +26,7 @@ function curriculumstructure() {
   const [subjectTypes, setSubjectTypes] = useState({
     type: []
   })
-  const [totalSubjectType, setTotalSubjectType] = useState(null)
-  const [row, setRow] = useState(null)
+  const [row, setRow] = useState(undefined)
   const [subjectGroupSelected, setSubjectGroupSelected] = useState(0)
 
   const {
@@ -30,10 +35,33 @@ function curriculumstructure() {
     loading: SubjectGroupsLoading
   } = useFetch(URL_GET_SUBJECT_GROUPS)
 
-  console.log(SubjectGroups)
+  const {
+    error: CurriculumError,
+    data: Curriculum,
+    loading: CurriculumLoading
+  } = useFetch(URL_GET_CURRICULUM + router.query.curriculum_id)
+
+  const {
+    error: StructureError,
+    data: Structure,
+    loading: StructureLoading
+  } = useFetch(URL_GET_STRUCTURE + router.query.curriculum_id)
+
+  useEffect(() => {
+    if (Structure) {
+      setState(() => ({ subjectGroups: Structure }))
+      console.log(Structure)
+    }
+  }, [Structure])
+
+  // useEffect(() => {
+  //   console.log(state.subjectGroups)
+  // }, [state])
+
+  // console.log(SubjectGroups)
 
   const handleAddSubjectGroups = () => {
-    if (row !== null) {
+    if (row !== undefined) {
       const newObject = {
         subject_category_id: row?.subject_types.subject_category_id,
         subject_category_name: row?.subject_types.subject_categories.subject_category_name,
@@ -41,34 +69,43 @@ function curriculumstructure() {
         subject_type_name: row?.subject_types.subject_type_name,
         subject_group_id: row?.subject_group_id,
         subject_group_name: row?.subject_group_name,
-        total_credit: 3
+        credit_total: 3
       }
       setState(prevState => ({
         ...prevState,
         subjectGroups: [...prevState.subjectGroups, newObject] // Add the new object to the array
       }))
-    } else if (row !== null) {
-      alert('Subject Group already exists!')
-    } else {
-      alert('Please select a Subject Group')
+    } else if (row === undefined) {
+      alert('Subject Group already exists or Wrong Selected ')
     }
-    setRow(null)
     setSubjectGroupSelected(0)
   }
 
   const handleChangeTotalCredit = (row, updateCredit) => {
     // const findById = Object.values(state.subjectGroups).find(x => x.subject_group_id === row.subject_group_id)
     // console.log(findById)
-    const cloneState = [...state.subjectGroups]
-    Object.values(state.subjectGroups)?.map((x, index) => {
-      if (x.subject_group_id === row.subject_group_id) {
-        if (row.total_credit[0] === '0' || updateCredit === '0')
-          cloneState[index].total_credit = String(row.total_credit).replace(/[0]/gi, '')
-        else cloneState[index].total_credit = String(updateCredit)
-      }
-    })
-    // console.log(cloneState)
-    setState({ subjectGroups: cloneState })
+    const regex = /^[0-9\b]+$/
+    if (regex.test(updateCredit)) {
+      const cloneState = [...state.subjectGroups]
+      Object.values(state.subjectGroups)?.map((x, index) => {
+        if (x.subject_group_id === row.subject_group_id) {
+          if (row.credit_total[0] === '0' || updateCredit === '0')
+            cloneState[index].credit_total = String(row.credit_total).replace(/[0]/gi, '')
+          else cloneState[index].credit_total = String(updateCredit)
+        }
+      })
+      // console.log(cloneState)
+      setState({ subjectGroups: cloneState })
+    } else if (updateCredit === '') {
+      const cloneState = [...state.subjectGroups]
+      Object.values(state.subjectGroups)?.map((x, index) => {
+        if (x.subject_group_id === row.subject_group_id) {
+          cloneState[index].credit_total = String(1)
+        }
+      })
+      // console.log(cloneState)
+      setState({ subjectGroups: cloneState })
+    }
   }
 
   function sumTotalCreditsByUniqueValue(data, field) {
@@ -82,10 +119,10 @@ function curriculumstructure() {
         // Add the value to the uniqueValues set only if it's not already present
         if (!uniqueValues.has(value)) {
           uniqueValues.add(value)
-          sums[value] = parseInt(data[i].total_credit, 10)
+          sums[value] = parseInt(data[i].credit_total, 10)
         } else {
-          // If the value is already in uniqueValues, update the total_credit
-          sums[value] += parseInt(data[i].total_credit, 10)
+          // If the value is already in uniqueValues, update the credit_total
+          sums[value] += parseInt(data[i].credit_total, 10)
         }
       }
     }
@@ -155,62 +192,57 @@ function curriculumstructure() {
       setSubjectCategory(uniqueSubjectCategory)
       // console.log('get Subject Category ', uniqueSubjectCategory)
     }
-    console.log(state.subjectGroups)
+    // console.log(state.subjectGroups)
+    // console.log(subjectCategory)
+    console.log(state)
   }, [state])
 
   const CurriculumDetails = () => (
     <Grid container mt={6} spacing={2}>
-      <Grid item xs={3} sm={2}>
+      <Grid item xs={3}>
         <Typography fontSize={textSize}>Name(TH) :</Typography>
       </Grid>
-      <Grid item xs={9} sm={4}>
+      <Grid item xs={9}>
         <Typography color={detailColor} fontSize={textSize}>
-          sssssssssssssssss
+          {Curriculum?.curriculum_short_name_th}
         </Typography>
       </Grid>
-      <Grid item xs={3} sm={2}>
+      <Grid item xs={3}>
         <Typography fontSize={textSize}>Name(EN) :</Typography>
       </Grid>
-      <Grid item xs={9} sm={4}>
+      <Grid item xs={9}>
         <Typography color={detailColor} fontSize={textSize}>
-          ssssssssssssssssssssss
+          {Curriculum?.curriculum_short_name_en}
         </Typography>
       </Grid>
-      <Grid item xs={3} sm={2}>
+      <Grid item xs={3}>
         <Typography fontSize={textSize}>Faculty:</Typography>
       </Grid>
-      <Grid item xs={9} sm={10}>
+      <Grid item xs={9}>
         <Typography color={detailColor} fontSize={textSize}>
-          ssssssssssssssssssssss
+          {Curriculum.faculty?.faculty_name_th}
         </Typography>
       </Grid>
-      <Grid item xs={3} sm={2}>
-        <Typography fontSize={textSize}>Subject Group:</Typography>
-      </Grid>
-      <Grid item xs={9} sm={4}>
-        <Typography color={detailColor} fontSize={textSize}>
-          ssssssssssssssssssssss
-        </Typography>
-      </Grid>
-      <Grid item xs={3} sm={2}>
+
+      <Grid item xs={3}>
         <Typography fontSize={textSize}>Curriculum Year:</Typography>
       </Grid>
-      <Grid item xs={9} sm={4}>
+      <Grid item xs={9}>
         <Typography color={detailColor} fontSize={textSize}>
-          256X
+          {Curriculum?.curriculum_year}
         </Typography>
       </Grid>
     </Grid>
   )
 
-  if (SubjectGroupsLoading) {
+  if (SubjectGroupsLoading && CurriculumLoading && StructureLoading) {
     return <CircleLoading />
   }
-  if (SubjectGroupsError) {
+  if (SubjectGroupsError && CurriculumError && StructureError) {
     return <Box>Error Fetching...</Box>
   }
 
-  return (
+  return router.query.curriculum_id ? (
     <Box m={6}>
       <Typography variant='h6'>Curriculums Structure</Typography>
       <CurriculumDetails />
@@ -227,28 +259,16 @@ function curriculumstructure() {
             minWidth={500}
             maxWidth={1000}
           >
-            <Typography sx={{ m: 2 }} fontSize={12}>
-              Subject Group
-            </Typography>
+            <Typography sx={{ m: 2 }}>Subject Group</Typography>
 
-            <Box display='flex' width={170}>
-              <Typography sx={{ m: 2 }} fontSize={12}>
-                Total Credit
-              </Typography>
+            <Box display={'flex'} justifyContent={'space-between'}>
+              <Typography sx={{ m: 2 }}>Total Credit</Typography>
             </Box>
           </Box>
           <Divider sx={{ mt: 2, mb: 4 }} />
           <Box my={6} minWidth={500} maxWidth={1000}>
             {Object.values(state.subjectGroups)?.map((sjg, index) => (
-              <Box
-                mr={4}
-                // mt={1}
-                // mb={6}
-                ml={0}
-                display={'flex'}
-                justifyContent={'space-between'}
-                key={sjg.subject_group_id}
-              >
+              <Box mr={4} ml={0} display={'flex'} justifyContent={'space-between'} key={sjg.subject_group_id}>
                 <Typography sx={{ m: 2 }} variant='body1'>
                   {index + 1} . {' ' + sjg.subject_group_name}
                 </Typography>
@@ -256,13 +276,16 @@ function curriculumstructure() {
                   <TextField
                     sx={{ width: 80, m: 1 }}
                     size={'small'}
+                    type='number'
                     fullWidth
-                    value={sjg.total_credit}
-                    onChange={e => handleChangeTotalCredit(sjg, e.target.value)}
+                    value={sjg.credit_total}
+                    onChange={e => {
+                      handleChangeTotalCredit(sjg, e.target.value)
+                    }}
                   />
                   <Button
                     variant={'text'}
-                    sx={{ px: 9 }}
+                    sx={{ px: 2 }}
                     onClick={() => {
                       const findById = Object.values(state.subjectGroups)?.find(
                         s => s.subject_group_id === sjg.subject_group_id
@@ -304,9 +327,10 @@ function curriculumstructure() {
                     if (!checkUniqId) {
                       setRow(sjg)
                     } else {
-                      setRow(null)
+                      setRow(undefined)
                     }
-                    console.log(checkUniqId)
+                    console.log(sjg)
+                    // console.log('check', checkUniqId)
                   }}
                   key={sjg.subject_group_id}
                   value={sjg.subject_group_id}
@@ -335,7 +359,10 @@ function curriculumstructure() {
                   {Object.values(sumCreditSJC)?.map(
                     totalSJC =>
                       totalSJC.subject_category_id === sjc.subject_category_id && (
-                        <Typography sx={{ mr: 6, fontSize: '14', fontWeight: 'bold' }}>
+                        <Typography
+                          sx={{ mr: 6, fontSize: '14', fontWeight: 'bold' }}
+                          key={sumCreditSJC.subject_category_id}
+                        >
                           {' (Total ' + totalSJC.sum + ' ' + 'Credit) '}
                         </Typography>
                       )
@@ -349,7 +376,7 @@ function curriculumstructure() {
                         {Object.values(sumCreditSJT)?.map(
                           totalSJT =>
                             totalSJT.subject_type_id === sjt.subject_type_id && (
-                              <Typography sx={{ mr: 6, fontSize: '14' }}>
+                              <Typography sx={{ mr: 6, fontSize: '14' }} key={totalSJT.subject_type_id}>
                                 {' (Total ' + totalSJT.sum + ' ' + 'Credit) '}
                               </Typography>
                             )
@@ -377,7 +404,7 @@ function curriculumstructure() {
                             </ListItem>
                             <Box textAlign={'right'}>
                               <Typography sx={{ mr: 6, minWidth: 120, color: 'gray' }}>
-                                {sjg.total_credit !== '' ? sjg.total_credit + ' Credit' : 'ยังไม่ได้กำหนด'}
+                                {sjg.credit_total !== '' ? sjg.credit_total + ' Credit' : 'ยังไม่ได้กำหนด'}
                               </Typography>
                             </Box>
                           </Box>
@@ -395,6 +422,8 @@ function curriculumstructure() {
         </Grid>
       </Grid>
     </Box>
+  ) : (
+    <Box sx={{ m: 12 }}> curriculum is undefined</Box>
   )
 }
 

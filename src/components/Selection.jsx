@@ -1,7 +1,17 @@
 import React from 'react'
 import { FormControl, InputLabel, MenuItem, Select } from '@mui/material'
 
-function Selection({ label, firstItemText, selectionValue, Items, handleChange, height, width, disabled }) {
+function Selection({
+  label,
+  firstItemText,
+  selectionValue,
+  Items,
+  handleChange,
+  height,
+  width,
+  disabled,
+  handleFirstItem
+}) {
   return (
     <FormControl sx={{ width: width }}>
       <InputLabel size='small' id='form-layouts-separator-select-label'>
@@ -15,7 +25,9 @@ function Selection({ label, firstItemText, selectionValue, Items, handleChange, 
         value={selectionValue}
         onChange={handleChange}
       >
-        <MenuItem value={0}>{firstItemText}</MenuItem>
+        <MenuItem value={0} key={0} onClick={handleFirstItem}>
+          {firstItemText}
+        </MenuItem>
         {Items}
         {/* sample items
         <MenuItem value='University 1'>University 1</MenuItem>
