@@ -1,8 +1,12 @@
 import React from 'react'
-import { Box } from '@mui/material'
+import { Box, Typography } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
 
 function DataGridTable({ rows, columns, uniqueKey }) {
+  if (rows.length < 1) {
+    return <Typography sx={{ m: 6 }}>ไม่มีข้อมูลในระบบ</Typography>
+  }
+
   return (
     <Box style={{ width: '100%' }}>
       <DataGrid

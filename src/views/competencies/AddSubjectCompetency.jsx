@@ -34,6 +34,9 @@ function AddSubjectCompetency({ open, handleClose, subject, subjects, setSubject
   const [snackMassage, setSnackMassage] = useState('')
   const [openDescription, setOpenDescription] = useState(false)
 
+  const [mainRow, setMainRow] = useState([])
+  const [subRow, setSubRow] = useState([])
+
   const URL_GET_SUBJECT_COMPETENCIES_BY_ID = `${url.BASE_URL}/subjects/${subject.subject_id}`
   const URL_GET_MAIN_COMPETENCIES = `${url.BASE_URL}/competencies/`
   const URL_SUB_COMPETENCIES = `${url.BASE_URL}/competency-subs/`
@@ -113,7 +116,7 @@ function AddSubjectCompetency({ open, handleClose, subject, subjects, setSubject
         setCompetencieName('')
       })
   }
-  const submitSub = (mainId, comName, subIndex) => {
+  const submitSub = (mainId, comName) => {
     if (mainId && comName) {
       let obj = {
         competency_sub_id: 0,
@@ -223,6 +226,40 @@ function AddSubjectCompetency({ open, handleClose, subject, subjects, setSubject
           setOpenSnackbar(true)
         })
     }
+  }
+
+  const handleOpenSubDesc = (mainRow, subRow) => {
+    setOpenDescription(true)
+    setMainRow(mainRow)
+    setSubRow(subRow)
+  }
+
+  const updateSubDesc = () => {
+    // console.log(tempObj)
+
+    axios
+      .put(URL_SUB_COMPETENCIES + subRow.competency_sub_id, {
+        competency_sub_name: subRow?.competency_sub_name,
+        competency_sub_description: subRow?.competency_sub_description
+      })
+      .then(res => {
+        // console.log(res.data)
+        if (res.data.status !== 404) {
+          const tempObj = mainRow
+          const mainObj = CompetenciesTemp.competencies?.filter(m => m.competency_id !== mainRow.competency_id)
+          const removeSub = tempObj.competency_sub?.filter(sub => sub.competency_sub_id !== subRow.competency_sub_id)
+          tempObj.competency_sub = [...removeSub, subRow]
+          console.log(tempObj)
+          // updateComSubjects([...mainObj, tempObj])
+          setSnackMassage('Insert Success!')
+        }
+      })
+      .catch(err => setSnackMassage(err))
+      .finally(() => {
+        setOpenSnackbar(true)
+        setOpenDescription(false)
+        // setSubRow([])
+      })
   }
 
   // for main competencies
@@ -381,14 +418,14 @@ function AddSubjectCompetency({ open, handleClose, subject, subjects, setSubject
                                         onChange={e =>
                                           updateSubById(e, mainCom.competency_id, filterSub.competency_sub_id)
                                         }
-                                        value={filterSub.competency_sub_name}
+                                        value={filterSub.competency_sub_name || ''}
                                       />
                                     </Grid>
                                     <Grid item xs={2}>
                                       <Button
                                         variant='outlined'
                                         sx={{ px: 2, width: '100%', height: '100%' }}
-                                        onClick={() => setOpenDescription(true)}
+                                        onClick={() => handleOpenSubDesc(mainCom, filterSub)}
                                       >
                                         Description
                                       </Button>
@@ -444,7 +481,7 @@ function AddSubjectCompetency({ open, handleClose, subject, subjects, setSubject
                                 }
                                 // if()
                               }}
-                              value={competencieSubName[index]?.subName}
+                              value={competencieSubName[index]?.subName || ''}
                             />
                           </Grid>
                           <Grid item xs={4}>
@@ -477,17 +514,26 @@ function AddSubjectCompetency({ open, handleClose, subject, subjects, setSubject
         {/* <Button onClick={() => !checkIsEmpty(state) && handleSubmit(state)}>Submit</Button> */}
         {/* <Button onClick={() => !checkIsEmpty(state) && handleSubmit(state)}>Submit</Button> */}
       </DialogActions>
+      <SnackbarStyled open={openSnackbar} handleClose={() => setOpenSnackbar(false)} massage={snackMassage} />
       <Dialog open={openDescription} onClose={() => setOpenDescription(false)} fullWidth maxWidth='md'>
         <DialogTitle id='alert-dialog-title'>{'Description'}</DialogTitle>
         <DialogContent>
-          <DialogContentText>test</DialogContentText>
+          {/* <DialogContentText>test</DialogContentText> */}
+          <TextField
+            multiline
+            rows={4}
+            fullWidth
+            value={subRow.competency_sub_description || ''}
+            onChange={e => setSubRow(pre => ({ ...pre, competency_sub_description: e.target.value }))}
+          />
         </DialogContent>
         <DialogActions>
           <Button
             onClick={() => {
-              setOpenDescription(false)
-              setSnackMassage('test')
-              setOpenSnackbar(true)
+              // setOpenDescription(false)
+              // setSnackMassage('test')
+              // setOpenSnackbar(true)
+              subRow.competency_sub_description !== '' && updateSubDesc()
             }}
           >
             Update
@@ -497,7 +543,6 @@ function AddSubjectCompetency({ open, handleClose, subject, subjects, setSubject
           </Button>
         </DialogActions>
       </Dialog>
-      <SnackbarStyled open={openSnackbar} handleClose={() => setOpenSnackbar(false)} massage={snackMassage} />
     </Dialog>
   )
 }
