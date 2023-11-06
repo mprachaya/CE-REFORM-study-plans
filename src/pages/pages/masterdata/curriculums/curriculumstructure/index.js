@@ -139,24 +139,9 @@ function curriculumstructure() {
   const [sumCreditSJC, setSumCreditSJC] = useState({})
   const [sumCreditSJT, setSumCreditSJT] = useState({})
 
-  // useEffect(() => {
-  //   console.log('sumCreditSJC: ', sumCreditSJC)
-  //     console.log('sumCreditSJC: ', Object,vasumCreditSJC)
-  // }, [sumCreditSJC])
-
-  // useEffect(() => {
-  //   console.log('sumCreditSJT: ', sumCreditSJT)
-  // }, [sumCreditSJT])
-
   useEffect(() => {
     setSumCreditSJC(sumTotalCreditsByUniqueValue(state.subjectGroups, 'subject_category_id'))
     setSumCreditSJT(sumTotalCreditsByUniqueValue(state.subjectGroups, 'subject_type_id'))
-    // const sumCreditSJC = sumTotalCreditsByUniqueValue(state.subjectGroups, 'subject_category_id')
-    // const sumCreditSJT = sumTotalCreditsByUniqueValue(state.subjectGroups, 'subject_type_id')
-    // console.log('test function sum SJC: ', Object.values(sumCreditSJC))
-    // console.log('test function sum SJT: ', Object.values(sumCreditSJT))
-    // setTotalSubjectType(Object.values(sumCreditSJT))
-
     if (state.subjectGroups.length !== 0) {
       const uniqueSubjectTypes = []
       const subjectTypeSet = new Set()
@@ -244,9 +229,87 @@ function curriculumstructure() {
 
   return router.query.curriculum_id ? (
     <Box m={6}>
-      <Typography variant='h6'>Curriculums Structure</Typography>
+      <Box display={'flex'} justifyContent={'space-between'} maxWidth={1000}>
+        <Typography variant='h6'>Curriculums Structure</Typography>
+        <Button variant='outlined'>Update</Button>
+      </Box>
       <CurriculumDetails />
+      <Grid item xs={12} my={4}>
+        <Box my={12} borderRadius={2} minWidth={500} maxWidth={1000}>
+          <Box display={'flex'} justifyContent={'space-between'}>
+            <Typography>Conclusions</Typography>
+            <Typography sx={{ mr: 4 }}>Total</Typography>
+          </Box>
+          <Divider sx={{ mt: 2, mb: 4 }} />
 
+          {Object.values(subjectCategory)?.map(sjc => (
+            <Box sx={{ my: 6 }} key={sjc.subject_category_id}>
+              <Box display={'flex'}>
+                <Typography fontWeight={'bold'}>{sjc.subject_category_name} </Typography>
+                {Object.values(sumCreditSJC)?.map(
+                  totalSJC =>
+                    totalSJC.subject_category_id === sjc.subject_category_id && (
+                      <Typography
+                        sx={{ mr: 6, fontSize: '14', fontWeight: 'bold' }}
+                        key={sumCreditSJC.subject_category_id}
+                      >
+                        {' (Total ' + totalSJC.sum + ' ' + 'Credit) '}
+                      </Typography>
+                    )
+                )}
+              </Box>
+              {Object.values(subjectTypes)?.map(sjt => (
+                <Box sx={{ ml: 6 }} key={sjt.subject_type_id}>
+                  {sjc.subject_category_id === sjt.subject_category_id && (
+                    <Box mt={1} display={'flex'}>
+                      <Typography fontWeight={'bold'}>{sjt.subject_type_name}</Typography>
+                      {Object.values(sumCreditSJT)?.map(
+                        totalSJT =>
+                          totalSJT.subject_type_id === sjt.subject_type_id && (
+                            <Typography sx={{ mr: 6, fontSize: '14' }} key={totalSJT.subject_type_id}>
+                              {' (Total ' + totalSJT.sum + ' ' + 'Credit) '}
+                            </Typography>
+                          )
+                      )}
+                    </Box>
+                  )}
+                  {state.subjectGroups?.map(
+                    sjg =>
+                      sjt.subject_type_id === sjg.subject_type_id &&
+                      sjc.subject_category_id === sjt.subject_category_id && (
+                        <Box
+                          mb={-2}
+                          key={sjg.subject_group_id}
+                          flexDirection={'row'}
+                          display={'flex'}
+                          justifyContent={'space-between'}
+                        >
+                          <ListItem>
+                            <ListItemIcon>
+                              <Box sx={{ m: 0.4, mr: 1.5 }}>
+                                <Icon path={mdiCheckboxBlankCircle} size={0.4} color='primary' />
+                              </Box>
+                              <Typography>{sjg.subject_group_name}</Typography>
+                            </ListItemIcon>
+                          </ListItem>
+                          <Box textAlign={'right'}>
+                            <Typography sx={{ mr: 6, minWidth: 120, color: 'gray' }}>
+                              {sjg.credit_total !== '' ? sjg.credit_total + ' Credit' : 'ยังไม่ได้กำหนด'}
+                            </Typography>
+                          </Box>
+                        </Box>
+                      )
+                  )}
+                </Box>
+              ))}
+              {/* {state.subjectGroups.length !== 0 && <Divider sx={{ mt: 2, mb: 4 }} />} */}
+            </Box>
+          ))}
+
+          {/* ))
+            )} */}
+        </Box>
+      </Grid>
       <Grid container display={'flex'} my={6} ml={0}>
         <Grid item xs={12}>
           <Box
@@ -315,7 +378,7 @@ function curriculumstructure() {
             <Selection
               firstItemText={'เลือกกลุ่มวิชา'}
               label={'Subject Group'}
-              width={200}
+              width={450}
               selectionValue={String(subjectGroupSelected) || ''}
               handleChange={e => setSubjectGroupSelected(e.target.value)}
               Items={Object.values(SubjectGroups)?.map(sjg => (
@@ -342,82 +405,6 @@ function curriculumstructure() {
             <Button onClick={() => handleAddSubjectGroups(row)} variant={'contained'} sx={{ width: 160 }}>
               +
             </Button>
-          </Box>
-        </Grid>
-        <Grid item xs={12} my={4}>
-          <Box mt={6} borderRadius={2} minHeight={800} minWidth={500} maxWidth={1000}>
-            <Box display={'flex'} justifyContent={'space-between'}>
-              <Typography>Conclusions</Typography>
-              <Typography sx={{ mr: 4 }}>Total</Typography>
-            </Box>
-            <Divider sx={{ mt: 2, mb: 4 }} />
-
-            {Object.values(subjectCategory)?.map(sjc => (
-              <Box sx={{ mb: 6 }} key={sjc.subject_category_id}>
-                <Box display={'flex'}>
-                  <Typography fontWeight={'bold'}>{sjc.subject_category_name} </Typography>
-                  {Object.values(sumCreditSJC)?.map(
-                    totalSJC =>
-                      totalSJC.subject_category_id === sjc.subject_category_id && (
-                        <Typography
-                          sx={{ mr: 6, fontSize: '14', fontWeight: 'bold' }}
-                          key={sumCreditSJC.subject_category_id}
-                        >
-                          {' (Total ' + totalSJC.sum + ' ' + 'Credit) '}
-                        </Typography>
-                      )
-                  )}
-                </Box>
-                {Object.values(subjectTypes)?.map(sjt => (
-                  <Box sx={{ ml: 6 }} key={sjt.subject_type_id}>
-                    {sjc.subject_category_id === sjt.subject_category_id && (
-                      <Box mt={1} display={'flex'}>
-                        <Typography fontWeight={'bold'}>{sjt.subject_type_name}</Typography>
-                        {Object.values(sumCreditSJT)?.map(
-                          totalSJT =>
-                            totalSJT.subject_type_id === sjt.subject_type_id && (
-                              <Typography sx={{ mr: 6, fontSize: '14' }} key={totalSJT.subject_type_id}>
-                                {' (Total ' + totalSJT.sum + ' ' + 'Credit) '}
-                              </Typography>
-                            )
-                        )}
-                      </Box>
-                    )}
-                    {state.subjectGroups?.map(
-                      sjg =>
-                        sjt.subject_type_id === sjg.subject_type_id &&
-                        sjc.subject_category_id === sjt.subject_category_id && (
-                          <Box
-                            mb={-2}
-                            key={sjg.subject_group_id}
-                            flexDirection={'row'}
-                            display={'flex'}
-                            justifyContent={'space-between'}
-                          >
-                            <ListItem>
-                              <ListItemIcon>
-                                <Box sx={{ m: 0.4, mr: 1.5 }}>
-                                  <Icon path={mdiCheckboxBlankCircle} size={0.4} color='primary' />
-                                </Box>
-                                <Typography>{sjg.subject_group_name}</Typography>
-                              </ListItemIcon>
-                            </ListItem>
-                            <Box textAlign={'right'}>
-                              <Typography sx={{ mr: 6, minWidth: 120, color: 'gray' }}>
-                                {sjg.credit_total !== '' ? sjg.credit_total + ' Credit' : 'ยังไม่ได้กำหนด'}
-                              </Typography>
-                            </Box>
-                          </Box>
-                        )
-                    )}
-                  </Box>
-                ))}
-                {state.subjectGroups.length !== 0 && <Divider sx={{ mt: 2, mb: 4 }} />}
-              </Box>
-            ))}
-
-            {/* ))
-            )} */}
           </Box>
         </Grid>
       </Grid>
