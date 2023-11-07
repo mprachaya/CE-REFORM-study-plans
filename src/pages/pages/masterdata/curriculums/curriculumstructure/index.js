@@ -6,10 +6,16 @@ import { CircleLoading, Selection } from 'src/components'
 import { url } from 'src/configs/urlConfig'
 import { useFetch } from 'src/hooks'
 import { useRouter } from 'next/router'
+import axios from 'axios'
+import SnackbarStyled from 'src/components/SnackbarStyled'
 
 function curriculumstructure() {
   const textSize = 14
   const detailColor = 'gray'
+
+  const [openSnackbar, setOpenSnackbar] = useState(false)
+  const [snackMassage, setSnackMassage] = useState('Update Success!')
+
   const URL_GET_SUBJECT_GROUPS = `${url.BASE_URL}/subject-groups/`
   const URL_GET_CURRICULUM = `${url.BASE_URL}/curriculums/`
   const URL_GET_STRUCTURE = `${url.BASE_URL}/curriculum-structures/`
@@ -44,13 +50,15 @@ function curriculumstructure() {
   const {
     error: StructureError,
     data: Structure,
-    loading: StructureLoading
+    setData: setStructure,
+    loading: StructureLoading,
+    reFetch: reFetchStructure
   } = useFetch(URL_GET_STRUCTURE + router.query.curriculum_id)
 
   useEffect(() => {
-    if (Structure) {
+    if (Structure !== state.subjectGroups) {
       setState(() => ({ subjectGroups: Structure }))
-      console.log(Structure)
+      // console.log(Structure)
     }
   }, [Structure])
 
@@ -134,6 +142,84 @@ function curriculumstructure() {
     }))
 
     return sumsArray
+  }
+
+  const handleUpdateStructure = () => {
+    if (state.subjectGroups !== Structure) {
+      //check exists value has deleted
+      const checkIsDeleted = Structure.filter(function (obj) {
+        return state.subjectGroups.indexOf(obj) == -1
+      })
+      // console.log('isDeleted:', checkIsDeleted)
+
+      // update delete exists value
+      if (checkIsDeleted) {
+        checkIsDeleted.map(de =>
+          axios.delete(URL_GET_STRUCTURE + de.curriculum_structure_id).then(res => {
+            if (res.data.status === 200) {
+              console.log(res.data.message)
+              setStructure(state.subjectGroups)
+            }
+          })
+        )
+      }
+      // check exists value has changed
+      function findEqualObjects(arr1, arr2) {
+        return arr1.filter(obj1 => {
+          return arr2.find(obj2 => obj2.subject_id === obj1.subject_id)
+        })
+      }
+      const updateState = findEqualObjects(Array(state.subjectGroups), Array(Structure))
+      // console.log('updateState', updateState[0])
+      if (updateState[0]) {
+        updateState[0].map(
+          ust =>
+            ust.curriculum_structure_id !== undefined &&
+            axios
+              .put(URL_GET_STRUCTURE + ust.curriculum_structure_id, {
+                curriculum_id: router.query.curriculum_id,
+                subject_group_id: ust.subject_group_id,
+                credit_total: ust.credit_total
+              })
+              .then(res => res.data.status === 200 && console.log(res.data.message))
+        )
+      }
+      // update value has changed
+
+      // check new value
+      const newValues = state.subjectGroups.filter(function (obj) {
+        return Structure.indexOf(obj) == -1
+      })
+      console.log('newValues ', newValues)
+      if (newValues) {
+        newValues.map(newValue =>
+          axios
+            .post(URL_GET_STRUCTURE, {
+              curriculum_id: router.query.curriculum_id,
+              subject_group_id: newValue.subject_group_id,
+              credit_total: newValue.credit_total
+            })
+            .then(res => {
+              if (res.data.status === 201) {
+                // console.log(`insert new value subject group id ${newValue.subject_group_id}  success`)
+
+                // update curriculum structure is inserted
+                const findCS = state.subjectGroups.find(
+                  updateCS => updateCS.subject_group_id === newValue.subject_group_id
+                )
+
+                findCS.curriculum_structure_id = res.data.data.curriculum_structure_id
+                const updateMainState = state.subjectGroups.filter(
+                  ums => ums.subject_group_id !== findCS.subject_group_id
+                )
+                setState(pre => ({ ...pre, subjectGroups: [...updateMainState, findCS] }))
+                setStructure([...updateMainState, findCS])
+              }
+            })
+        )
+      }
+      setOpenSnackbar(true)
+    }
   }
 
   const [sumCreditSJC, setSumCreditSJC] = useState({})
@@ -231,7 +317,14 @@ function curriculumstructure() {
     <Box m={6}>
       <Box display={'flex'} justifyContent={'space-between'} maxWidth={1000}>
         <Typography variant='h6'>Curriculums Structure</Typography>
-        <Button variant='outlined'>Update</Button>
+        <Button
+          onClick={() => {
+            handleUpdateStructure()
+          }}
+          variant='outlined'
+        >
+          Update
+        </Button>
       </Box>
       <CurriculumDetails />
       <Grid item xs={12} my={4}>
@@ -408,6 +501,7 @@ function curriculumstructure() {
           </Box>
         </Grid>
       </Grid>
+      <SnackbarStyled open={openSnackbar} handleClose={() => setOpenSnackbar(false)} massage={snackMassage} />
     </Box>
   ) : (
     <Box sx={{ m: 12 }}> curriculum is undefined</Box>
