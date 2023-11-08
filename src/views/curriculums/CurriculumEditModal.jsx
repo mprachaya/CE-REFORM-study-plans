@@ -124,8 +124,8 @@ function CurriculumEditModal({ state, open, handleClose, faculty, studentGroups,
                   startIcon={<Icon path={mdiFlag} size={0.75} />}
                   onClick={() =>
                     router.push({
-                      pathname: '/pages/masterdata/curriculums/studyplans'
-                      // query: { curriculum_id: state.curriculum_id }
+                      pathname: '/pages/masterdata/curriculums/studyplans',
+                      query: { curriculum_id: state.curriculum_id }
                     })
                   }
                 >

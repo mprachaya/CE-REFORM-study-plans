@@ -25,7 +25,7 @@ function Selection({
         value={selectionValue}
         onChange={handleChange}
       >
-        <MenuItem value={0} key={0} onClick={handleFirstItem}>
+        <MenuItem disabled value={0} key={0} onClick={handleFirstItem}>
           {firstItemText}
         </MenuItem>
         {Items}

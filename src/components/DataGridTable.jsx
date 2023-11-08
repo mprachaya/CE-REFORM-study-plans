@@ -3,23 +3,22 @@ import { Box, Typography } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
 import CircleLoading from './CircleLoading'
 
-function DataGridTable({ rows, columns, uniqueKey, isLoading }) {
-  if (!isLoading) {
-    if (rows.length < 1) {
-      return <Typography sx={{ m: 6 }}>ไม่มีข้อมูลในระบบ</Typography>
-    }
-  } else {
+function DataGridTable({ rows, columns, uniqueKey, isLoading, noData = 'ไม่มีข้อมูลในระบบ' }) {
+  if (isLoading) {
     return (
       <Box sx={{ height: 120, m: 12 }}>
         <CircleLoading />
       </Box>
     )
   }
+  // else if (rows?.length < 0) {
+  //   return <Typography sx={{ m: 6 }}>{noData}</Typography>
+  // }
 
-  return (
+  return !isLoading && rows?.length > 0 ? (
     <Box style={{ width: '100%' }}>
       <DataGrid
-        rows={rows}
+        rows={rows || ''}
         columns={columns}
         initialState={{
           pagination: {
@@ -31,6 +30,8 @@ function DataGridTable({ rows, columns, uniqueKey, isLoading }) {
         getRowId={row => row[uniqueKey]}
       />
     </Box>
+  ) : (
+    <Typography sx={{ m: 6 }}>{noData}</Typography>
   )
 }
 

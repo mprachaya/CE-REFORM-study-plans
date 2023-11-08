@@ -1,23 +1,27 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useFetch, useSubmit, useUpdate, useDelete } from 'src/hooks'
 import { useMemo, useState } from 'react'
 
 import { Btn, CircleLoading, ConfirmModal, DataGridTable, Selection, TextSearch } from 'src/components'
-import { Box, Grid, Typography, Button } from '@mui/material'
+import { Box, Grid, Typography, Button, MenuItem } from '@mui/material'
 import Icon from '@mdi/react'
 
 import { mdiPen, mdiAlertRhombus } from '@mdi/js/'
 
 import useSearchText from 'src/hooks/useSearchText'
 import { url } from 'src/configs/urlConfig'
+import { useRouter } from 'next/router'
+import axios from 'axios'
 // import EditSubjectCategoriesModal from '../../../../views/subjecttypes/EditSubjectTypesModal'
 // import AddSubjectCategoriesGroupsModal from '../../../../views/subjecttypes/AddSubjectTypesModal'
 
 const studyplans = () => {
   // const [open, setOpen] = useState(false)
   // const [editState, setEditState] = useState([])
-
+  const URL_GET_PLANS = `${url.BASE_URL}/study-plans/`
   const URL_GET_PLAN_RECORDS = `${url.BASE_URL}/study-plan-records/`
+
+  const router = useRouter()
   // const URL_GET_SUBJECT_CATEGORY = `${url.BASE_URL}/subject-categories/`
 
   // const URL_INSERT = `${url.BASE_URL}/subject-types/`
@@ -58,12 +62,45 @@ const studyplans = () => {
   // }
 
   const {
+    error: PlanError,
+    data: Plans,
+    setData: setPlan,
+    loading: PlanLoading,
+    reFetch: reFetchPlan
+  } = useFetch(URL_GET_PLANS + router.query.curriculum_id)
+
+  const [planSelected, setPlanSelected] = useState(0)
+
+  const {
     error: PlanRecordsError,
     data: PlanRecords,
     setData: setPlanRecords,
-    loading: PlanLoading,
+    loading: PlanRecordLoading,
     reFetch: reFetchPlanRecords
-  } = useFetch(URL_GET_PLAN_RECORDS)
+  } = useFetch(URL_GET_PLAN_RECORDS + planSelected)
+
+  console.log(Plans)
+  console.log(PlanRecords)
+
+  useEffect(() => {
+    if (planSelected) {
+      const getPlanRecords = axios
+        .get(URL_GET_PLAN_RECORDS + planSelected)
+        .then(res => (res.data.status !== 404 ? res.data : { data: [] }))
+        .catch(e => console.log(e))
+      setPlanRecords(getPlanRecords.data)
+    }
+  }, [planSelected])
+  // console.log(
+  //   URL_GET_PLAN_RECORDS +
+  //     Math.max.apply(
+  //       null,
+  //       Plans.map(function (o) {
+  //         return o.study_plan_id
+  //       })
+  //     )
+  // )
+  // console.log(Plans)
 
   // const {
   //   error: CategoriesError,
@@ -120,7 +157,7 @@ const studyplans = () => {
   // }
 
   if (PlanLoading !== null && !PlanLoading) {
-    if (PlanRecords.length === 0) return <Typography>ยังไม่มีข้อมูลแผนในระบบ</Typography>
+    if (router.query.curriculum_id == undefined) return <Typography>404 Error</Typography>
   }
 
   const columns = [
@@ -150,7 +187,7 @@ const studyplans = () => {
     },
     {
       field: 'study_plan_record_year',
-      headerName: 'Semester',
+      headerName: 'Year',
       width: 200
     },
     {
@@ -191,22 +228,22 @@ const studyplans = () => {
           <Selection
             height={40}
             width={'100%'}
-            firstItemText={'Plan Name'}
-            // selectionValue={String(updateState.collegian_group_id)}
-            // handleChange={e => setUpdateState(pre => ({ ...pre, collegian_group_id: parseInt(e.target.value) }))}
-            // Items={Object.values(studentGroups)?.map(stdg => (
-            //   <MenuItem key={stdg.collegian_group_id} value={stdg.collegian_group_id}>
-            //     {stdg.collegian_group_short_name_th}
-            //   </MenuItem>
-            // ))}
+            firstItemText={'Select Plan'}
+            selectionValue={planSelected}
+            handleChange={e => setPlanSelected(e.target.value)}
+            Items={Object.values(Plans)?.map(p => (
+              <MenuItem key={p.study_plan_id} value={p.study_plan_id}>
+                {p.study_plan_name}
+              </MenuItem>
+            ))}
           />
         </Grid>
-        <Grid item xs={6} sm={3} md={1.5}>
+        {/* <Grid item xs={6} sm={3} md={1.5}>
           <Selection height={40} width={'100%'} firstItemText={'Year'} />
         </Grid>
         <Grid item xs={6} sm={3} md={1.5}>
           <Selection height={40} width={'100%'} firstItemText={'Semester'} />
-        </Grid>
+        </Grid> */}
         <Grid item xs={6} sm={6} md={3}>
           <Btn fullWidth handleClick={handleClickOpen} label={'+ Add New Plan'} />
         </Grid>
@@ -214,16 +251,19 @@ const studyplans = () => {
           <Btn fullWidth handleClick={handleClickOpen} label={'+ Add New Sub Plan'} />
         </Grid>
       </Grid>
+
       <Grid container>
         <Grid item xs={12} sm={12} lg={12} mt={6}>
           <DataGridTable
             rows={PlanRecords}
             columns={columns}
             uniqueKey={'study_plan_record_id'}
-            isLoading={PlanLoading === null ? true : PlanLoading}
+            isLoading={PlanRecordLoading === null ? true : PlanRecordLoading}
+            noData='ยังไม่มีรายการแผนการเรียน'
           />
         </Grid>
       </Grid>
+
       {/* <Grid container>
         <AddSubjectCategoriesGroupsModal
           open={open}
