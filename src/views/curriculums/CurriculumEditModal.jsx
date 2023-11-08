@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { Dialog, Typography, DialogContent, Grid, TextField, DialogActions, Button, MenuItem } from '@mui/material'
 
 import Icon from '@mdi/react'
-import { mdiSitemapOutline, mdiPen, mdiDelete } from '@mdi/js'
+import { mdiSitemapOutline, mdiPen, mdiDelete, mdiFlag } from '@mdi/js'
 import Selection from 'src/components/Selection'
 import { handleChangeEN, handleChangeNumber, handleChangeTH } from 'src/hooks/useValidation'
 import { useRouter } from 'next/router'
@@ -66,13 +66,24 @@ function CurriculumEditModal({ state, open, handleClose, faculty, studentGroups,
     <Dialog open={open} onClose={handleClose} maxWidth={'lg'} fullWidth>
       <DialogContent sx={{ minHeight: 450 }}>
         <Grid container>
-          <Grid container item xs={12} sx={{ display: 'flex', justifyContent: 'space-between', m: 6 }}>
-            <Grid item xs={3}>
-              <Typography variant='h6'>Curriculum edit</Typography>
+          <Grid
+            container
+            item
+            xs={12}
+            sx={{
+              display: 'flex',
+              justifyContent: { xs: 'center', md: 'space-between' },
+              m: { xs: 2, md: 6 },
+              textAlign: { xs: 'center ', md: 'start' }
+            }}
+          >
+            <Grid item xs={12} sm={12} md={3} lg={3}>
+              <Typography variant='h6'>Edit Curriculum</Typography>
             </Grid>
-            <Grid container item xs={8} spacing={2} justifyContent={'end'}>
-              <Grid item>
+            <Grid container item xs={8} spacing={2} justifyContent={{ sx: 'center', md: 'end' }}>
+              <Grid item xs={12} sm={11} md={4} lg={3}>
                 <Button
+                  fullWidth
                   color='secondary'
                   variant='outlined'
                   startIcon={<Icon path={mdiSitemapOutline} size={0.75} />}
@@ -83,11 +94,12 @@ function CurriculumEditModal({ state, open, handleClose, faculty, studentGroups,
                     })
                   }
                 >
-                  Curriculum Structure
+                  Structure
                 </Button>
               </Grid>
-              <Grid item>
+              <Grid item xs={12} sm={11} md={4} lg={3}>
                 <Button
+                  fullWidth
                   onClick={() =>
                     router.push(
                       {
@@ -101,11 +113,28 @@ function CurriculumEditModal({ state, open, handleClose, faculty, studentGroups,
                   variant='outlined'
                   startIcon={<Icon path={mdiPen} size={0.75} />}
                 >
-                  Subject Management
+                  Subjects
                 </Button>
               </Grid>
-              <Grid item>
+              <Grid item xs={12} sm={11} md={4} lg={3}>
                 <Button
+                  fullWidth
+                  color='secondary'
+                  variant='outlined'
+                  startIcon={<Icon path={mdiFlag} size={0.75} />}
+                  onClick={() =>
+                    router.push({
+                      pathname: '/pages/masterdata/curriculums/studyplans'
+                      // query: { curriculum_id: state.curriculum_id }
+                    })
+                  }
+                >
+                  Study Plans
+                </Button>
+              </Grid>
+              <Grid item xs={12} sm={11} md={4} lg={3}>
+                <Button
+                  fullWidth
                   color='error'
                   variant='outlined'
                   onClick={() => openConfirmDelete()}
@@ -120,7 +149,7 @@ function CurriculumEditModal({ state, open, handleClose, faculty, studentGroups,
 
         <DialogContent sx={{ display: 'flex' }}>
           <Grid container spacing={6}>
-            <Grid item sm={12} md={12} lg={6}>
+            <Grid item xs={12} sm={12} md={12} lg={6}>
               <TextField
                 fullWidth
                 name={'curriculum_name_th'}
@@ -130,7 +159,7 @@ function CurriculumEditModal({ state, open, handleClose, faculty, studentGroups,
                 value={updateState.curriculum_name_th || ''}
               />
             </Grid>
-            <Grid item sm={12} md={12} lg={6}>
+            <Grid item xs={12} sm={12} md={12} lg={6}>
               <TextField
                 fullWidth
                 name={'curriculum_name_en'}

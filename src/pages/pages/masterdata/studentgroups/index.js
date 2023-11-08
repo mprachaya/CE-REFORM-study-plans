@@ -108,9 +108,9 @@ const studentgroups = () => {
   const loadingState = StudentGroupsLoading
   const errorState = StudentGroupsError
 
-  if (loadingState) {
-    return <CircleLoading />
-  }
+  // if (loadingState) {
+  //   return <CircleLoading />
+  // }
   if (errorState) {
     return <Box>Error Fetching...</Box>
   }
@@ -155,11 +155,12 @@ const studentgroups = () => {
       </Grid>
       <Grid container>
         <Grid item xs={12} sm={12} lg={12} mt={6}>
-          {STUDENT_GROUPS.length !== 0 || !StudentGroupsLoading ? (
-            <DataGridTable rows={STUDENT_GROUPS} columns={columns} uniqueKey={'collegian_group_id'} />
-          ) : (
-            <Typography>ยังไม่มีข้อมูลกลุ่มนักศึกษาอยู่ในระบบ</Typography>
-          )}
+          <DataGridTable
+            rows={STUDENT_GROUPS}
+            columns={columns}
+            uniqueKey={'collegian_group_id'}
+            isLoading={StudentGroupsLoading === null ? true : StudentGroupsLoading}
+          />
         </Grid>
       </Grid>
       <Grid container>

@@ -112,9 +112,9 @@ const subjectgroups = () => {
   const loadingState = SubjectGroupLoading
   const errorState = SubjectGroupError
 
-  if (loadingState && CategoriesLoading) {
-    return <CircleLoading />
-  }
+  // if (loadingState && CategoriesLoading) {
+  //   return <CircleLoading />
+  // }
   if (errorState && CategoriesError) {
     return <Box>Error Fetching...</Box>
   }
@@ -162,11 +162,12 @@ const subjectgroups = () => {
       </Grid>
       <Grid container>
         <Grid item xs={12} sm={12} lg={12} mt={6}>
-          {SUBJECT_GROUPS.length !== 0 || !SubjectGroupLoading || !CategoriesLoading ? (
-            <DataGridTable rows={SUBJECT_GROUPS} columns={columns} uniqueKey={'subject_group_id'} />
-          ) : (
-            <Typography>ยังไม่มีข้อมูลกลุ่มวิชาอยู่ในระบบ</Typography>
-          )}
+          <DataGridTable
+            rows={SUBJECT_GROUPS}
+            columns={columns}
+            uniqueKey={'subject_group_id'}
+            isLoading={SubjectGroupLoading === null ? true : SubjectGroupLoading}
+          />
         </Grid>
       </Grid>
       <Grid container>

@@ -112,9 +112,9 @@ const subjecttypes = () => {
   const loadingState = SubjectTypeLoading
   const errorState = SubjectTypeError
 
-  if (loadingState && CategoriesLoading) {
-    return <CircleLoading />
-  }
+  // if (loadingState && CategoriesLoading) {
+  //   return <CircleLoading />
+  // }
   if (errorState && CategoriesError) {
     return <Box>Error Fetching...</Box>
   }
@@ -162,11 +162,12 @@ const subjecttypes = () => {
       </Grid>
       <Grid container>
         <Grid item xs={12} sm={12} lg={12} mt={6}>
-          {SUBJECT_TYPES.length !== 0 || !SubjectTypeLoading || !CategoriesLoading ? (
-            <DataGridTable rows={SUBJECT_TYPES} columns={columns} uniqueKey={'subject_type_id'} />
-          ) : (
-            <Typography>ยังไม่มีข้อมูลประเภทวิชาอยู่ในระบบ</Typography>
-          )}
+          <DataGridTable
+            rows={SUBJECT_TYPES}
+            columns={columns}
+            uniqueKey={'subject_type_id'}
+            isLoading={SubjectTypeLoading === null ? true : SubjectTypeLoading}
+          />
         </Grid>
       </Grid>
       <Grid container>

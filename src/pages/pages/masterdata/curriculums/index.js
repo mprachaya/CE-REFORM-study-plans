@@ -133,9 +133,9 @@ const curriculums = () => {
   const loadingState = CurriculumLoading && FacultyLoading && StudentGroupsLoading
   const errorState = CurriculumError && FacultyError && StudentGroupsError
 
-  if (loadingState) {
-    return <CircleLoading />
-  }
+  // if (loadingState) {
+  //   return <CircleLoading />
+  // }
   if (errorState) {
     return <Box>Error Fetching...</Box>
   }
@@ -217,7 +217,12 @@ const curriculums = () => {
       </Grid>
       <Grid container>
         <Grid item xs={12} sm={12} lg={12} mt={6}>
-          <DataGridTable rows={Curriculums} columns={columns} uniqueKey={'curriculum_id'} />
+          <DataGridTable
+            rows={Curriculums}
+            columns={columns}
+            uniqueKey={'curriculum_id'}
+            isLoading={CurriculumLoading === null ? true : CurriculumLoading}
+          />
         </Grid>
       </Grid>
       <Grid container>

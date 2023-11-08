@@ -113,9 +113,6 @@ const faculty = () => {
   const loadingState = FacultyLoading
   const errorState = FacultyError
 
-  if (loadingState) {
-    return <CircleLoading />
-  }
   if (errorState) {
     return <Box>Error Fetching...</Box>
   }
@@ -163,11 +160,12 @@ const faculty = () => {
       </Grid>
       <Grid container>
         <Grid item xs={12} sm={12} lg={12} mt={6}>
-          {FACULTY.length !== 0 ? (
-            <DataGridTable rows={FACULTY} columns={columns} uniqueKey={'faculty_id'} />
-          ) : (
-            <Typography>ยังไม่มีคณะอยู่ในระบบ</Typography>
-          )}
+          <DataGridTable
+            rows={FACULTY}
+            columns={columns}
+            uniqueKey={'faculty_id'}
+            isLoading={FacultyLoading === null ? true : FacultyLoading}
+          />
         </Grid>
       </Grid>
       <Grid container>
