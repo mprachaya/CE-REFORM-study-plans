@@ -70,7 +70,7 @@ const studyplans = () => {
   } = useFetch(URL_GET_PLANS + router.query.curriculum_id)
 
   const [planSelected, setPlanSelected] = useState(0)
-
+  const [planCredit, setPlanCredit] = useState(0)
   const {
     error: PlanRecordsError,
     data: PlanRecords,
@@ -79,8 +79,11 @@ const studyplans = () => {
     reFetch: reFetchPlanRecords
   } = useFetch(URL_GET_PLAN_RECORDS + planSelected)
 
-  console.log(Plans)
-  console.log(PlanRecords)
+  const [yearSelected, setYearSelected] = useState(0)
+  const years = [1, 2, 3, 4]
+
+  const [semesterSelected, setSemesterSelected] = useState(0)
+  const semesters = [1, 2, 3]
 
   useEffect(() => {
     if (planSelected) {
@@ -89,6 +92,8 @@ const studyplans = () => {
         .then(res => (res.data.status !== 404 ? res.data : { data: [] }))
         .catch(e => console.log(e))
       setPlanRecords(getPlanRecords.data)
+      setYearSelected(1)
+      setSemesterSelected(1)
     }
   }, [planSelected])
   // console.log(
@@ -230,32 +235,77 @@ const studyplans = () => {
             width={'100%'}
             firstItemText={'Select Plan'}
             selectionValue={planSelected}
-            handleChange={e => setPlanSelected(e.target.value)}
+            handleChange={e => {
+              setPlanSelected(e.target.value)
+            }}
             Items={Object.values(Plans)?.map(p => (
-              <MenuItem key={p.study_plan_id} value={p.study_plan_id}>
+              <MenuItem
+                key={p.study_plan_id}
+                value={p.study_plan_id}
+                onClick={() => setPlanCredit(p.study_plan_total_credit)}
+              >
                 {p.study_plan_name}
               </MenuItem>
             ))}
           />
         </Grid>
-        {/* <Grid item xs={6} sm={3} md={1.5}>
-          <Selection height={40} width={'100%'} firstItemText={'Year'} />
-        </Grid>
         <Grid item xs={6} sm={3} md={1.5}>
-          <Selection height={40} width={'100%'} firstItemText={'Semester'} />
-        </Grid> */}
+          <Selection
+            height={40}
+            width={'100%'}
+            firstItemText={'Year'}
+            selectionValue={yearSelected}
+            handleChange={e => setYearSelected(e.target.value)}
+            Items={years.map(y => (
+              <MenuItem key={y} value={y}>
+                {'ปี ' + y}
+              </MenuItem>
+            ))}
+          />
+        </Grid>
+        <Grid item xs={6} sm={3} md={2}>
+          <Selection
+            height={40}
+            width={'100%'}
+            firstItemText={'Semester'}
+            selectionValue={semesterSelected}
+            handleChange={e => setSemesterSelected(e.target.value)}
+            Items={semesters.map(s =>
+              s !== 3 ? (
+                <MenuItem key={s} value={s}>
+                  {'เทอม ' + s}
+                </MenuItem>
+              ) : (
+                <MenuItem key={s} value={s}>
+                  {'เทอม 1 และเทอม 2'}
+                </MenuItem>
+              )
+            )}
+          />
+        </Grid>
         <Grid item xs={6} sm={6} md={3}>
           <Btn fullWidth handleClick={handleClickOpen} label={'+ Add New Plan'} />
         </Grid>
-        <Grid item xs={6} sm={6} md={3}>
+        <Grid item xs={6} sm={6} md={4}>
           <Btn fullWidth handleClick={handleClickOpen} label={'+ Add New Sub Plan'} />
+        </Grid>
+        <Grid item xs={6} sm={6} md={4}>
+          <Typography sx={{ m: 2 }}>Total Credit: {planCredit}</Typography>
         </Grid>
       </Grid>
 
       <Grid container>
         <Grid item xs={12} sm={12} lg={12} mt={6}>
           <DataGridTable
-            rows={PlanRecords}
+            rows={
+              semesterSelected !== 3
+                ? PlanRecords?.filter(
+                    planFilter =>
+                      planFilter.study_plan_record_year === yearSelected &&
+                      planFilter.study_plan_record_semester === semesterSelected
+                  )
+                : PlanRecords?.filter(planFilter => planFilter.study_plan_record_year === yearSelected)
+            }
             columns={columns}
             uniqueKey={'study_plan_record_id'}
             isLoading={PlanRecordLoading === null ? true : PlanRecordLoading}
