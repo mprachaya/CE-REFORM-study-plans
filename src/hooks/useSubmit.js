@@ -5,7 +5,7 @@ export default function useSubmit(url, state, closemodal, refetch) {
   if (state) {
     axios
       .post(url, state)
-      .then(response => {
+      .then(res => {
         console.log(res.data)
         if (res.data.status === 201) {
           closemodal()
