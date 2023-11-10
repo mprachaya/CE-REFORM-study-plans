@@ -1,8 +1,9 @@
 //useFetch.js
 import axios from 'axios'
 
-export default function useSubmit(url, state, closemodal, refetch) {
+export default function useSubmit(url, state, closemodal, refetch, isDone) {
   if (state) {
+    isDone(false)
     axios
       .post(url, state)
       .then(res => {
@@ -10,6 +11,7 @@ export default function useSubmit(url, state, closemodal, refetch) {
         if (res.data.status === 201) {
           closemodal()
           refetch()
+          isDone(true)
         }
       })
 

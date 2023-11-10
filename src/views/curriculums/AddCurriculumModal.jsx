@@ -14,6 +14,7 @@ import {
 import React from 'react'
 import { useEffect } from 'react'
 import { useState } from 'react'
+import { CircleLoading } from 'src/components'
 import Selection from 'src/components/Selection'
 import { handleChangeEN, handleChangeNumber, handleChangeTH } from 'src/hooks/useValidation'
 
@@ -44,6 +45,8 @@ function AddCurriculumModal({ open, handleClose, handleSubmit, curriculums, facu
     curriculum_year: 0,
     ref_curriculum_id: 0
   })
+
+  const [isDone, setIsDone] = useState(null)
 
   const checkIsEmpty = object => {
     var isEmpty = false
@@ -93,6 +96,21 @@ function AddCurriculumModal({ open, handleClose, handleSubmit, curriculums, facu
         <Typography variant='h6' sx={{ mt: 5, ml: 5 }}>
           Add new curriculum
         </Typography>
+        {!isDone && isDone !== null && (
+          <Grid
+            container
+            spacing={0}
+            direction={'column'}
+            alignItems={'center'}
+            justifyContent={'center'}
+            sx={{ minHeight: '60vh' }}
+          >
+            <Grid item xs={6}>
+              <Typography m={2}> In Processing.....</Typography>
+              <CircleLoading />
+            </Grid>
+          </Grid>
+        )}
         <DialogContent sx={{ display: 'flex' }}>
           <Grid container spacing={6}>
             <Grid item xs={12} sm={12} md={12} lg={6}>
@@ -210,7 +228,12 @@ function AddCurriculumModal({ open, handleClose, handleSubmit, curriculums, facu
           Cancel
         </Button>
         {/* <Button onClick={() => !checkIsEmpty(state) && handleSubmit(state)}>Submit</Button> */}
-        <Button onClick={() => !checkIsEmpty(state) && handleSubmit(state)}>Submit</Button>
+        <Button
+          disabled={isDone === null || !isDone}
+          onClick={() => !checkIsEmpty(state) && handleSubmit(state, setIsDone)}
+        >
+          Submit
+        </Button>
       </DialogActions>
     </Dialog>
   )

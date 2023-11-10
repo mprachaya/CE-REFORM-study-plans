@@ -83,6 +83,7 @@ const curriculums = () => {
     'curriculum_short_name_en',
     'curriculum_year'
   ]
+
   const [curriculumsTemp, setCurriculumsTemp] = useState([])
 
   const [searchText, setSearchText] = useState('')
@@ -111,8 +112,8 @@ const curriculums = () => {
     loading: StudentGroupsLoading
   } = useFetch(URL_GET_STUDENT_GROUPS)
 
-  const handleSubmit = submitState => {
-    useSubmit(URL_INSERT, submitState, () => setOpen(false), reFetchCurriculums)
+  const handleSubmit = (submitState, isDone) => {
+    useSubmit(URL_INSERT, submitState, () => setOpen(false), reFetchCurriculums, isDone)
   }
 
   const handleUpdate = updateState => {
@@ -225,6 +226,7 @@ const curriculums = () => {
           />
         </Grid>
       </Grid>
+
       <Grid container>
         <AddCurriculumModal
           open={open}
