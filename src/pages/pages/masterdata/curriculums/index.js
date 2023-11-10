@@ -219,7 +219,7 @@ const curriculums = () => {
       <Grid container>
         <Grid item xs={12} sm={12} lg={12} mt={6}>
           <DataGridTable
-            rows={Curriculums}
+            rows={Object.values(Curriculums).sort((a, b) => a.curriculum_id - b.curriculum_id)}
             columns={columns}
             uniqueKey={'curriculum_id'}
             isLoading={CurriculumLoading === null ? true : CurriculumLoading}

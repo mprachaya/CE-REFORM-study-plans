@@ -96,7 +96,7 @@ function AddCurriculumModal({ open, handleClose, handleSubmit, curriculums, facu
         <Typography variant='h6' sx={{ mt: 5, ml: 5 }}>
           Add new curriculum
         </Typography>
-        {!isDone && isDone !== null && (
+        {!isDone && isDone !== null ? (
           <Grid
             container
             spacing={0}
@@ -110,128 +110,128 @@ function AddCurriculumModal({ open, handleClose, handleSubmit, curriculums, facu
               <CircleLoading />
             </Grid>
           </Grid>
+        ) : (
+          <React.Fragment>
+            <DialogContent sx={{ display: 'flex' }}>
+              <Grid container spacing={6}>
+                <Grid item xs={12} sm={12} md={12} lg={6}>
+                  <TextField
+                    fullWidth
+                    name={'curriculum_name_th'}
+                    label='Curriculum Name TH *'
+                    placeholder='Thai Only'
+                    onChange={e => handleChangeTH(e, setState)}
+                    value={state.curriculum_name_th}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={12} md={12} lg={6}>
+                  <TextField
+                    fullWidth
+                    name={'curriculum_name_en'}
+                    label='Curriculum Name EN *'
+                    placeholder='English Only'
+                    onChange={e => handleChangeEN(e, setState)}
+                    value={state.curriculum_name_en}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={12} md={12} lg={6}>
+                  <TextField
+                    fullWidth
+                    name={'curriculum_short_name_th'}
+                    label='Curriculum Short Name TH *'
+                    placeholder='Thai Only'
+                    onChange={e => handleChangeTH(e, setState)}
+                    value={state.curriculum_short_name_th}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={12} md={12} lg={6}>
+                  <TextField
+                    fullWidth
+                    name={'curriculum_short_name_en'}
+                    label='Curriculum Short Name EN *'
+                    placeholder='English Only'
+                    onChange={e => handleChangeEN(e, setState)}
+                    value={state.curriculum_short_name_en}
+                  />
+                </Grid>
+              </Grid>
+            </DialogContent>
+            <DialogContent sx={{ display: 'flex' }}>
+              <Grid container spacing={6}>
+                <Grid item xs={12} sm={12} md={12} lg={6}>
+                  <Selection
+                    width={'100%'}
+                    firstItemText={'Choose Faculty *'}
+                    selectionValue={facultySelection}
+                    handleChange={e => setFacultySelection(e.target.value)}
+                    Items={Object.values(faculty)?.map(fac => (
+                      <MenuItem key={fac.faculty_id} value={fac.faculty_id}>
+                        {fac.faculty_name_th}
+                      </MenuItem>
+                    ))}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={12} md={12} lg={6}>
+                  <Selection
+                    width={'100%'}
+                    firstItemText={'Choose Student Groups *'}
+                    selectionValue={studentGroupsSelection}
+                    handleChange={e => setStudentGroupsSelection(e.target.value)}
+                    Items={Object.values(studentGroups)?.map(stdg => (
+                      <MenuItem key={stdg.collegian_group_id} value={stdg.collegian_group_id}>
+                        {stdg.collegian_group_short_name_th}
+                      </MenuItem>
+                    ))}
+                  />
+                </Grid>
+
+                <Grid item xs={12} sm={12} md={12} lg={6}>
+                  <TextField
+                    type='number'
+                    name={'curriculum_year'}
+                    value={state.curriculum_year}
+                    onChange={e => handleChangeNumber(e, setState)}
+                    fullWidth
+                    label='Year *'
+                    placeholder='Number Only '
+                  />
+                </Grid>
+
+                <Grid item xs={12} sm={12} md={12} lg={3}>
+                  <FormGroup>
+                    <FormControlLabel
+                      sx={{ display: 'flex', justifyContent: { sm: 'start', md: 'start', lg: 'end' } }}
+                      control={<Checkbox onClick={() => setDuplicateState(!duplicateState)} checked={duplicateState} />}
+                      label='Duplicate Subjects'
+                    />
+                  </FormGroup>
+                </Grid>
+
+                <Grid item xs={12} sm={12} md={12} lg={3}>
+                  <Selection
+                    disabled={!duplicateState}
+                    width={'100%'}
+                    firstItemText={'Choose Curriculum *'}
+                    selectionValue={curriculumSelection}
+                    handleChange={e => setCurriculumSelection(e.target.value)}
+                    Items={Object.values(curriculums)?.map(curri => (
+                      <MenuItem key={curri.curriculum_id} value={curri.curriculum_id}>
+                        {curri.curriculum_name_th + ' (' + curri.curriculum_year + ')'}
+                      </MenuItem>
+                    ))}
+                  />
+                </Grid>
+              </Grid>
+            </DialogContent>
+          </React.Fragment>
         )}
-        <DialogContent sx={{ display: 'flex' }}>
-          <Grid container spacing={6}>
-            <Grid item xs={12} sm={12} md={12} lg={6}>
-              <TextField
-                fullWidth
-                name={'curriculum_name_th'}
-                label='Curriculum Name TH *'
-                placeholder='Thai Only'
-                onChange={e => handleChangeTH(e, setState)}
-                value={state.curriculum_name_th}
-              />
-            </Grid>
-            <Grid item xs={12} sm={12} md={12} lg={6}>
-              <TextField
-                fullWidth
-                name={'curriculum_name_en'}
-                label='Curriculum Name EN *'
-                placeholder='English Only'
-                onChange={e => handleChangeEN(e, setState)}
-                value={state.curriculum_name_en}
-              />
-            </Grid>
-            <Grid item xs={12} sm={12} md={12} lg={6}>
-              <TextField
-                fullWidth
-                name={'curriculum_short_name_th'}
-                label='Curriculum Short Name TH *'
-                placeholder='Thai Only'
-                onChange={e => handleChangeTH(e, setState)}
-                value={state.curriculum_short_name_th}
-              />
-            </Grid>
-            <Grid item xs={12} sm={12} md={12} lg={6}>
-              <TextField
-                fullWidth
-                name={'curriculum_short_name_en'}
-                label='Curriculum Short Name EN *'
-                placeholder='English Only'
-                onChange={e => handleChangeEN(e, setState)}
-                value={state.curriculum_short_name_en}
-              />
-            </Grid>
-          </Grid>
-        </DialogContent>
-        <DialogContent sx={{ display: 'flex' }}>
-          <Grid container spacing={6}>
-            <Grid item xs={12} sm={12} md={12} lg={6}>
-              <Selection
-                width={'100%'}
-                firstItemText={'Choose Faculty *'}
-                selectionValue={facultySelection}
-                handleChange={e => setFacultySelection(e.target.value)}
-                Items={Object.values(faculty)?.map(fac => (
-                  <MenuItem key={fac.faculty_id} value={fac.faculty_id}>
-                    {fac.faculty_name_th}
-                  </MenuItem>
-                ))}
-              />
-            </Grid>
-            <Grid item xs={12} sm={12} md={12} lg={6}>
-              <Selection
-                width={'100%'}
-                firstItemText={'Choose Student Groups *'}
-                selectionValue={studentGroupsSelection}
-                handleChange={e => setStudentGroupsSelection(e.target.value)}
-                Items={Object.values(studentGroups)?.map(stdg => (
-                  <MenuItem key={stdg.collegian_group_id} value={stdg.collegian_group_id}>
-                    {stdg.collegian_group_short_name_th}
-                  </MenuItem>
-                ))}
-              />
-            </Grid>
-
-            <Grid item xs={12} sm={12} md={12} lg={6}>
-              <TextField
-                type='number'
-                name={'curriculum_year'}
-                value={state.curriculum_year}
-                onChange={e => handleChangeNumber(e, setState)}
-                fullWidth
-                label='Year *'
-                placeholder='Number Only '
-              />
-            </Grid>
-
-            <Grid item xs={12} sm={12} md={12} lg={3}>
-              <FormGroup>
-                <FormControlLabel
-                  sx={{ display: 'flex', justifyContent: { sm: 'start', md: 'start', lg: 'end' } }}
-                  control={<Checkbox onClick={() => setDuplicateState(!duplicateState)} checked={duplicateState} />}
-                  label='Duplicate Subjects'
-                />
-              </FormGroup>
-            </Grid>
-
-            <Grid item xs={12} sm={12} md={12} lg={3}>
-              <Selection
-                disabled={!duplicateState}
-                width={'100%'}
-                firstItemText={'Choose Curriculum *'}
-                selectionValue={curriculumSelection}
-                handleChange={e => setCurriculumSelection(e.target.value)}
-                Items={Object.values(curriculums)?.map(curri => (
-                  <MenuItem key={curri.curriculum_id} value={curri.curriculum_id}>
-                    {curri.curriculum_name_th + ' (' + curri.curriculum_year + ')'}
-                  </MenuItem>
-                ))}
-              />
-            </Grid>
-          </Grid>
-        </DialogContent>
       </DialogContent>
       <DialogActions>
         <Button onClick={handleClose} color='secondary'>
           Cancel
         </Button>
         {/* <Button onClick={() => !checkIsEmpty(state) && handleSubmit(state)}>Submit</Button> */}
-        <Button
-          disabled={isDone === null || !isDone}
-          onClick={() => !checkIsEmpty(state) && handleSubmit(state, setIsDone)}
-        >
+        <Button disabled={isDone !== null} onClick={() => !checkIsEmpty(state) && handleSubmit(state, setIsDone)}>
           Submit
         </Button>
       </DialogActions>

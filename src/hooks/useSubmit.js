@@ -11,7 +11,7 @@ export default function useSubmit(url, state, closemodal, refetch, isDone) {
         if (res.data.status === 201) {
           closemodal()
           refetch()
-          isDone(true)
+          isDone(null)
         }
       })
 
