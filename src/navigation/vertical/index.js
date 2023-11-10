@@ -17,12 +17,12 @@ const navigation = () => {
       path: '/pages/masterdata/faculty'
       // openInNewTab: true
     },
-    {
-      title: 'Subject',
-      icon: Domain,
-      path: '/pages/masterdata/subjects'
-      // openInNewTab: true
-    },
+    // {
+    //   title: 'Subject',
+    //   icon: Domain,
+    //   path: '/pages/masterdata/subjects'
+    //   // openInNewTab: true
+    // },
 
     {
       title: 'Subject Categories',

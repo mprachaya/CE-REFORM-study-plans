@@ -12,7 +12,7 @@ function CurriculumDetailsModal({ curriculumId, state, open, handleClose, rows_d
   const [getCurriculumId, setCurriculumId] = useState(0)
   const [delay, setDelay] = useState(true)
 
-  const URL_GET_SUBJECT = `${url.BASE_URL}/subjects/${getCurriculumId}`
+  const URL_GET_SUBJECT = `${url.BASE_URL}/subjects-by-curriculum/${getCurriculumId}`
   const { error: SubjectsError, data: Subjects, loading: SubjectsLoading } = useFetch(URL_GET_SUBJECT)
 
   const details_columns = [
