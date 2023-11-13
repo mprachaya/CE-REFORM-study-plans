@@ -10,10 +10,11 @@ function Selection({
   height,
   width,
   disabled,
-  handleFirstItem
+  handleFirstItem,
+  disableSelect
 }) {
   return (
-    <FormControl sx={{ width: width }}>
+    <FormControl sx={{ width: width }} disabled={disableSelect}>
       <InputLabel size='small' id='form-layouts-separator-select-label'>
         {label}
       </InputLabel>
@@ -25,9 +26,11 @@ function Selection({
         value={selectionValue}
         onChange={handleChange}
       >
+        {/* {firstItemText !== undefined && ( */}
         <MenuItem disabled value={0} key={0} onClick={handleFirstItem}>
           {firstItemText}
         </MenuItem>
+        {/* )} */}
         {Items}
         {/* sample items
         <MenuItem value='University 1'>University 1</MenuItem>

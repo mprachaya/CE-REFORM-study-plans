@@ -12,6 +12,7 @@ import useSearchText from 'src/hooks/useSearchText'
 import { url } from 'src/configs/urlConfig'
 import { useRouter } from 'next/router'
 import axios from 'axios'
+import AddStudyPlanModal from 'src/views/curriculums/AddStudyPlanModal'
 // import EditSubjectCategoriesModal from '../../../../views/subjecttypes/EditSubjectTypesModal'
 // import AddSubjectCategoriesGroupsModal from '../../../../views/subjecttypes/AddSubjectTypesModal'
 
@@ -27,10 +28,6 @@ const studyplans = () => {
   // const URL_INSERT = `${url.BASE_URL}/subject-types/`
   // const URL_UPDATE = `${url.BASE_URL}/subject-types/${editState.subject_type_id}`
   // const URL_DELETE = `${url.BASE_URL}/subject-types/${editState.subject_type_id}`
-
-  const handleClickOpen = () => {
-    setOpen(true)
-  }
 
   // const handleClose = setInitialState => {
   //   setOpen(false)
@@ -85,6 +82,9 @@ const studyplans = () => {
   const [semesterSelected, setSemesterSelected] = useState(0)
   const semesters = [1, 2, 3]
 
+  const [open, setOpen] = useState(false) // for add new study plan
+  const [openSub, setOpenSub] = useState(false) // for add new study sub plan
+
   useEffect(() => {
     if (planSelected) {
       const getPlanRecords = axios
@@ -96,6 +96,88 @@ const studyplans = () => {
       setSemesterSelected(1)
     }
   }, [planSelected])
+
+  const handleCreatePlan = (state, createBy, setIsDone, subPlans) => {
+    if (state.curriculum_id < 1) {
+      if (state.study_plan_name === '') return alert('Please Choose Curriculum and Fill Plan Name')
+      return alert('Please Choose Curriculum')
+    } else {
+      // 0 = no reference
+      // 1 = with reference
+
+      if (createBy == 0) {
+        const submitState = {
+          curriculum_id: router.query.curriculum_id,
+          study_plan_name: state.study_plan_name,
+          study_plan_total_credit: 0,
+          study_plan_version: 1
+        }
+        setIsDone(false)
+        axios
+          .post(URL_GET_PLANS, submitState)
+          .then(res => {
+            if (res.data.status === 201) {
+              setIsDone(true)
+              reFetchPlan()
+              setTimeout(() => {
+                setOpen(false)
+                setPlanSelected(res.data.data.study_plan_id)
+              }, 500)
+            }
+          })
+          .catch(err => console.log(err))
+        // console.log(state)
+      } else {
+        const submitState = {
+          curriculum_id: router.query.curriculum_id,
+          study_plan_name: state.study_plan_name,
+          study_plan_total_credit: state.study_plan_version,
+          study_plan_version: state.study_plan_version
+        }
+        setIsDone(false)
+
+        axios
+          .post(URL_GET_PLANS, submitState)
+          .then(res => {
+            if (res.data.status === 201) {
+              if (subPlans) {
+                Object.values(subPlans)?.map(subPlan => {
+                  axios
+                    .post(
+                      URL_GET_PLAN_RECORDS,
+
+                      {
+                        study_plan_id: res.data.data.study_plan_id,
+                        subject_id: subPlan.subject_id !== null ? subPlan.subject_id : '',
+                        study_plan_record_elective_course:
+                          subPlan.study_plan_record_elective_course !== null
+                            ? subPlan.study_plan_record_elective_course
+                            : '',
+                        study_plan_record_semester: subPlan.study_plan_record_semester,
+                        study_plan_record_year: subPlan.study_plan_record_year
+                      }
+                    )
+                    .then(res => {
+                      // console.log(res.data.data)
+                    })
+                })
+              }
+              setIsDone(true)
+              reFetchPlan()
+              setTimeout(() => {
+                setOpen(false)
+                setPlanSelected(res.data.data.study_plan_id)
+              }, 500)
+            }
+          })
+          .catch(err => console.log(err))
+
+        // console.log(state)
+      }
+      // createBy.id == 1 ?
+      // : console.log('error create plan');
+    }
+  }
   // console.log(
   //   URL_GET_PLAN_RECORDS +
   //     Math.max.apply(
@@ -220,7 +302,7 @@ const studyplans = () => {
     <Box>
       {/* // header */}
       <Box display={'flex'} flexDirection={'row'}>
-        <Typography variant='h6'>Study Plans</Typography>
+        <Typography variant='h6'>Study Plans {router.query.curriculum_name}</Typography>
       </Box>
 
       <Grid container spacing={2} sx={{ mt: 5 }}>
@@ -244,7 +326,7 @@ const studyplans = () => {
                 value={p.study_plan_id}
                 onClick={() => setPlanCredit(p.study_plan_total_credit)}
               >
-                {p.study_plan_name}
+                {p.study_plan_name + ' Version(' + p.study_plan_version + ')'}
               </MenuItem>
             ))}
           />
@@ -284,10 +366,10 @@ const studyplans = () => {
           />
         </Grid>
         <Grid item xs={6} sm={6} md={3}>
-          <Btn fullWidth handleClick={handleClickOpen} label={'+ Add New Plan'} />
+          <Btn fullWidth handleClick={() => setOpen(true)} label={'+ Add New Plan'} />
         </Grid>
         <Grid item xs={6} sm={6} md={4}>
-          <Btn fullWidth handleClick={handleClickOpen} label={'+ Add New Sub Plan'} />
+          <Btn fullWidth handleClick={() => setOpenSub(true)} label={'+ Add New Sub Plan'} />
         </Grid>
         <Grid item xs={6} sm={6} md={4}>
           <Typography sx={{ m: 2 }}>Total Credit: {planCredit}</Typography>
@@ -345,6 +427,16 @@ const studyplans = () => {
           handleSubmit={handleDelete}
         />
       </Grid> */}
+      <Grid container>
+        <Grid item>
+          <AddStudyPlanModal
+            open={open}
+            handleClose={() => setOpen(false)}
+            curriculumId={router.query.curriculum_id}
+            handleSubmit={handleCreatePlan}
+          />
+        </Grid>
+      </Grid>
     </Box>
   )
 }

@@ -125,7 +125,7 @@ function CurriculumEditModal({ state, open, handleClose, faculty, studentGroups,
                   onClick={() =>
                     router.push({
                       pathname: '/pages/masterdata/curriculums/studyplans',
-                      query: { curriculum_id: state.curriculum_id }
+                      query: { curriculum_id: state.curriculum_id, curriculum_name: state.curriculum_name_th }
                     })
                   }
                 >
