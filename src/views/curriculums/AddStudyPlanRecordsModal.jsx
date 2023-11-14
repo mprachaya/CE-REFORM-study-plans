@@ -13,6 +13,7 @@ import {
   Autocomplete,
   Box
 } from '@mui/material'
+import { esES } from '@mui/x-data-grid'
 import axios from 'axios'
 import React from 'react'
 import { useEffect } from 'react'
@@ -32,8 +33,7 @@ function AddStudyPlanRecordsModal({
   year,
   semester,
   Plans,
-  setPlans,
-  handleSubmit
+  setPlans
 }) {
   // const [curriculumSelection, setCurriculumSelection] = useState(0)
   // const [facultySelection, setFacultySelection] = useState(0)
@@ -67,11 +67,11 @@ function AddStudyPlanRecordsModal({
   const URL_GET_STUDY_PLANS = `${url.BASE_URL}/study-plans/`
 
   const {
-    error: SubjectsError,
-    data: Subjects,
-    setData: setSubjects,
-    loading: SubjectsLoading,
-    reFetch: reFetchSubjects
+    // error: SubjectsError,
+    data: Subjects
+    // setData: setSubjects,
+    // loading: SubjectsLoading,
+    // reFetch: reFetchSubjects
   } = useFetch(URL_GET_SUBJECTS_BY_CURRICULUM + studyPlan?.curriculum_id)
 
   const [subjectsFilterByRecord, setSubjectFilterByRecord] = useState([])
@@ -115,6 +115,23 @@ function AddStudyPlanRecordsModal({
     study_plan_record_semester: 1,
     study_plan_record_year: 1
   }
+
+  const refSubjectState = {
+    study_plan_id: studyPlan?.study_plan_id,
+    subject_id: 0,
+    study_plan_record_elective_course: null,
+    study_plan_record_semester: 1,
+    study_plan_record_year: 1
+  }
+
+  const noRefState = {
+    study_plan_id: studyPlan?.study_plan_id,
+    subject_id: null,
+    study_plan_record_elective_course: '',
+    study_plan_record_semester: 1,
+    study_plan_record_year: 1
+  }
+
   const [state, setState] = useState(initialsState)
 
   const columnsForEdit = [
@@ -183,7 +200,7 @@ function AddStudyPlanRecordsModal({
 
   // const [duplicateSubPlans, setDuplicateSubPlan] = useState([])
 
-  // const [isDone, setIsDone] = useState(null)
+  const [isDone, setIsDone] = useState(null)
 
   // const handleRefPlanChange = plan => {
   //   const checkDuplicate = StudyPlans.filter(p => p.study_plan_name === plan.study_plan_name)
@@ -237,6 +254,7 @@ function AddStudyPlanRecordsModal({
   // }, [studyPlan])
 
   const postNewRecord = () => {
+    setIsDone(false)
     axios
       .post(URL_GET_STUDY_PLAN_RECORDS, state)
       .then(res => {
@@ -271,6 +289,7 @@ function AddStudyPlanRecordsModal({
               planRow.updated_at = res.data.data.updated_at
               planTemp[0] = planRow
               setPlans(planTemp)
+              setIsDone(true)
               // console.log('planTemp', planTemp)
             }
           })
@@ -282,15 +301,22 @@ function AddStudyPlanRecordsModal({
 
   const handleAddNewRecord = () => {
     if (createByValue === 0) {
-      if (state.subject_id === null) return alert('Please select subject')
-      console.log('insert with subject ', state)
-      postNewRecord()
-      // case insert by subject
+      // case insert by subjects
+      if (state.subject_id === null || state.subject_id === 0) return alert('Please select subject')
+      else {
+        console.log('insert with subject ', state)
+        postNewRecord()
+        setState(refSubjectState)
+      }
     } else {
-      if (state.study_plan_record_elective_course === null) return alert('Please Fill Subject Name ')
-      // case insert new text without reference by subject
-      console.log('insert without subject ', state)
-      postNewRecord()
+      if (state.study_plan_record_elective_course === null || state.study_plan_record_elective_course === '')
+        return alert('Please Fill Subject Name ')
+      else {
+        // case insert new text without reference by subject
+        console.log('insert without subject ', state)
+        postNewRecord()
+        setState(noRefState)
+      }
     }
   }
 
@@ -407,22 +433,8 @@ function AddStudyPlanRecordsModal({
                     e => {
                       setCreateByValue(e.target.value)
                       if (e.target.value === 0) {
-                        const refSubjectState = {
-                          study_plan_id: studyPlan?.study_plan_id,
-                          subject_id: 0,
-                          study_plan_record_elective_course: null,
-                          study_plan_record_semester: 1,
-                          study_plan_record_year: 1
-                        }
                         setState(refSubjectState)
                       } else if (e.target.value === 1) {
-                        const noRefState = {
-                          study_plan_id: studyPlan?.study_plan_id,
-                          subject_id: null,
-                          study_plan_record_elective_course: '',
-                          study_plan_record_semester: 1,
-                          study_plan_record_year: 1
-                        }
                         setState(noRefState)
                       }
                     }
@@ -564,6 +576,7 @@ function AddStudyPlanRecordsModal({
               )}
               <Grid item xs={12} md={6}>
                 <Button
+                  disabled={!isDone && isDone !== null ? true : false}
                   sx={{ height: 55 }}
                   variant='contained'
                   fullWidth
