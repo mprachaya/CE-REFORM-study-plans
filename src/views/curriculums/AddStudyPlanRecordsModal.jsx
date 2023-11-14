@@ -236,55 +236,61 @@ function AddStudyPlanRecordsModal({
   //   }
   // }, [studyPlan])
 
+  const postNewRecord = () => {
+    axios
+      .post(URL_GET_STUDY_PLAN_RECORDS, state)
+      .then(res => {
+        if (res.data.status === 201) {
+          console.log(res.data.message)
+          const updateRecords = allRecord.concat(res.data.data)
+          console.log('updateRecords ', updateRecords)
+          setAllRecord(updateRecords) // update all record
+          filterSubjects(updateRecords) // update subjects for autocomplete
+          setClearAutoComplete(!clearAutoComplete) // clear autocomplete
+          let updateCredit = 0
+          updateRecords.forEach(obj => {
+            if (obj.subjects !== null) {
+              updateCredit += obj.subjects?.subject_credit
+            } else {
+              updateCredit += 3
+            }
+          })
+          const planTemp = Plans
+          const planRow = Plans[0]
+          planRow.study_plan_total_credit = updateCredit
+          const updateState = {
+            curriculum_id: planRow.curriculum_id,
+            study_plan_name: planRow.study_plan_name,
+            study_plan_total_credit: planRow.study_plan_total_credit
+          }
+
+          // console.log('updatelocal credit: ', updateState)
+          axios.put(URL_GET_STUDY_PLANS + studyPlan.study_plan_id, updateState).then(res => {
+            if (res.data.status === 200) {
+              // console.log(res.data.message)
+              planRow.updated_at = res.data.data.updated_at
+              planTemp[0] = planRow
+              setPlans(planTemp)
+              // console.log('planTemp', planTemp)
+            }
+          })
+          // console.log('updateTotalCredit = ', updateCredit)
+        }
+      })
+      .catch(err => console.log(err))
+  }
+
   const handleAddNewRecord = () => {
     if (createByValue === 0) {
       if (state.subject_id === null) return alert('Please select subject')
+      console.log('insert with subject ', state)
+      postNewRecord()
       // case insert by subject
-      axios
-        .post(URL_GET_STUDY_PLAN_RECORDS, state)
-        .then(res => {
-          if (res.data.status === 201) {
-            console.log(res.data.message)
-            const updateRecords = allRecord.concat(res.data.data)
-            console.log('updateRecords ', updateRecords)
-            setAllRecord(updateRecords) // update all record
-            filterSubjects(updateRecords) // update subjects for autocomplete
-            setClearAutoComplete(!clearAutoComplete) // clear autocomplete
-            let updateCredit = 0
-            updateRecords.forEach(obj => {
-              if (obj.subjects !== null) {
-                updateCredit += obj.subjects?.subject_credit
-              } else {
-                updateCredit += 3
-              }
-            })
-            const planTemp = Plans
-            const planRow = Plans[0]
-            planRow.study_plan_total_credit = updateCredit
-            const updateState = {
-              curriculum_id: planRow.curriculum_id,
-              study_plan_name: planRow.study_plan_name,
-              study_plan_total_credit: planRow.study_plan_total_credit
-            }
-
-            // console.log('updatelocal credit: ', updateState)
-            axios.put(URL_GET_STUDY_PLANS + studyPlan.study_plan_id, updateState).then(res => {
-              if (res.data.status === 200) {
-                // console.log(res.data.message)
-                planRow.updated_at = res.data.data.updated_at
-                planTemp[0] = planRow
-                setPlans(planTemp)
-                // console.log('planTemp', planTemp)
-              }
-            })
-            // console.log('updateTotalCredit = ', updateCredit)
-          }
-        })
-        .catch(err => console.log(err))
     } else {
       if (state.study_plan_record_elective_course === null) return alert('Please Fill Subject Name ')
       // case insert new text without reference by subject
       console.log('insert without subject ', state)
+      postNewRecord()
     }
   }
 
