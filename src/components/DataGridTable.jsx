@@ -31,7 +31,7 @@ function DataGridTable({ rows, columns, uniqueKey, isLoading, noData = 'ไม�
       />
     </Box>
   ) : (
-    <Typography sx={{ m: 6 }}>{noData}</Typography>
+    <Typography sx={{ m: 6, ml: 0 }}>{noData}</Typography>
   )
 }
 

@@ -3,7 +3,7 @@ import axios from 'axios'
 
 export default function useSubmit(url, state, closemodal, refetch, isDone) {
   if (state) {
-    isDone(false)
+    isDone && isDone(false)
     axios
       .post(url, state)
       .then(res => {
@@ -11,7 +11,7 @@ export default function useSubmit(url, state, closemodal, refetch, isDone) {
         if (res.data.status === 201) {
           closemodal()
           refetch()
-          isDone(null)
+          isDone && isDone(null)
         }
       })
 

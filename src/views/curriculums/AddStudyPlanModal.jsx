@@ -62,7 +62,7 @@ function AddStudyPlanModal({ open, handleClose, curriculumId, handleSubmit }) {
   const initialsState = {
     curriculum_id: curriculumId,
     study_plan_name: '',
-    study_plan_version: 1,
+    // study_plan_version: 1,
     study_plan_total_credit: 0
   }
   const [state, setState] = useState(initialsState)
@@ -71,33 +71,33 @@ function AddStudyPlanModal({ open, handleClose, curriculumId, handleSubmit }) {
 
   const [isDone, setIsDone] = useState(null)
 
-  const handleRefPlanChange = plan => {
-    const checkDuplicate = StudyPlans.filter(p => p.study_plan_name === plan.study_plan_name)
+  // const handleRefPlanChange = plan => {
+  //   const checkDuplicate = StudyPlans.filter(p => p.study_plan_name === plan.study_plan_name)
 
-    console.log('checkDuplicate ', checkDuplicate)
+  //   console.log('checkDuplicate ', checkDuplicate)
 
-    const lastedVersion = checkDuplicate.reduce((max, current) => {
-      const currentValue = current['study_plan_version']
-      return currentValue > max['study_plan_version'] ? current : max
-    })
-    console.log('lasted version ', lastedVersion)
+  //   const lastedVersion = checkDuplicate.reduce((max, current) => {
+  //     const currentValue = current['study_plan_version']
+  //     return currentValue > max['study_plan_version'] ? current : max
+  //   })
+  //   console.log('lasted version ', lastedVersion)
 
-    if (plan) {
-      setState(pre => ({
-        ...pre,
-        study_plan_name: plan.study_plan_name,
-        study_plan_version: lastedVersion.study_plan_version + 1,
-        study_plan_total_credit: plan.study_plan_total_credit
-      }))
-      axios
-        .get(URL_GET_SUB_STUDY_PLANS + plan.study_plan_id)
-        .then(res => {
-          setDuplicateSubPlan(res.data.data)
-          console.log(res.data.data)
-        })
-        .catch(err => console.log(err))
-    }
-  }
+  //   if (plan) {
+  //     setState(pre => ({
+  //       ...pre,
+  //       study_plan_name: plan.study_plan_name,
+  //       // study_plan_version: lastedVersion.study_plan_version + 1,
+  //       study_plan_total_credit: plan.study_plan_total_credit
+  //     }))
+  //     axios
+  //       .get(URL_GET_SUB_STUDY_PLANS + plan.study_plan_id)
+  //       .then(res => {
+  //         setDuplicateSubPlan(res.data.data)
+  //         console.log(res.data.data)
+  //       })
+  //       .catch(err => console.log(err))
+  //   }
+  // }
 
   // const checkIsEmpty = object => {
   //   var isEmpty = false
@@ -156,7 +156,7 @@ function AddStudyPlanModal({ open, handleClose, curriculumId, handleSubmit }) {
           <React.Fragment>
             <DialogContent sx={{ display: 'flex' }}>
               <Grid container spacing={6}>
-                <Grid item xs={6}>
+                {/* <Grid item xs={6}>
                   <Selection
                     width={'100%'}
                     selectionValue={createByValue}
@@ -172,36 +172,36 @@ function AddStudyPlanModal({ open, handleClose, curriculumId, handleSubmit }) {
                       </MenuItem>
                     ))}
                   />
-                </Grid>
-                {createByValue === 0 && (
-                  <React.Fragment>
-                    <Grid item xs={12} sm={12} md={12} lg={6}>
-                      <Selection
-                        width={'100%'}
-                        disableSelect={true}
-                        // firstItemText={'Choose Curriculum *'}
-                        selectionValue={curriculumId}
-                        // handleChange={e => setState(pre => ({ ...pre, curriculum_id: e.target.value }))}
-                        Items={Object.values(Curriculums)?.map(curr => (
-                          <MenuItem disabled key={curr.curriculum_id} value={curr.curriculum_id}>
-                            {curr.curriculum_name_th}
-                          </MenuItem>
-                        ))}
-                      />
-                    </Grid>
+                </Grid> */}
+                {/* {createByValue === 0 && ( */}
+                <React.Fragment>
+                  <Grid item xs={12} sm={12} md={12} lg={6}>
+                    <Selection
+                      width={'100%'}
+                      disableSelect={true}
+                      // firstItemText={'Choose Curriculum *'}
+                      selectionValue={curriculumId}
+                      // handleChange={e => setState(pre => ({ ...pre, curriculum_id: e.target.value }))}
+                      Items={Object.values(Curriculums)?.map(curr => (
+                        <MenuItem disabled key={curr.curriculum_id} value={curr.curriculum_id}>
+                          {curr.curriculum_name_th}
+                        </MenuItem>
+                      ))}
+                    />
+                  </Grid>
 
-                    <Grid item xs={12} sm={12} md={12} lg={6}>
-                      <TextField
-                        fullWidth
-                        name={'study_plan_name'}
-                        label='Study Plan Name *'
-                        onChange={e => setState(pre => ({ ...pre, study_plan_name: e.target.value }))}
-                        value={state?.study_plan_name || ''}
-                      />
-                    </Grid>
-                  </React.Fragment>
-                )}
-                {createByValue === 1 && (
+                  <Grid item xs={12} sm={12} md={12} lg={6}>
+                    <TextField
+                      fullWidth
+                      name={'study_plan_name'}
+                      label='Study Plan Name *'
+                      onChange={e => setState(pre => ({ ...pre, study_plan_name: e.target.value }))}
+                      value={state?.study_plan_name || ''}
+                    />
+                  </Grid>
+                </React.Fragment>
+                {/* )} */}
+                {/* {createByValue === 1 && (
                   <React.Fragment>
                     <Grid item xs={12} sm={12} md={12} lg={6}>
                       <Selection
@@ -215,17 +215,17 @@ function AddStudyPlanModal({ open, handleClose, curriculumId, handleSubmit }) {
                           <MenuItem
                             key={pl.study_plan_id}
                             value={pl.study_plan_id}
-                            onClick={() => {
-                              handleRefPlanChange(pl)
-                            }}
+                            // onClick={() => {
+                            //   handleRefPlanChange(pl)
+                            // }}
                           >
-                            {pl.study_plan_name + ' Version(' + pl.study_plan_version + ')'}
+                            {pl.study_plan_name + ' Modified at(' + new Date(pl.updated_at) + ')'}
                           </MenuItem>
                         ))}
                       />
                     </Grid>
                   </React.Fragment>
-                )}
+                )} */}
 
                 {/* <Grid item xs={12} sm={12} md={12} lg={6}>
                 <Autocomplete

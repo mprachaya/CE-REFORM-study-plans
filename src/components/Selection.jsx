@@ -10,6 +10,7 @@ function Selection({
   height,
   width,
   disabled,
+  disableFirstItem,
   handleFirstItem,
   disableSelect
 }) {
@@ -26,11 +27,11 @@ function Selection({
         value={selectionValue}
         onChange={handleChange}
       >
-        {/* {firstItemText !== undefined && ( */}
-        <MenuItem disabled value={0} key={0} onClick={handleFirstItem}>
-          {firstItemText}
-        </MenuItem>
-        {/* )} */}
+        {firstItemText !== undefined && (
+          <MenuItem disabled={disableFirstItem} value={0} key={0} onClick={handleFirstItem}>
+            {firstItemText}
+          </MenuItem>
+        )}
         {Items}
         {/* sample items
         <MenuItem value='University 1'>University 1</MenuItem>
