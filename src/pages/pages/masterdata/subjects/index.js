@@ -16,10 +16,12 @@ import AddSubjectModal from '../../../../views/subjects/AddSubjectModal'
 import EditSubjectModal from '../../../../views/subjects/EditSubjectModal'
 import AddSubjectCompetency from 'src/views/competencies/AddSubjectCompetency'
 import curriculums from '../curriculums'
+import AddContinueSubjects from 'src/views/continue-subjects/AddContinueSubjects'
 
 const subjects = () => {
   const [open, setOpen] = useState(false)
   const [openCompetency, setOpenCompetency] = useState(false)
+  const [openContinueSubject, setOpenContinueSubject] = useState(false)
   const [curriculumSelection, setCurriculumSelection] = useState(0)
   const [subjectSelection, setSubjectSelection] = useState([])
   const [subjectGroupSelection, setSubjectGroupSelection] = useState(0)
@@ -183,7 +185,7 @@ const subjects = () => {
   const columns = [
     { field: 'subject_code', headerName: 'Code', width: 100 },
     { field: 'subject_name_th', headerName: 'Name TH', width: 210 },
-    { field: 'subject_name_en', headerName: 'Name EN', width: 230 },
+    // { field: 'subject_name_en', headerName: 'Name EN', width: 230 },
     {
       field: 'subject_credit',
       headerName: 'Credit',
@@ -218,6 +220,18 @@ const subjects = () => {
               onClick={() => handleClickOpenCompetency(params.row)}
             >
               สมรรถนะ
+            </Button>
+          </Grid>
+          <Grid item>
+            <Button
+              color='secondary'
+              variant='outlined'
+              // endIcon={
+              //   <Icon path={mdiCircle} size={0.4} color={params.row.competencies.length > 0 ? 'green' : 'red'} />
+              // }
+              onClick={() => setOpenContinueSubject(true)}
+            >
+              วิชาต่อเนื่อง
             </Button>
           </Grid>
         </Grid>
@@ -326,6 +340,9 @@ const subjects = () => {
           }}
           // handleSubmit={handleDelete}
         />
+      </Grid>
+      <Grid container>
+        <AddContinueSubjects open={openContinueSubject} handleClose={() => setOpenContinueSubject(false)} />
       </Grid>
     </Box>
   )
