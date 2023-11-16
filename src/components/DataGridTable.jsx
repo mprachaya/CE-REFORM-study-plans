@@ -3,7 +3,7 @@ import { Box, Typography } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
 import CircleLoading from './CircleLoading'
 
-function DataGridTable({ rows, columns, uniqueKey, isLoading, noData = 'ไม่มีข้อมูลในระบบ' }) {
+function DataGridTable({ hidePagination, rows, columns, uniqueKey, isLoading, noData = 'ไม่มีข้อมูลในระบบ' }) {
   if (isLoading) {
     return (
       <Box sx={{ height: 120, m: 12 }}>
@@ -28,6 +28,7 @@ function DataGridTable({ rows, columns, uniqueKey, isLoading, noData = 'ไม�
         pageSizeOptions={[20, 50, 100]}
         disableRowSelectionOnClick
         getRowId={row => row[uniqueKey]}
+        hideFooterPagination={hidePagination}
       />
     </Box>
   ) : (

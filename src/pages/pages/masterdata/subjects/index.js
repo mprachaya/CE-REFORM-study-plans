@@ -55,6 +55,10 @@ const subjects = () => {
     setOpenCompetency(true)
     setSubjectSelection(subject)
   }
+  const handleClickOpenContinueSubjects = subject => {
+    setOpenContinueSubject(true)
+    setSubjectSelection(subject)
+  }
 
   const handleCloseEdit = setInitialState => {
     setOpenEdit(false)
@@ -229,7 +233,9 @@ const subjects = () => {
               // endIcon={
               //   <Icon path={mdiCircle} size={0.4} color={params.row.competencies.length > 0 ? 'green' : 'red'} />
               // }
-              onClick={() => setOpenContinueSubject(true)}
+              onClick={() => {
+                handleClickOpenContinueSubjects(params.row)
+              }}
             >
               วิชาต่อเนื่อง
             </Button>
@@ -342,7 +348,11 @@ const subjects = () => {
         />
       </Grid>
       <Grid container>
-        <AddContinueSubjects open={openContinueSubject} handleClose={() => setOpenContinueSubject(false)} />
+        <AddContinueSubjects
+          open={openContinueSubject}
+          handleClose={() => setOpenContinueSubject(false)}
+          subject={subjectSelection}
+        />
       </Grid>
     </Box>
   )

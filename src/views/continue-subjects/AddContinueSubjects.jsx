@@ -25,25 +25,60 @@ import { useFetch } from 'src/hooks'
 // import Selection from 'src/components/Selection'
 // import { handleChangeEN, handleChangeNumber, handleChangeTH } from 'src/hooks/useValidation'
 
-function AddContinueSubjects({ open, handleClose, subject, subjects, setSubjects }) {
+function AddContinueSubjects({ open, handleClose, subject }) {
+  const URL_GET_CONTINUE_SUBJECT_BY_SUBJECT_ID = `${url.BASE_URL}/continue-subjects-subject-id/`
+  const URL_GET_SUBJECTS = `${url.BASE_URL}/subjects-by-curriculum/`
+  const URL_ADD_CONTINUE_SUBJECT = `${url.BASE_URL}/continue-subjects/`
+
+  const {
+    error: ContinueSubjectsError,
+    data: ContinueSubjects,
+    setData: setContinueSubjects,
+    loading: ContinueSubjectsLoading,
+    reFetch: reFetchContinueSubjects
+  } = useFetch(URL_GET_CONTINUE_SUBJECT_BY_SUBJECT_ID + subject?.subject_id)
+
+  const {
+    error: SubjectError,
+    data: Subjects,
+    setData: setSubjects,
+    loading: SubjectLoading,
+    reFetch: reFetchSubjects
+  } = useFetch(URL_GET_SUBJECTS + subject?.curriculum_id)
+
   const [openSnackbar, setOpenSnackbar] = useState(false)
   const [snackMassage, setSnackMassage] = useState('')
-  const parent = [
-    { subject_id: 1, subject_code: 'CS101', subject_name_th: 'Introduction to Computer Science', subject_credit: 3 }
-  ]
-  const childrens = [
-    { subject_id: 2, subject_code: 'ENG201', subject_name_th: 'English Composition', subject_credit: 4 },
-    { subject_id: 3, subject_code: 'MATH301', subject_name_th: 'Calculus I', subject_credit: 4 }
-    // Add more subjects as needed
-  ]
+
+  const [subjectSelected, setSubjectSelected] = useState(null)
+
   const columnsParent = [
-    { field: 'subject_code', headerName: 'Code', flex: 0.3 },
-    { field: 'subject_name_th', headerName: 'Subject', flex: 1.2 }
+    {
+      field: 'subject_code',
+      headerName: 'Code',
+      valueGetter: params => params.row?.subjects?.subject_code,
+      flex: 0.3
+    },
+    {
+      field: 'subject_name_th',
+      headerName: 'Subject',
+      valueGetter: params => params.row?.subjects?.subject_name_th,
+      flex: 1.2
+    }
     // { field: 'subject_name_en', headerName: 'Name EN', width: 230 },
   ]
   const columnsChildren = [
-    { field: 'subject_code', headerName: 'Code', flex: 0.3 },
-    { field: 'subject_name_th', headerName: 'Subject', flex: 0.9 },
+    {
+      field: 'subject_code',
+      headerName: 'Code',
+      valueGetter: params => params.row?.subjects?.subject_code,
+      flex: 0.3
+    },
+    {
+      field: 'subject_name_th',
+      headerName: 'Subject',
+      valueGetter: params => params.row?.subjects?.subject_name_th,
+      flex: 0.9
+    },
     // { field: 'subject_name_en', headerName: 'Name EN', width: 230 },
 
     {
@@ -68,80 +103,174 @@ function AddContinueSubjects({ open, handleClose, subject, subjects, setSubjects
     }
   ]
 
+  const checkSubject = (subjectId, addChildren) => {
+    if (subjectId)
+      axios
+        .get(URL_GET_CONTINUE_SUBJECT_BY_SUBJECT_ID + subjectId)
+        .then(res => {
+          if (res.data.data.length > 0) {
+            alert('this subject has parent already or this subject is root node')
+          } else {
+            // console.log('add children')
+            addChildren()
+          }
+        })
+        .catch(err => console.log(err))
+  }
+
+  const addNewChildren = childrenId => {
+    // check parent is exist
+    subject?.subject_id &&
+      axios
+        .get(URL_GET_CONTINUE_SUBJECT_BY_SUBJECT_ID + subject?.subject_id)
+        .then(res => {
+          if (res.data.data.length > 0) {
+            //if parent exist insert children
+            childrenId &&
+              axios
+                .post(URL_ADD_CONTINUE_SUBJECT, { parent_id: subject?.subject_id, subject_id: childrenId })
+                .then(res => res.data.status === 201 && alert('insert children ' + res.data.data.subject_id))
+                .catch(err => console.log(err))
+          } else {
+            //if not insert parent then insert children
+            axios
+              .post(URL_ADD_CONTINUE_SUBJECT, { parent_id: '', subject_id: subject?.subject_id })
+              .then(res => res.data.status === 201 && alert('insert children ' + res.data.data.subject_id))
+              .catch(err => console.log(err))
+            childrenId &&
+              axios
+                .post(URL_ADD_CONTINUE_SUBJECT, { parent_id: subject?.subject_id, subject_id: childrenId })
+                .then(res => res.data.status === 201 && alert('insert children ' + res.data.data.subject_id))
+                .catch(err => console.log(err))
+          }
+        })
+        .catch(err => console.log(err))
+  }
+
+  useEffect(() => {
+    ContinueSubjects && console.log(ContinueSubjects)
+  }, [ContinueSubjects])
+
+  if (ContinueSubjectsError && SubjectError) {
+    return <Box>Error Fetching...</Box>
+  }
+
   return (
     <Dialog open={open} onClose={handleClose} maxWidth={'xl'} fullWidth>
       <DialogContent sx={{ minHeight: 450 }}>
-        {/* {CompetenciesLoading ? (
-          <Box sx={{ width: '100%', height: '100%', mt: 12 }}>
+        {ContinueSubjectsLoading ? (
+          <Box sx={{ width: '100%', height: '100%', mt: 24 }}>
             <CircleLoading />
           </Box>
-        ) : ( */}
-        <React.Fragment>
-          <DialogContent>
-            <Grid container spacing={2}>
-              <Grid item xs={12}>
-                <Typography sx={{ mb: 2 }}>รายวิชาก่อนหน้า</Typography>
-                {/* <Box sx={{ minHeight: 240, width: '100%', bgcolor: 'gray' }} /> */}
-                <DataGridTable
-                  rows={parent}
-                  columns={columnsParent}
-                  uniqueKey={'subject_id'}
-                  // isLoading={PlanRecordLoading === null ? true : PlanRecordLoading}
-                  // noData='ยังไม่มีรายการแผนการเรียน'
-                />
+        ) : (
+          <React.Fragment>
+            <DialogContent>
+              <Grid container>
+                <Grid item xs={12}>
+                  {/* <Box sx={{ minHeight: 240, width: '100%', bgcolor: 'gray' }} /> */}
+                  {ContinueSubjects.length === 0 ? null : ContinueSubjects[0].parent_id !== null &&
+                    ContinueSubjects[0].parent_id !== undefined ? (
+                    <React.Fragment>
+                      <Typography sx={{ mb: 2 }}>
+                        {subject?.subject_code + ' ' + subject?.subject_name_th + ' '}
+                      </Typography>
+                      <Typography sx={{ mb: 2 }}>รายวิชาก่อนหน้า</Typography>
+                      <DataGridTable
+                        rows={ContinueSubjects}
+                        columns={columnsParent}
+                        uniqueKey={'continue_subject_id'}
+                        hidePagination={true}
+                        // isLoading={PlanRecordLoading === null ? true : PlanRecordLoading}
+                        // noData='ยังไม่มีรายการแผนการเรียน'
+                      />
+                    </React.Fragment>
+                  ) : (
+                    <React.Fragment>
+                      <Typography> {subject?.subject_code + ' ' + subject?.subject_name_th + ' '}</Typography>
+                      <Typography sx={{ color: 'gray' }}>วิชานี้เป็น Root node</Typography>
+                    </React.Fragment>
+                  )}
+                </Grid>
               </Grid>
-            </Grid>
-            <Grid container spacing={2} sx={{ mt: 6 }}>
-              <Grid item xs={12}>
-                <Typography sx={{ mb: 2 }}>รายวิชาตัวต่อ</Typography>
-                {/* <Box sx={{ minHeight: 240, width: '100%', bgcolor: 'gray' }} /> */}
-                <DataGridTable
-                  rows={childrens}
-                  columns={columnsChildren}
-                  uniqueKey={'subject_id'}
-                  // isLoading={PlanRecordLoading === null ? true : PlanRecordLoading}
-                  // noData='ยังไม่มีรายการแผนการเรียน'
-                />
-              </Grid>
+              <Grid container spacing={2} sx={{ mt: 6 }}>
+                <Grid item xs={12}>
+                  {ContinueSubjects[0]?.children.length !== 0 ? (
+                    <Grid container spacing={2}>
+                      <Grid item xs={12}>
+                        <Typography sx={{ mb: 2 }}>รายวิชาตัวต่อ</Typography>
+                        <DataGridTable
+                          rows={ContinueSubjects[0]?.children}
+                          columns={columnsChildren}
+                          uniqueKey={'continue_subject_id'}
+                          hidePagination={true}
+                          // isLoading={PlanRecordLoading === null ? true : PlanRecordLoading}
+                          // noData='ยังไม่มีรายการแผนการเรียน'
+                        />
+                      </Grid>
 
-              <Grid item xs={10}>
-                <Autocomplete
-                  // key={clearAutoComplete} // if toggle will clear value of autocomplete
-                  disablePortal
-                  fullWidth
-                  options={childrens}
-                  getOptionLabel={option => option.subject_code + ' ' + option.subject_name_th}
-                  renderInput={params => <TextField {...params} label='Code, Subject name ' />}
-                  // onChange={(e, value) => {
-                  //   if (value?.subject_id !== undefined) {
-                  //     setState(pre => ({
-                  //       ...pre,
-                  //       study_plan_record_elective_course: null,
-                  //       subject_id: value?.subject_id
-                  //     }))
-                  //   } else {
-                  //     setState(pre => ({
-                  //       ...pre,
-                  //       study_plan_record_elective_course: null,
-                  //       subject_id: null
-                  //     }))
-                  //   }
-                  //   // setSubjectSelected(e.target.value)
-                  // }}
+                      {/* <Box sx={{ minHeight: 240, width: '100%', bgcolor: 'gray' }} /> */}
 
-                  // onChange={e => handleChangeEN(e, setState)}
-                  // value={state.curriculum_name_en}
-                />
+                      <Grid item xs={10} mt={2}>
+                        <Autocomplete
+                          // key={clearAutoComplete} // if toggle will clear value of autocomplete
+                          disablePortal
+                          fullWidth
+                          options={Subjects}
+                          getOptionLabel={option => option.subject_code + ' ' + option.subject_name_th}
+                          renderInput={params => <TextField {...params} label='Code, Subject name ' />}
+                          onChange={(e, value) => {
+                            setSubjectSelected(value)
+                          }}
+                        />
+                      </Grid>
+                      <Grid item xs={2} mt={2}>
+                        <Button
+                          variant='contained'
+                          sx={{ height: '100%', width: '100%' }}
+                          onClick={() =>
+                            checkSubject(subjectSelected?.subject_id, () => addNewChildren(subjectSeleted?.subject_id))
+                          }
+                        >
+                          เพิ่มวิชาตัวต่อ
+                        </Button>
+                      </Grid>
+                    </Grid>
+                  ) : (
+                    <Grid container spacing={2}>
+                      <Grid item xs={12}>
+                        <Typography sx={{ mb: 2 }}>รายวิชาตัวต่อ</Typography>
+                      </Grid>
+                      <Grid item xs={10}>
+                        <Autocomplete
+                          // key={clearAutoComplete} // if toggle will clear value of autocomplete
+                          disablePortal
+                          fullWidth
+                          options={Subjects}
+                          getOptionLabel={option => option.subject_code + ' ' + option.subject_name_th}
+                          renderInput={params => <TextField {...params} label='Code, Subject name ' />}
+                          onChange={(e, value) => {
+                            setSubjectSelected(value)
+                          }}
+                        />
+                      </Grid>
+                      <Grid item xs={2}>
+                        <Button
+                          variant='contained'
+                          sx={{ height: '100%', width: '100%' }}
+                          onClick={() =>
+                            checkSubject(subjectSelected?.subject_id, () => addNewChildren(subjectSelected?.subject_id))
+                          }
+                        >
+                          เพิ่มวิชาตัวต่อ
+                        </Button>
+                      </Grid>
+                    </Grid>
+                  )}
+                </Grid>
               </Grid>
-              <Grid item xs={2}>
-                <Button variant='contained' sx={{ height: '100%', width: '100%' }}>
-                  เพิ่มวิชาตัวต่อ
-                </Button>
-              </Grid>
-            </Grid>
-          </DialogContent>
-        </React.Fragment>
-        {/* )} */}
+            </DialogContent>
+          </React.Fragment>
+        )}
       </DialogContent>
 
       <DialogActions>
