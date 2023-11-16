@@ -28,11 +28,11 @@ function DataGridTable({ hidePagination, rows, columns, uniqueKey, isLoading, no
         pageSizeOptions={[20, 50, 100]}
         disableRowSelectionOnClick
         getRowId={row => row[uniqueKey]}
-        hideFooterPagination={hidePagination}
+        hideFooter={hidePagination}
       />
     </Box>
   ) : (
-    <Typography sx={{ m: 6, ml: 0 }}>{noData}</Typography>
+    <Typography sx={{ m: 6, ml: 0, color: 'gray' }}>{noData}</Typography>
   )
 }
 

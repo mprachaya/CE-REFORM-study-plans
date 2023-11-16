@@ -77,7 +77,7 @@ function AddContinueSubjects({ open, handleClose, subject }) {
       field: 'subject_name_th',
       headerName: 'Subject',
       valueGetter: params => params.row?.subjects?.subject_name_th,
-      flex: 0.9
+      flex: 1
     },
     // { field: 'subject_name_en', headerName: 'Name EN', width: 230 },
 
@@ -91,6 +91,7 @@ function AddContinueSubjects({ open, handleClose, subject }) {
             <Button
               color='secondary'
               variant='outlined'
+              sx={{ width: 180 }}
               // onClick={() => {
               //   handleDeletePlanRecord(params.row)
               // }}
@@ -102,6 +103,7 @@ function AddContinueSubjects({ open, handleClose, subject }) {
       )
     }
   ]
+  const [isDone, setIsDone] = useState(null)
 
   const checkSubject = (subjectId, addChildren) => {
     if (subjectId)
@@ -120,7 +122,8 @@ function AddContinueSubjects({ open, handleClose, subject }) {
 
   const addNewChildren = childrenId => {
     // check parent is exist
-    subject?.subject_id &&
+    setIsDone(false)
+    if (subject?.subject_id) {
       axios
         .get(URL_GET_CONTINUE_SUBJECT_BY_SUBJECT_ID + subject?.subject_id)
         .then(res => {
@@ -129,22 +132,40 @@ function AddContinueSubjects({ open, handleClose, subject }) {
             childrenId &&
               axios
                 .post(URL_ADD_CONTINUE_SUBJECT, { parent_id: subject?.subject_id, subject_id: childrenId })
-                .then(res => res.data.status === 201 && alert('insert children ' + res.data.data.subject_id))
+                .then(res => {
+                  if (res.data.status === 201) {
+                    // alert('insert children ' + res.data.data.subject_id)
+                    console.log('insert children ' + res.data.data.subject_id)
+                    setIsDone(true)
+                  }
+                })
                 .catch(err => console.log(err))
           } else {
             //if not insert parent then insert children
             axios
               .post(URL_ADD_CONTINUE_SUBJECT, { parent_id: '', subject_id: subject?.subject_id })
-              .then(res => res.data.status === 201 && alert('insert children ' + res.data.data.subject_id))
+              .then(res => {
+                if (res.data.status === 201) {
+                  // alert('create root node ' + res.data.data.subject_id)
+                  console.log('create root node ' + res.data.data.subject_id)
+                }
+              })
               .catch(err => console.log(err))
             childrenId &&
               axios
                 .post(URL_ADD_CONTINUE_SUBJECT, { parent_id: subject?.subject_id, subject_id: childrenId })
-                .then(res => res.data.status === 201 && alert('insert children ' + res.data.data.subject_id))
+                .then(res => {
+                  if (res.data.status === 201) {
+                    // alert('insert children ' + res.data.data.subject_id)
+                    console.log('insert children ' + res.data.data.subject_id)
+                    setIsDone(true)
+                  }
+                })
                 .catch(err => console.log(err))
           }
         })
         .catch(err => console.log(err))
+    }
   }
 
   useEffect(() => {
@@ -157,7 +178,7 @@ function AddContinueSubjects({ open, handleClose, subject }) {
 
   return (
     <Dialog open={open} onClose={handleClose} maxWidth={'xl'} fullWidth>
-      <DialogContent sx={{ minHeight: 450 }}>
+      <DialogContent sx={{ minHeight: 600 }}>
         {ContinueSubjectsLoading ? (
           <Box sx={{ width: '100%', height: '100%', mt: 24 }}>
             <CircleLoading />
@@ -167,26 +188,26 @@ function AddContinueSubjects({ open, handleClose, subject }) {
             <DialogContent>
               <Grid container>
                 <Grid item xs={12}>
+                  <Typography sx={{ mb: 2 }}>{subject?.subject_code + ' ' + subject?.subject_name_th + ' '}</Typography>
                   {/* <Box sx={{ minHeight: 240, width: '100%', bgcolor: 'gray' }} /> */}
-                  {ContinueSubjects.length === 0 ? null : ContinueSubjects[0].parent_id !== null &&
-                    ContinueSubjects[0].parent_id !== undefined ? (
+                  {ContinueSubjects?.length === 0
+                    ? null
+                    : ContinueSubjects[0]?.parent_id !== null &&
+                      ContinueSubjects[0]?.parent_id !== undefined && (
+                        <React.Fragment>
+                          <Typography sx={{ mb: 2 }}>รายวิชาก่อนหน้า</Typography>
+                          <DataGridTable
+                            rows={ContinueSubjects}
+                            columns={columnsParent}
+                            uniqueKey={'continue_subject_id'}
+                            hidePagination={true}
+                            // isLoading={PlanRecordLoading === null ? true : PlanRecordLoading}
+                            // noData='ยังไม่มีรายการแผนการเรียน'
+                          />
+                        </React.Fragment>
+                      )}
+                  {ContinueSubjects[0]?.parent_id === null && (
                     <React.Fragment>
-                      <Typography sx={{ mb: 2 }}>
-                        {subject?.subject_code + ' ' + subject?.subject_name_th + ' '}
-                      </Typography>
-                      <Typography sx={{ mb: 2 }}>รายวิชาก่อนหน้า</Typography>
-                      <DataGridTable
-                        rows={ContinueSubjects}
-                        columns={columnsParent}
-                        uniqueKey={'continue_subject_id'}
-                        hidePagination={true}
-                        // isLoading={PlanRecordLoading === null ? true : PlanRecordLoading}
-                        // noData='ยังไม่มีรายการแผนการเรียน'
-                      />
-                    </React.Fragment>
-                  ) : (
-                    <React.Fragment>
-                      <Typography> {subject?.subject_code + ' ' + subject?.subject_name_th + ' '}</Typography>
                       <Typography sx={{ color: 'gray' }}>วิชานี้เป็น Root node</Typography>
                     </React.Fragment>
                   )}
@@ -194,7 +215,7 @@ function AddContinueSubjects({ open, handleClose, subject }) {
               </Grid>
               <Grid container spacing={2} sx={{ mt: 6 }}>
                 <Grid item xs={12}>
-                  {ContinueSubjects[0]?.children.length !== 0 ? (
+                  {ContinueSubjects[0]?.children !== undefined ? (
                     <Grid container spacing={2}>
                       <Grid item xs={12}>
                         <Typography sx={{ mb: 2 }}>รายวิชาตัวต่อ</Typography>
@@ -203,14 +224,14 @@ function AddContinueSubjects({ open, handleClose, subject }) {
                           columns={columnsChildren}
                           uniqueKey={'continue_subject_id'}
                           hidePagination={true}
-                          // isLoading={PlanRecordLoading === null ? true : PlanRecordLoading}
-                          // noData='ยังไม่มีรายการแผนการเรียน'
+                          isLoading={ContinueSubjectsLoading === null ? true : ContinueSubjectsLoading}
+                          noData='ยังไม่มีรายการแผนการเรียน'
                         />
                       </Grid>
 
                       {/* <Box sx={{ minHeight: 240, width: '100%', bgcolor: 'gray' }} /> */}
 
-                      <Grid item xs={10} mt={2}>
+                      <Grid item xs={6} md={10} mt={2}>
                         <Autocomplete
                           // key={clearAutoComplete} // if toggle will clear value of autocomplete
                           disablePortal
@@ -223,12 +244,13 @@ function AddContinueSubjects({ open, handleClose, subject }) {
                           }}
                         />
                       </Grid>
-                      <Grid item xs={2} mt={2}>
+                      <Grid item xs={6} md={2} mt={2}>
                         <Button
+                          disabled={!isDone && isDone !== null ? true : false}
                           variant='contained'
                           sx={{ height: '100%', width: '100%' }}
                           onClick={() =>
-                            checkSubject(subjectSelected?.subject_id, () => addNewChildren(subjectSeleted?.subject_id))
+                            checkSubject(subjectSelected?.subject_id, () => addNewChildren(subjectSelected?.subject_id))
                           }
                         >
                           เพิ่มวิชาตัวต่อ
@@ -240,7 +262,7 @@ function AddContinueSubjects({ open, handleClose, subject }) {
                       <Grid item xs={12}>
                         <Typography sx={{ mb: 2 }}>รายวิชาตัวต่อ</Typography>
                       </Grid>
-                      <Grid item xs={10}>
+                      <Grid item xs={6} md={10}>
                         <Autocomplete
                           // key={clearAutoComplete} // if toggle will clear value of autocomplete
                           disablePortal
@@ -253,8 +275,9 @@ function AddContinueSubjects({ open, handleClose, subject }) {
                           }}
                         />
                       </Grid>
-                      <Grid item xs={2}>
+                      <Grid item xs={6} md={2}>
                         <Button
+                          disabled={!isDone && isDone !== null ? true : false}
                           variant='contained'
                           sx={{ height: '100%', width: '100%' }}
                           onClick={() =>
