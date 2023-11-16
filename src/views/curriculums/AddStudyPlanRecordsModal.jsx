@@ -5,24 +5,18 @@ import {
   Grid,
   TextField,
   MenuItem,
-  FormGroup,
-  FormControlLabel,
   DialogActions,
-  Checkbox,
   Button,
-  Autocomplete,
-  Box
+  Autocomplete
 } from '@mui/material'
-import { esES } from '@mui/x-data-grid'
 import axios from 'axios'
 import React from 'react'
 import { useEffect } from 'react'
 import { useState } from 'react'
-import { CircleLoading, DataGridTable } from 'src/components'
+import { DataGridTable } from 'src/components'
 import Selection from 'src/components/Selection'
 import { url } from 'src/configs/urlConfig'
 import { useFetch } from 'src/hooks'
-import { handleChangeEN, handleChangeNumber, handleChangeTH } from 'src/hooks/useValidation'
 
 function AddStudyPlanRecordsModal({
   open,
@@ -35,55 +29,26 @@ function AddStudyPlanRecordsModal({
   Plans,
   setPlans
 }) {
-  // const [curriculumSelection, setCurriculumSelection] = useState(0)
-  // const [facultySelection, setFacultySelection] = useState(0)
-  // const [studentGroupsSelection, setStudentGroupsSelection] = useState(0)
-  // const [duplicateState, setDuplicateState] = useState(false)
-
-  // const URL_GET_CURRICULUMS = `${url.BASE_URL}/curriculums/`
-  // const [curriculumSelected, setCurriculumSelected] = useState(0)
-
-  // const {
-  //   error: CurriculumsError,
-  //   data: Curriculums,
-  //   setData: setCurriculums,
-  //   loading: CurriculumsLoading,
-  //   reFetch: reFetchCurriculums
-  // } = useFetch(URL_GET_CURRICULUMS)
-
-  // const URL_GET_STUDY_PLANS = `${url.BASE_URL}/study-plans/`
-  // const URL_GET_SUB_STUDY_PLANS = `${url.BASE_URL}/study-plan-records/`
-
-  // const {
-  //   error: StudyPlanssError,
-  //   data: StudyPlans,
-  //   setData: setStudyPlans,
-  //   loading: StudyPlansLoading,
-  //   reFetch: reFetchStudyPlans
-  // } = useFetch(URL_GET_STUDY_PLANS + curriculumId)
-
   const URL_GET_SUBJECTS_BY_CURRICULUM = `${url.BASE_URL}/subjects-by-curriculum/`
   const URL_GET_STUDY_PLAN_RECORDS = `${url.BASE_URL}/study-plan-records/`
   const URL_GET_STUDY_PLANS = `${url.BASE_URL}/study-plans/`
 
-  const {
-    // error: SubjectsError,
-    data: Subjects
-    // setData: setSubjects,
-    // loading: SubjectsLoading,
-    // reFetch: reFetchSubjects
-  } = useFetch(URL_GET_SUBJECTS_BY_CURRICULUM + studyPlan?.curriculum_id)
+  const { data: Subjects } = useFetch(URL_GET_SUBJECTS_BY_CURRICULUM + studyPlan?.curriculum_id)
 
   const [subjectsFilterByRecord, setSubjectFilterByRecord] = useState([])
 
   const filterSubjects = allRecord => {
-    const getSubjectIdfromRecord = allRecord.map(rc => rc.subject_id).filter(sjId => sjId !== null)
-    // console.log('getSubjectIdfromRecord', getSubjectIdfromRecord)
+    if (allRecord) {
+      const getSubjectIdfromRecord = allRecord?.map(rc => rc.subject_id).filter(sjId => sjId !== null)
+      // console.log('getSubjectIdfromRecord', getSubjectIdfromRecord)
 
-    const SubjectNotInRecord = Subjects.filter(
-      sj => sj.subject_id !== getSubjectIdfromRecord.find(rId => rId === sj.subject_id)
-    )
-    setSubjectFilterByRecord(SubjectNotInRecord)
+      const SubjectNotInRecord = Subjects.filter(
+        sj => sj.subject_id !== getSubjectIdfromRecord.find(rId => rId === sj.subject_id)
+      )
+      setSubjectFilterByRecord(SubjectNotInRecord)
+    } else {
+      setSubjectFilterByRecord(Subjects)
+    }
   }
 
   useEffect(() => {
@@ -198,60 +163,7 @@ function AddStudyPlanRecordsModal({
     }
   ]
 
-  // const [duplicateSubPlans, setDuplicateSubPlan] = useState([])
-
   const [isDone, setIsDone] = useState(null)
-
-  // const handleRefPlanChange = plan => {
-  //   const checkDuplicate = StudyPlans.filter(p => p.study_plan_name === plan.study_plan_name)
-
-  //   console.log('checkDuplicate ', checkDuplicate)
-
-  //   const lastedVersion = checkDuplicate.reduce((max, current) => {
-  //     const currentValue = current['study_plan_version']
-  //     return currentValue > max['study_plan_version'] ? current : max
-  //   })
-  //   console.log('lasted version ', lastedVersion)
-
-  //   if (plan) {
-  //     setState(pre => ({
-  //       ...pre,
-  //       study_plan_name: plan.study_plan_name,
-  //       study_plan_version: lastedVersion.study_plan_version + 1,
-  //       study_plan_total_credit: plan.study_plan_total_credit
-  //     }))
-  //     axios
-  //       .get(URL_GET_SUB_STUDY_PLANS + plan.study_plan_id)
-  //       .then(res => {
-  //         setDuplicateSubPlan(res.data.data)
-  //         console.log(res.data.data)
-  //       })
-  //       .catch(err => console.log(err))
-  //   }
-  // }
-
-  // const checkIsEmpty = object => {
-  //   var isEmpty = false
-
-  //   Object.keys(object).forEach(function (key) {
-  //     var val = object[key]
-  //     if (val === '' || (val === 0 && key !== 'ref_curriculum_id')) {
-  //       isEmpty = true
-  //     }
-  //   })
-
-  //   if (isEmpty) {
-  //     alert('Please Fill All TextFields')
-  //   }
-
-  //   return isEmpty
-  // }
-
-  // useEffect(() => {
-  //   if (studyPlan) {
-  //     setState(initialsState)
-  //   }
-  // }, [studyPlan])
 
   const postNewRecord = () => {
     setIsDone(false)
@@ -260,7 +172,8 @@ function AddStudyPlanRecordsModal({
       .then(res => {
         if (res.data.status === 201) {
           console.log(res.data.message)
-          const updateRecords = allRecord.concat(res.data.data)
+
+          const updateRecords = allRecord !== undefined ? allRecord?.concat(res.data.data) : Array(res.data.data)
           console.log('updateRecords ', updateRecords)
           setAllRecord(updateRecords) // update all record
           filterSubjects(updateRecords) // update subjects for autocomplete
@@ -372,18 +285,6 @@ function AddStudyPlanRecordsModal({
     setSemesterSelected(semester)
     setState(initialsState)
   }, [open])
-
-  // useEffect(() => {
-  //   setState(pre => ({ ...pre, ref_curriculum_id: curriculumSelection }))
-  // }, [curriculumSelection])
-
-  // useEffect(() => {
-  //   setState(pre => ({ ...pre, faculty_id: facultySelection }))
-  // }, [facultySelection])
-
-  // useEffect(() => {
-  //   setState(pre => ({ ...pre, collegian_group_id: studentGroupsSelection }))
-  // }, [studentGroupsSelection])
 
   useEffect(() => {
     console.log(state)
@@ -513,29 +414,8 @@ function AddStudyPlanRecordsModal({
                             subject_id: null
                           }))
                         }
-                        // setSubjectSelected(e.target.value)
                       }}
-
-                      // onChange={e => handleChangeEN(e, setState)}
-                      // value={state.curriculum_name_en}
                     />
-                    {/* <Selection
-                      width={'100%'}
-                      firstItemText={'Choose Subject'}
-                      selectionValue={subjectSelected}
-                      // handleChange={e => {
-                      //   setCreateByValue(e.target.value)
-                      //   console.log(e.target.value)
-                      //   // setPlanSeleted(0)
-                      //   setState(initialsState)
-                      // }}
-                      Items={Object.values(Subjects)?.map(sj => (
-                        <MenuItem key={sj.subject_id} value={sj.subject_id}>
-                          {sj.subject_code + ' '}
-                          {sj.subject_name_th}
-                        </MenuItem>
-                      ))}
-                    /> */}
                   </Grid>
                 </React.Fragment>
               )}
@@ -552,25 +432,6 @@ function AddStudyPlanRecordsModal({
                       fullWidth
                       label={'Elective Subject Name'}
                     />
-                    {/* <Selection
-                      width={'100%'}
-                      firstItemText={'Choose Reference Plan *'}
-                      selectionValue={planSelected}
-                      handleChange={e => {
-                        setPlanSeleted(e.target.value)
-                      }}
-                      Items={Object.values(StudyPlans)?.map(pl => (
-                        <MenuItem
-                          key={pl.study_plan_id}
-                          value={pl.study_plan_id}
-                          onClick={() => {
-                            handleRefPlanChange(pl)
-                          }}
-                        >
-                          {pl.study_plan_name + ' Version(' + pl.study_plan_version + ')'}
-                        </MenuItem>
-                      ))}
-                    /> */}
                   </Grid>
                 </React.Fragment>
               )}
@@ -587,23 +448,6 @@ function AddStudyPlanRecordsModal({
                   Add new record
                 </Button>
               </Grid>
-              {/* <Grid item xs={12} sm={12} md={12} lg={6}>
-                <Autocomplete
-                  disablePortal
-                  fullWidth
-                  options={StudyPlans}
-                  inputValue={planName}
-                  onInputChange={(e, newInputValue) => {
-                    setPlanName(newInputValue)
-                  }}
-                  getOptionLabel={option => option.study_plan_name}
-                  renderInput={params => <TextField {...params} label='Study Plan Name *' />}
-                  // onChange={e => setPlanName(e.target.value)}
-
-                  // onChange={e => handleChangeEN(e, setState)}
-                  // value={state.curriculum_name_en}
-                />
-              </Grid> */}
             </Grid>
             <Grid sx={{ mt: 2 }}>
               {/* <Box fullWidth sx={{ bgcolor: 'gray', height: 400 }}>
@@ -636,11 +480,6 @@ function AddStudyPlanRecordsModal({
         >
           Cancel
         </Button>
-        {/* <Button onClick={() => !checkIsEmpty(state) && handleSubmit(state)}>Submit</Button> */}
-        {/* <Button disabled={isDone !== null} onClick={() => !checkIsEmpty(state) && handleSubmit(state, setIsDone)}>
-          Submit
-        </Button> */}
-        {/* <Button onClick={() => handleSubmit(state, createByValue, setIsDone, duplicateSubPlans)}>Create</Button> */}
       </DialogActions>
     </Dialog>
   )
