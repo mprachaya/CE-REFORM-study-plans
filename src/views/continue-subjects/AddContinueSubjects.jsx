@@ -11,13 +11,14 @@ import {
   List,
   ListItem,
   DialogTitle,
-  DialogContentText
+  DialogContentText,
+  Autocomplete
 } from '@mui/material'
 import axios from 'axios'
 import React from 'react'
 import { useEffect } from 'react'
 import { useState } from 'react'
-import { CircleLoading } from 'src/components'
+import { CircleLoading, DataGridTable } from 'src/components'
 import SnackbarStyled from 'src/components/SnackbarStyled'
 import { url } from 'src/configs/urlConfig'
 import { useFetch } from 'src/hooks'
@@ -25,301 +26,50 @@ import { useFetch } from 'src/hooks'
 // import { handleChangeEN, handleChangeNumber, handleChangeTH } from 'src/hooks/useValidation'
 
 function AddContinueSubjects({ open, handleClose, subject, subjects, setSubjects }) {
-  // const [competencieName, setCompetencieName] = useState('')
-  // const [competencieSubName, setCompetencieSubName] = useState([])
-  // const [competencieSubName, setCompetencieSubName] = useState('')
-  // const [subjectSelection, setsubjectSelection] = useState(subject.subject_id)
-  // const [delay, setDelay] = useState(false)
   const [openSnackbar, setOpenSnackbar] = useState(false)
   const [snackMassage, setSnackMassage] = useState('')
-  // const [openDescription, setOpenDescription] = useState(false)
+  const parent = [
+    { subject_id: 1, subject_code: 'CS101', subject_name_th: 'Introduction to Computer Science', subject_credit: 3 }
+  ]
+  const childrens = [
+    { subject_id: 2, subject_code: 'ENG201', subject_name_th: 'English Composition', subject_credit: 4 },
+    { subject_id: 3, subject_code: 'MATH301', subject_name_th: 'Calculus I', subject_credit: 4 }
+    // Add more subjects as needed
+  ]
+  const columnsParent = [
+    { field: 'subject_code', headerName: 'Code', flex: 0.3 },
+    { field: 'subject_name_th', headerName: 'Subject', flex: 1.2 }
+    // { field: 'subject_name_en', headerName: 'Name EN', width: 230 },
+  ]
+  const columnsChildren = [
+    { field: 'subject_code', headerName: 'Code', flex: 0.3 },
+    { field: 'subject_name_th', headerName: 'Subject', flex: 0.9 },
+    // { field: 'subject_name_en', headerName: 'Name EN', width: 230 },
 
-  // const [mainRow, setMainRow] = useState([])
-  // const [subRow, setSubRow] = useState([])
-
-  // const URL_GET_SUBJECT_COMPETENCIES_BY_ID = `${url.BASE_URL}/subjects/${subject.subject_id}`
-  // const URL_GET_MAIN_COMPETENCIES = `${url.BASE_URL}/competencies/`
-  // const URL_SUB_COMPETENCIES = `${url.BASE_URL}/competency-subs/`
-
-  // const {
-  //   error: CompetenciesError,
-  //   data: Competencies,
-  //   setData: setCompetencies,
-  //   reFetch: reFetchCompetencies,
-  //   loading: CompetenciesLoading
-  // } = useFetch(URL_GET_SUBJECT_COMPETENCIES_BY_ID)
-
-  // const [MainBySubject, setMainBySubject] = useState([])
-  // const [CompetenciesTemp, setCompetencyTemp] = useState([])
-
-  // useEffect(() => {
-  //   if (!CompetenciesLoading) {
-  //     console.log('Competencies', Competencies)
-  //     setCompetencyTemp(Competencies)
-  //   }
-  // }, [CompetenciesLoading])
-
-  // useEffect(() => {
-  //   if (CompetenciesTemp) {
-  //     const DetectMainCom = CompetenciesTemp.competencies?.length
-  //     if (DetectMainCom > 0) {
-  //       // console.log('DetectMainCom', DetectMainCom)
-  //       // const newArraySubName = Array.from(DetectMainCom, (_, i) => ({ index: i, subName: '' }))
-  //       const newArraySubName = Object.values(CompetenciesTemp.competencies)?.map((data, i) => ({
-  //         index: i,
-  //         subName: ''
-  //       }))
-  //       setCompetencieSubName(newArraySubName)
-  //       // console.log(newArraySubName)
-  //     }
-  //   }
-  // }, [CompetenciesTemp])
-
-  // useEffect(()=>{
-  //   if(CompetenciesTemp){
-  //     const newNameArray = Competencies.competencies?.map((data) => )
-  //     setCompetencieSubName()
-  //   }
-  // },[CompetenciesTemp])
-
-  // const updateComSubjects = com => {
-  //   let obj = subject
-  //   if (obj) {
-  //     const removeById = subjects.filter(data => {
-  //       return data.subject_id !== obj.subject_id
-  //     })
-  //     obj.competencies = com
-  //     const mainTemp = [...removeById, obj]
-  //     setSubjects(mainTemp)
-  //   }
-  // }
-
-  // const submitMain = comName => {
-  //   let obj = {
-  //     competency_id: 0,
-  //     competency_name: comName,
-  //     competency_sub: []
-  //   }
-  //   axios
-  //     .post(URL_GET_MAIN_COMPETENCIES, { subject_id: subject.subject_id, competency_name: comName })
-  //     .then(res => {
-  //       obj.competency_id = res.data.data.competency_id
-  //       const mainTemp = [...CompetenciesTemp.competencies, obj]
-  //       console.log(mainTemp)
-  //       updateComSubjects(mainTemp)
-  //       setCompetencyTemp(pre => ({ ...pre, competencies: [...CompetenciesTemp.competencies, obj] }))
-  //       setSnackMassage('Insert Success!')
-  //     })
-  //     .catch(err => setSnackMassage(err))
-  //     .finally(() => {
-  //       setOpenSnackbar(true)
-  //       setCompetencieName('')
-  //     })
-  // }
-  // const submitSub = (mainId, comName) => {
-  //   if (mainId && comName) {
-  //     let obj = {
-  //       competency_sub_id: 0,
-  //       competency_id: mainId,
-  //       competency_sub_name: comName,
-  //       competency_sub_description: null
-  //     }
-  //     axios
-  //       .post(URL_SUB_COMPETENCIES, {
-  //         competency_id: mainId,
-  //         competency_sub_name: comName,
-  //         competency_sub_description: null
-  //       })
-  //       .then(res => {
-  //         obj.competency_sub_id = res.data.data.competency_sub_id
-  //         const findMainById = CompetenciesTemp.competencies?.filter(data => {
-  //           return data.competency_id === mainId
-  //         })
-  //         findMainById[0].competency_sub = [...findMainById[0].competency_sub, obj]
-
-  //         setSnackMassage('Insert Success!')
-  //       })
-  //       .catch(err => setSnackMassage(err))
-  //       .finally(() => {
-  //         setOpenSnackbar(true)
-
-  //         const DetectMainCom = CompetenciesTemp.competencies?.length
-  //         if (DetectMainCom > 0) {
-  //           // console.log('DetectMainCom', DetectMainCom)
-  //           // const newArraySubName = Array.from(DetectMainCom, (_, i) => ({ index: i, subName: '' }))
-  //           const newArraySubName = Object.values(CompetenciesTemp.competencies)?.map((data, i) => ({
-  //             index: i,
-  //             subName: ''
-  //           }))
-  //           setCompetencieSubName(newArraySubName)
-  //           // console.log(newArraySubName)
-  //         }
-  //         // setCompetencieSubName(clearSubName)
-  //       })
-  //   }
-  // }
-  // const deleteMain = id => {
-  //   let result = window.confirm('Confirm to Delete?')
-  //   if (result) {
-  //     axios
-  //       .delete(URL_GET_MAIN_COMPETENCIES + id)
-  //       .then(res => {
-  //         setSnackMassage('Delete Success!')
-  //         const obj = CompetenciesTemp.competencies
-  //         const removeById = obj.filter(data => {
-  //           return data.competency_id !== id
-  //         })
-  //         setCompetencyTemp(pre => ({ ...pre, competencies: removeById }))
-  //         updateComSubjects(removeById)
-  //       })
-  //       .catch(err => setSnackMassage(err))
-  //       .finally(() => {
-  //         setOpenSnackbar(true)
-  //       })
-  //   } else {
-  //   }
-  // }
-
-  // const deleteSub = (mainId, subId) => {
-  //   let result = window.confirm('Confirm to Delete?')
-  //   // if (result) {
-  //   //   const obj = CompetenciesTemp.competencies?.filter(mData => mData.competency_id === mainId)
-  //   //   const removeSubById = obj[0].competency_sub?.filter(data => {
-  //   //     return data.competency_sub_id !== subId
-  //   //   })
-  //   //   // console.log('obj', obj[0])
-  //   //   // console.log('removeSubById', removeSubById)
-  //   //   obj[0].competency_sub = removeSubById
-  //   //   const preCompetencies = CompetenciesTemp.competencies?.filter(pData => pData.competency_id !== mainId)
-  //   //   const updateObj = [...preCompetencies, obj[0]]
-  //   //   // console.log(obj)
-  //   //   console.log(updateObj)
-  //   //   setCompetencyTemp(pre => ({
-  //   //     ...pre,
-  //   //     competencies: updateObj.sort((a, b) => (a.competency_id > b.competency_id ? 1 : -1))
-  //   //   }))
-  //   //   // updateComSubjects(removeById)
-  //   // }
-  //   if (result) {
-  //     axios
-  //       .delete(URL_SUB_COMPETENCIES + subId)
-  //       .then(res => {
-  //         setSnackMassage('Delete Success!')
-  //         const obj = CompetenciesTemp.competencies?.filter(mData => mData.competency_id === mainId)
-  //         const removeSubById = obj[0].competency_sub?.filter(data => {
-  //           return data.competency_sub_id !== subId
-  //         })
-  //         // console.log('obj', obj[0])
-  //         // console.log('removeSubById', removeSubById)
-  //         obj[0].competency_sub = removeSubById
-  //         const preCompetencies = CompetenciesTemp.competencies?.filter(pData => pData.competency_id !== mainId)
-  //         const updateObj = [...preCompetencies, obj[0]]
-  //         // console.log(obj)
-  //         console.log(updateObj)
-  //         setCompetencyTemp(pre => ({
-  //           ...pre,
-  //           competencies: updateObj.sort((a, b) => (a.competency_id > b.competency_id ? 1 : -1))
-  //         }))
-  //       })
-  //       .catch(err => setSnackMassage(err))
-  //       .finally(() => {
-  //         setOpenSnackbar(true)
-  //       })
-  //   }
-  // }
-
-  // const handleOpenSubDesc = (mainRow, subRow) => {
-  //   setOpenDescription(true)
-  //   setMainRow(mainRow)
-  //   setSubRow(subRow)
-  // }
-
-  // const updateSubDesc = () => {
-  //   // console.log(tempObj)
-
-  //   axios
-  //     .put(URL_SUB_COMPETENCIES + subRow.competency_sub_id, {
-  //       competency_sub_name: subRow?.competency_sub_name,
-  //       competency_sub_description: subRow?.competency_sub_description
-  //     })
-  //     .then(res => {
-  //       // console.log(res.data)
-  //       if (res.data.status !== 404) {
-  //         const tempObj = mainRow
-  //         const mainObj = CompetenciesTemp.competencies?.filter(m => m.competency_id !== mainRow.competency_id)
-  //         const removeSub = tempObj.competency_sub?.filter(sub => sub.competency_sub_id !== subRow.competency_sub_id)
-  //         tempObj.competency_sub = [...removeSub, subRow]
-  //         console.log(tempObj)
-  //         // updateComSubjects([...mainObj, tempObj])
-  //         setSnackMassage('Insert Success!')
-  //       }
-  //     })
-  //     .catch(err => setSnackMassage(err))
-  //     .finally(() => {
-  //       setOpenSnackbar(true)
-  //       setOpenDescription(false)
-  //       // setSubRow([])
-  //     })
-  // }
-
-  // // for main competencies
-  // const updateById = (e, id) => {
-  //   const findById = CompetenciesTemp.competencies.filter(data => {
-  //     return data.competency_id === id
-  //   })
-  //   findById[0].competency_name = e.target.value
-
-  //   const sortState = findById.sort((a, b) => (a.competency_id > b.competency_id ? 1 : -1))
-  //   setCompetencyTemp(pre => ({ ...pre, sortState }))
-  // }
-  // // for sub competencies
-  // const updateSubById = (e, mainId, subId) => {
-  //   const findMainById = CompetenciesTemp.competencies?.filter(data => {
-  //     return data.competency_id === mainId
-  //   })
-  //   const findSubById = findMainById[0].competency_sub?.filter(data => {
-  //     return data.competency_sub_id === subId
-  //   })
-
-  //   // console.log('main', findMainById)
-  //   // console.log('sub', findSubById)
-  //   findSubById[0].competency_sub_name = e.target.value
-  //   // console.log(findSubById[0])
-  //   const sortState = findSubById.sort((a, b) => (a.competency_sub_id > b.competency_sub_id ? 1 : -1))
-  //   setCompetencyTemp(pre => ({ ...pre, sortState }))
-  // }
-
-  // const confirmUpdateMain = (id, value) => {
-  //   if (value !== '') {
-  //     axios
-  //       .put(URL_GET_MAIN_COMPETENCIES + id, { competency_name: value })
-  //       .then(res => setSnackMassage('Update Success'))
-  //       .catch(err => setSnackMassage(err))
-  //       .finally(() => {
-  //         setOpenSnackbar(true)
-  //         // reFetchCom()
-  //       })
-  //   } else {
-  //     alert('Value can not be null')
-  //   }
-  // }
-  // const confirmUpdateSub = (id, name, description) => {
-  //   if (name !== '') {
-  //     axios
-  //       .put(URL_SUB_COMPETENCIES + id, { competency_sub_name: name, competency_sub_description: description })
-  //       .then(res => setSnackMassage('Update Success'))
-  //       .catch(err => setSnackMassage(err))
-  //       .finally(() => {
-  //         setOpenSnackbar(true)
-  //         // reFetchCom()
-  //       })
-  //   } else {
-  //     alert('Value can not be null')
-  //   }
-  // }
+    {
+      field: 'fn',
+      headerName: '',
+      flex: 0.3,
+      renderCell: params => (
+        <Grid container spacing={2} justifyContent={'center'}>
+          <Grid item>
+            <Button
+              color='secondary'
+              variant='outlined'
+              // onClick={() => {
+              //   handleDeletePlanRecord(params.row)
+              // }}
+            >
+              Remove
+            </Button>
+          </Grid>
+        </Grid>
+      )
+    }
+  ]
 
   return (
-    <Dialog open={open} onClose={handleClose} maxWidth={'lg'} fullWidth>
+    <Dialog open={open} onClose={handleClose} maxWidth={'xl'} fullWidth>
       <DialogContent sx={{ minHeight: 450 }}>
         {/* {CompetenciesLoading ? (
           <Box sx={{ width: '100%', height: '100%', mt: 12 }}>
@@ -327,7 +77,69 @@ function AddContinueSubjects({ open, handleClose, subject, subjects, setSubjects
           </Box>
         ) : ( */}
         <React.Fragment>
-          <DialogContent></DialogContent>
+          <DialogContent>
+            <Grid container spacing={2}>
+              <Grid item xs={12}>
+                <Typography sx={{ mb: 2 }}>รายวิชาก่อนหน้า</Typography>
+                {/* <Box sx={{ minHeight: 240, width: '100%', bgcolor: 'gray' }} /> */}
+                <DataGridTable
+                  rows={parent}
+                  columns={columnsParent}
+                  uniqueKey={'subject_id'}
+                  // isLoading={PlanRecordLoading === null ? true : PlanRecordLoading}
+                  // noData='ยังไม่มีรายการแผนการเรียน'
+                />
+              </Grid>
+            </Grid>
+            <Grid container spacing={2} sx={{ mt: 6 }}>
+              <Grid item xs={12}>
+                <Typography sx={{ mb: 2 }}>รายวิชาตัวต่อ</Typography>
+                {/* <Box sx={{ minHeight: 240, width: '100%', bgcolor: 'gray' }} /> */}
+                <DataGridTable
+                  rows={childrens}
+                  columns={columnsChildren}
+                  uniqueKey={'subject_id'}
+                  // isLoading={PlanRecordLoading === null ? true : PlanRecordLoading}
+                  // noData='ยังไม่มีรายการแผนการเรียน'
+                />
+              </Grid>
+
+              <Grid item xs={10}>
+                <Autocomplete
+                  // key={clearAutoComplete} // if toggle will clear value of autocomplete
+                  disablePortal
+                  fullWidth
+                  options={childrens}
+                  getOptionLabel={option => option.subject_code + ' ' + option.subject_name_th}
+                  renderInput={params => <TextField {...params} label='Code, Subject name ' />}
+                  // onChange={(e, value) => {
+                  //   if (value?.subject_id !== undefined) {
+                  //     setState(pre => ({
+                  //       ...pre,
+                  //       study_plan_record_elective_course: null,
+                  //       subject_id: value?.subject_id
+                  //     }))
+                  //   } else {
+                  //     setState(pre => ({
+                  //       ...pre,
+                  //       study_plan_record_elective_course: null,
+                  //       subject_id: null
+                  //     }))
+                  //   }
+                  //   // setSubjectSelected(e.target.value)
+                  // }}
+
+                  // onChange={e => handleChangeEN(e, setState)}
+                  // value={state.curriculum_name_en}
+                />
+              </Grid>
+              <Grid item xs={2}>
+                <Button variant='contained' sx={{ height: '100%', width: '100%' }}>
+                  เพิ่มวิชาตัวต่อ
+                </Button>
+              </Grid>
+            </Grid>
+          </DialogContent>
         </React.Fragment>
         {/* )} */}
       </DialogContent>
