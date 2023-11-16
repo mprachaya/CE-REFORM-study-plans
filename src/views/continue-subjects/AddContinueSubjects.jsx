@@ -49,6 +49,8 @@ function AddContinueSubjects({ open, handleClose, subject }) {
   const [openSnackbar, setOpenSnackbar] = useState(false)
   const [snackMassage, setSnackMassage] = useState('')
 
+  const [clearAutoComplete, setClearAutoComplete] = useState(false)
+
   const [subjectSelected, setSubjectSelected] = useState(null)
 
   const columnsParent = [
@@ -120,7 +122,28 @@ function AddContinueSubjects({ open, handleClose, subject }) {
         .catch(err => console.log(err))
   }
 
-  const addNewChildren = childrenId => {
+  const dummyChildren = {
+    continue_subject_id: 999,
+    subject_id: 99,
+    subjects: { subject_code: 'TEST', subject_name_th: 'ทดสอบ' }
+  }
+
+  const updateLocalChildren = newChildren => {
+    const ContinueTemp = ContinueSubjects
+    if (ContinueTemp[0]?.children?.length > 0) {
+      const updateChildren = Array(...ContinueTemp[0]?.children)?.concat(newChildren)
+      ContinueTemp[0]?.children = updateChildren
+      setContinueSubjects(ContinueTemp)
+      console.log('test update children 1', updateChildren)
+    } else {
+      // const updateChildren = Array(newChildren)
+      // ContinueTemp[0]?.children = updateChildren
+      reFetchContinueSubjects()
+      console.log('test update children 2', Array(ContinueTemp))
+    }
+  }
+
+  const addNewChildren = children => {
     // check parent is exist
     setIsDone(false)
     if (subject?.subject_id) {
@@ -129,17 +152,25 @@ function AddContinueSubjects({ open, handleClose, subject }) {
         .then(res => {
           if (res.data.data.length > 0) {
             //if parent exist insert children
-            childrenId &&
-              axios
-                .post(URL_ADD_CONTINUE_SUBJECT, { parent_id: subject?.subject_id, subject_id: childrenId })
-                .then(res => {
-                  if (res.data.status === 201) {
-                    // alert('insert children ' + res.data.data.subject_id)
-                    console.log('insert children ' + res.data.data.subject_id)
-                    setIsDone(true)
+
+            axios
+              .post(URL_ADD_CONTINUE_SUBJECT, { parent_id: subject?.subject_id, subject_id: children?.subject_id })
+              .then(res => {
+                if (res.data.status === 201) {
+                  // alert('insert children ' + res.data.data.subject_id)
+                  console.log('insert children ' + res.data.data.subject_id)
+                  setIsDone(true)
+                  setClearAutoComplete(!clearAutoComplete)
+
+                  // create new continue subject from res
+                  const updateState = {
+                    ...res.data.data,
+                    subjects: { subject_code: children?.subject_code, subject_name_th: children?.subject_name_th }
                   }
-                })
-                .catch(err => console.log(err))
+                  updateLocalChildren(updateState)
+                }
+              })
+              .catch(err => console.log('error from insert children when parent exist', err))
           } else {
             //if not insert parent then insert children
             axios
@@ -150,18 +181,25 @@ function AddContinueSubjects({ open, handleClose, subject }) {
                   console.log('create root node ' + res.data.data.subject_id)
                 }
               })
-              .catch(err => console.log(err))
-            childrenId &&
-              axios
-                .post(URL_ADD_CONTINUE_SUBJECT, { parent_id: subject?.subject_id, subject_id: childrenId })
-                .then(res => {
-                  if (res.data.status === 201) {
-                    // alert('insert children ' + res.data.data.subject_id)
-                    console.log('insert children ' + res.data.data.subject_id)
-                    setIsDone(true)
+              .catch(err => console.log('error from create root note', err))
+
+            axios
+              .post(URL_ADD_CONTINUE_SUBJECT, { parent_id: subject?.subject_id, subject_id: children?.subject_id })
+              .then(res => {
+                if (res.data.status === 201) {
+                  // alert('insert children ' + res.data.data.subject_id)
+                  console.log('insert children ' + res.data.data.subject_id)
+                  setIsDone(true)
+                  setClearAutoComplete(!clearAutoComplete)
+                  // create new continue subject from res
+                  const updateState = {
+                    ...res.data.data,
+                    subjects: { subject_code: children?.subject_code, subject_name_th: children?.subject_name_th }
                   }
-                })
-                .catch(err => console.log(err))
+                  updateLocalChildren(updateState)
+                }
+              })
+              .catch(err => console.log(`${children} error from insert children when parent not exist`, err))
           }
         })
         .catch(err => console.log(err))
@@ -201,8 +239,8 @@ function AddContinueSubjects({ open, handleClose, subject }) {
                             columns={columnsParent}
                             uniqueKey={'continue_subject_id'}
                             hidePagination={true}
-                            // isLoading={PlanRecordLoading === null ? true : PlanRecordLoading}
-                            // noData='ยังไม่มีรายการแผนการเรียน'
+                            isLoading={ContinueSubjectsLoading === null ? true : ContinueSubjectsLoading}
+                            noData='ยังไม่มีรายวิชาตัวต่อ'
                           />
                         </React.Fragment>
                       )}
@@ -225,7 +263,7 @@ function AddContinueSubjects({ open, handleClose, subject }) {
                           uniqueKey={'continue_subject_id'}
                           hidePagination={true}
                           isLoading={ContinueSubjectsLoading === null ? true : ContinueSubjectsLoading}
-                          noData='ยังไม่มีรายการแผนการเรียน'
+                          noData='ยังไม่มีรายวิชาตัวต่อ'
                         />
                       </Grid>
 
@@ -233,7 +271,7 @@ function AddContinueSubjects({ open, handleClose, subject }) {
 
                       <Grid item xs={6} md={10} mt={2}>
                         <Autocomplete
-                          // key={clearAutoComplete} // if toggle will clear value of autocomplete
+                          key={clearAutoComplete} // if toggle will clear value of autocomplete
                           disablePortal
                           fullWidth
                           options={Subjects}
@@ -250,7 +288,7 @@ function AddContinueSubjects({ open, handleClose, subject }) {
                           variant='contained'
                           sx={{ height: '100%', width: '100%' }}
                           onClick={() =>
-                            checkSubject(subjectSelected?.subject_id, () => addNewChildren(subjectSelected?.subject_id))
+                            checkSubject(subjectSelected?.subject_id, () => addNewChildren(subjectSelected))
                           }
                         >
                           เพิ่มวิชาตัวต่อ
@@ -264,7 +302,7 @@ function AddContinueSubjects({ open, handleClose, subject }) {
                       </Grid>
                       <Grid item xs={6} md={10}>
                         <Autocomplete
-                          // key={clearAutoComplete} // if toggle will clear value of autocomplete
+                          key={clearAutoComplete} // if toggle will clear value of autocomplete
                           disablePortal
                           fullWidth
                           options={Subjects}
@@ -281,7 +319,7 @@ function AddContinueSubjects({ open, handleClose, subject }) {
                           variant='contained'
                           sx={{ height: '100%', width: '100%' }}
                           onClick={() =>
-                            checkSubject(subjectSelected?.subject_id, () => addNewChildren(subjectSelected?.subject_id))
+                            checkSubject(subjectSelected?.subject_id, () => addNewChildren(subjectSelected))
                           }
                         >
                           เพิ่มวิชาตัวต่อ
@@ -291,6 +329,7 @@ function AddContinueSubjects({ open, handleClose, subject }) {
                   )}
                 </Grid>
               </Grid>
+              {/* <Button onClick={() => updateLocalChildren(dummyChildren)}>test add local children </Button> */}
             </DialogContent>
           </React.Fragment>
         )}
