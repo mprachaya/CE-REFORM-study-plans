@@ -7,11 +7,7 @@ import {
   DialogActions,
   Box,
   Button,
-  InputAdornment,
-  List,
-  ListItem,
-  DialogTitle,
-  DialogContentText,
+
   Autocomplete
 } from '@mui/material'
 import axios from 'axios'
@@ -19,11 +15,9 @@ import React from 'react'
 import { useEffect } from 'react'
 import { useState } from 'react'
 import { CircleLoading, DataGridTable } from 'src/components'
-import SnackbarStyled from 'src/components/SnackbarStyled'
 import { url } from 'src/configs/urlConfig'
 import { useFetch } from 'src/hooks'
-// import Selection from 'src/components/Selection'
-// import { handleChangeEN, handleChangeNumber, handleChangeTH } from 'src/hooks/useValidation'
+
 
 function AddContinueSubjects({ open, handleClose, subject }) {
   const URL_GET_CONTINUE_SUBJECT_BY_SUBJECT_ID = `${url.BASE_URL}/continue-subjects-subject-id/`
@@ -46,8 +40,7 @@ function AddContinueSubjects({ open, handleClose, subject }) {
     reFetch: reFetchSubjects
   } = useFetch(URL_GET_SUBJECTS + subject?.curriculum_id)
 
-  const [openSnackbar, setOpenSnackbar] = useState(false)
-  const [snackMassage, setSnackMassage] = useState('')
+
 
   const [clearAutoComplete, setClearAutoComplete] = useState(false)
 
@@ -94,9 +87,9 @@ function AddContinueSubjects({ open, handleClose, subject }) {
               color='secondary'
               variant='outlined'
               sx={{ width: 180 }}
-              // onClick={() => {
-              //   handleDeletePlanRecord(params.row)
-              // }}
+              onClick={() => {
+              deleteChildren(params?.row)
+              }}
             >
               Remove
             </Button>
@@ -105,7 +98,7 @@ function AddContinueSubjects({ open, handleClose, subject }) {
       )
     }
   ]
-  const [isDone, setIsDone] = useState(null)
+  const [isDone, setIsDone] = useState(null) // for insert and delete button
 
   const checkSubject = (subjectId, addChildren) => {
     if (subjectId)
@@ -122,12 +115,6 @@ function AddContinueSubjects({ open, handleClose, subject }) {
         .catch(err => console.log(err))
   }
 
-  const dummyChildren = {
-    continue_subject_id: 999,
-    subject_id: 99,
-    subjects: { subject_code: 'TEST', subject_name_th: 'ทดสอบ' }
-  }
-
   const updateLocalChildren = newChildren => {
     const ContinueTemp = ContinueSubjects
     if (ContinueTemp[0]?.children?.length > 0) {
@@ -136,10 +123,19 @@ function AddContinueSubjects({ open, handleClose, subject }) {
       setContinueSubjects(ContinueTemp)
       console.log('test update children 1', updateChildren)
     } else {
-      // const updateChildren = Array(newChildren)
-      // ContinueTemp[0]?.children = updateChildren
       reFetchContinueSubjects()
       console.log('test update children 2', Array(ContinueTemp))
+    }
+  }
+
+
+  const deleteChildren = children => {
+    setIsDone(false)
+    // console.log(children);
+    if(children){
+      axios.delete(URL_ADD_CONTINUE_SUBJECT+children?.continue_subject_id).then((res) =>
+        res.data && reFetchContinueSubjects() 
+      ).catch(err => console.log('error from delete children ',err)).finally(()=>setIsDone(true))
     }
   }
 
@@ -224,6 +220,13 @@ function AddContinueSubjects({ open, handleClose, subject }) {
         ) : (
           <React.Fragment>
             <DialogContent>
+              {/* // for wait fetching data  */}
+             <Dialog open={!isDone && isDone !== null ? !isDone : false} PaperProps={{
+              style: {
+                backgroundColor:'transparent',
+                boxShadow:'none',
+              }
+             }}><Typography>Processing...<CircleLoading/></Typography></Dialog>
               <Grid container>
                 <Grid item xs={12}>
                   <Typography sx={{ mb: 2 }}>{subject?.subject_code + ' ' + subject?.subject_name_th + ' '}</Typography>
@@ -245,9 +248,10 @@ function AddContinueSubjects({ open, handleClose, subject }) {
                         </React.Fragment>
                       )}
                   {ContinueSubjects[0]?.parent_id === null && (
-                    <React.Fragment>
-                      <Typography sx={{ color: 'gray' }}>วิชานี้เป็น Root node</Typography>
-                    </React.Fragment>
+                    <Box display={'flex'} flexDirection={'row'}>
+                      <Typography sx={{ color: 'gray' ,mt:1.5}}>วิชานี้เป็น Root node </Typography>
+                      <Button onClick={()=>deleteChildren(ContinueSubjects[0])}>ยกเลิก</Button>
+                    </Box>
                   )}
                 </Grid>
               </Grid>
@@ -274,7 +278,7 @@ function AddContinueSubjects({ open, handleClose, subject }) {
                           key={clearAutoComplete} // if toggle will clear value of autocomplete
                           disablePortal
                           fullWidth
-                          options={Subjects}
+                          options={Subjects?.filter(sj=>sj.subject_id !== subject.subject_id)}
                           getOptionLabel={option => option.subject_code + ' ' + option.subject_name_th}
                           renderInput={params => <TextField {...params} label='Code, Subject name ' />}
                           onChange={(e, value) => {
@@ -305,7 +309,7 @@ function AddContinueSubjects({ open, handleClose, subject }) {
                           key={clearAutoComplete} // if toggle will clear value of autocomplete
                           disablePortal
                           fullWidth
-                          options={Subjects}
+                          options={Subjects?.filter(sj=>sj.subject_id !== subject.subject_id)}
                           getOptionLabel={option => option.subject_code + ' ' + option.subject_name_th}
                           renderInput={params => <TextField {...params} label='Code, Subject name ' />}
                           onChange={(e, value) => {
@@ -329,7 +333,7 @@ function AddContinueSubjects({ open, handleClose, subject }) {
                   )}
                 </Grid>
               </Grid>
-              {/* <Button onClick={() => updateLocalChildren(dummyChildren)}>test add local children </Button> */}
+              
             </DialogContent>
           </React.Fragment>
         )}
@@ -339,38 +343,9 @@ function AddContinueSubjects({ open, handleClose, subject }) {
         <Button onClick={handleClose} color='secondary'>
           Cancel
         </Button>
-        {/* <Button onClick={() => !checkIsEmpty(state) && handleSubmit(state)}>Submit</Button> */}
-        {/* <Button onClick={() => !checkIsEmpty(state) && handleSubmit(state)}>Submit</Button> */}
+
       </DialogActions>
-      {/* <SnackbarStyled open={openSnackbar} handleClose={() => setOpenSnackbar(false)} massage={snackMassage} /> */}
-      {/* <Dialog open={openDescription} onClose={() => setOpenDescription(false)} fullWidth maxWidth='md'>
-        <DialogTitle id='alert-dialog-title'>{'Description'}</DialogTitle> */}
-      {/* <DialogContent> */}
-      {/* <DialogContentText>test</DialogContentText> */}
-      {/* <TextField
-            multiline
-            rows={4}
-            fullWidth
-            value={subRow.competency_sub_description || ''}
-            onChange={e => setSubRow(pre => ({ ...pre, competency_sub_description: e.target.value }))}
-          /> */}
-      {/* </DialogContent> */}
-      {/* <DialogActions>
-          <Button
-            onClick={() => {
-              // setOpenDescription(false)
-              // setSnackMassage('test')
-              // setOpenSnackbar(true)
-              subRow.competency_sub_description !== '' && updateSubDesc()
-            }}
-          >
-            Update
-          </Button>
-          <Button onClick={() => setOpenDescription(false)} autoFocus>
-            Close
-          </Button>
-        </DialogActions> */}
-      {/* </Dialog> */}
+     
     </Dialog>
   )
 }
