@@ -49,9 +49,9 @@ const navigation = () => {
       // openInNewTab: true
     },
     {
-      title: 'Job Position',
+      title: 'Curriculum Tree',
       icon: Domain,
-      path: '/pages/masterdata/jobposition'
+      path: '/pages/masterdata/curriculumtree'
       // openInNewTab: true
     }
   ]

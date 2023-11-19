@@ -250,7 +250,13 @@ function AddContinueSubjects({ open, handleClose, subject }) {
                   {ContinueSubjects[0]?.parent_id === null && (
                     <Box display={'flex'} flexDirection={'row'}>
                       <Typography sx={{ color: 'gray' ,mt:1.5}}>วิชานี้เป็น Root node </Typography>
-                      <Button onClick={()=>deleteChildren(ContinueSubjects[0])}>ยกเลิก</Button>
+                      <Button onClick={()=>{
+                        if(ContinueSubjects[0]?.children.length > 0){
+                          alert('root node have children, remove all children before cancel')
+                        }else{
+                          deleteChildren(ContinueSubjects[0])
+                        }
+                        }}>ยกเลิก</Button>
                     </Box>
                   )}
                 </Grid>

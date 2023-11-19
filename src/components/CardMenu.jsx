@@ -6,10 +6,10 @@ import CardContent from '@mui/material/CardContent'
 import Box from '@mui/material/Grid'
 import Icon from '@mdi/react'
 
-function CardMenu({ handleClick, MenuName, Content, MenuIcon }) {
+function CardMenu({ handleclick, MenuName, Content, MenuIcon }) {
   return (
     <Card style={{ background: 'transparent' }}>
-      <Button onClick={() => handleClick()}>
+      <Button onClick={() => handleclick()}>
         <CardContent
           sx={{
             mx: 8,

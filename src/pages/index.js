@@ -33,7 +33,7 @@ const MasterData = () => {
           <Visible>
             <OnHover>
               <CardMenu
-                handleClick={() => router.push('/pages/masterdata/curriculums')}
+                handleclick={() => router.push('/pages/masterdata/curriculums')}
                 MenuIcon={mdiFolderOpenOutline}
                 MenuName={'Master Data'}
                 Content={
@@ -63,7 +63,7 @@ const MasterData = () => {
           <Visible>
             <OnHover>
               <CardMenu
-                handleClick={() => console.log('Recommendation')}
+                handleclick={() => console.log('Recommendation')}
                 MenuIcon={mdiAccountCardOutline}
                 MenuName={'Recommendation'}
                 Content={
@@ -90,7 +90,7 @@ const MasterData = () => {
           <Visible>
             <OnHover>
               <CardMenu
-                handleClick={() => console.log('Student Syst.')}
+                handleclick={() => console.log('Student Syst.')}
                 MenuIcon={mdiAccountMultipleOutline}
                 MenuName={'Student Syst.'}
                 Content={
@@ -113,7 +113,7 @@ const MasterData = () => {
         <Grid item xs={12} md={5} lg={4.2} sx={{ display: 'flex', justifyContent: 'center' }}>
           <Visible>
             <OnHover>
-              <CardMenu handleClick={() => console.log('Report')} MenuIcon={mdiFileTableOutline} MenuName={'Report'} />
+              <CardMenu handleclick={() => console.log('Report')} MenuIcon={mdiFileTableOutline} MenuName={'Report'} />
             </OnHover>
           </Visible>
         </Grid>
