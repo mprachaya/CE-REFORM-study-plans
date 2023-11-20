@@ -63,22 +63,22 @@ const MasterData = () => {
           <Visible>
             <OnHover>
               <CardMenu
-                handleclick={() => console.log('Recommendation')}
+                handleclick={() => router.push('/pages/surveys/interestsurveys')}
                 MenuIcon={mdiAccountCardOutline}
-                MenuName={'Recommendation'}
-                Content={
-                  <React.Fragment>
-                    <Typography variant='body2' letterSpacing={0}>
-                      - Study Plans
-                    </Typography>
-                    <Typography variant='body2' letterSpacing={0}>
-                      - Actual Study
-                    </Typography>
-                    <Typography variant='body2' letterSpacing={0}>
-                      - Recommend Plans
-                    </Typography>
-                  </React.Fragment>
-                }
+                MenuName={'Surveys & Forms'}
+                // Content={
+                //   <React.Fragment>
+                //     <Typography variant='body2' letterSpacing={0}>
+                //       - Study Plans
+                //     </Typography>
+                //     <Typography variant='body2' letterSpacing={0}>
+                //       - Actual Study
+                //     </Typography>
+                //     <Typography variant='body2' letterSpacing={0}>
+                //       - Recommend Plans
+                //     </Typography>
+                //   </React.Fragment>
+                // }
               />
             </OnHover>
           </Visible>

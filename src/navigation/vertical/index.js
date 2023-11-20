@@ -1,7 +1,7 @@
 import BookOutline from 'mdi-material-ui/BookOutline'
 import Domain from 'mdi-material-ui/Domain'
 
-const navigation = () => {
+export const masterNavigation = () => {
   return [
     {
       sectionTitle: 'MasterData'
@@ -17,12 +17,6 @@ const navigation = () => {
       path: '/pages/masterdata/faculty'
       // openInNewTab: true
     },
-    // {
-    //   title: 'Subject',
-    //   icon: Domain,
-    //   path: '/pages/masterdata/subjects'
-    //   // openInNewTab: true
-    // },
 
     {
       title: 'Subject Categories',
@@ -56,5 +50,15 @@ const navigation = () => {
     }
   ]
 }
-
-export default navigation
+export const surveysNavigation = () => {
+  return [
+    {
+      sectionTitle: 'Surveys'
+    },
+    {
+      title: 'Interest Surveys',
+      icon: BookOutline,
+      path: '/pages/surveys/interestsurveys'
+    }
+  ]
+}

@@ -108,16 +108,8 @@ const curriculumtree = () => {
           defaultExpandIcon={<ChevronRight />}
           sx={{ flexGrow: 1, overflowY: 'auto', maxWidth: 700 }}
         >
-          {ContinueSubjects?.length !== 0 && recursionContinueSubjects(ContinueSubjects[0])}
-          {/* <TreeItem nodeId='1' label='Applications'>
-            <TreeItem nodeId='2' label='Calendar' />
-          </TreeItem>
-          <TreeItem nodeId='5' label='Documents'>
-            <TreeItem nodeId='10' label='OSS' />
-            <TreeItem nodeId='6' label='MUI'>
-              <TreeItem nodeId='8' label='index.js' />
-            </TreeItem>
-          </TreeItem> */}
+          {ContinueSubjects?.length !== 0 &&
+            Object.values(ContinueSubjects).map(nodes => recursionContinueSubjects(nodes))}
         </TreeView>
       </Grid>
       {/* <Grid container>
