@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 
-import { Btn, TextSearch } from 'src/components'
-import { Box, Grid, Hidden, Typography, alpha } from '@mui/material'
+import { Btn, CircleLoading, Selection, TextSearch } from 'src/components'
+import { Box, Grid, Hidden, Typography, alpha, MenuItem } from '@mui/material'
 
 import { ChevronRight, ChevronDown } from 'mdi-material-ui'
 import { TreeItem, TreeView } from '@mui/x-tree-view'
@@ -9,7 +9,18 @@ import { url } from 'src/configs/urlConfig'
 import { useFetch } from 'src/hooks'
 
 const curriculumtree = () => {
-  const URL_GETALL_CONTINUE_SUBJECTS = `${url.BASE_URL}/continue-subjects/`
+  const URL_GETALL_CONTINUE_SUBJECTS = `${url.BASE_URL}/continue-subjects-curriculum/`
+  const URL_GET_CURRICULUM = `${url.BASE_URL}/curriculums/`
+
+  const {
+    error: CurriculumError,
+    data: Curriculums,
+    setData: setCurriculums,
+    loading: CurriculumLoading,
+    reFetch: reFetchCurriculums
+  } = useFetch(URL_GET_CURRICULUM)
+
+  const [curriculumSelected, setCurriculumSelected] = useState(0)
 
   const {
     error: ContinueSubjectsError,
@@ -17,7 +28,7 @@ const curriculumtree = () => {
     setData: setContinueSubjects,
     loading: ContinueSubjectsLoading,
     reFetch: reFetchContinueSubjects
-  } = useFetch(URL_GETALL_CONTINUE_SUBJECTS)
+  } = useFetch(URL_GETALL_CONTINUE_SUBJECTS + curriculumSelected)
 
   const [expandedNodes, setExpandedNodes] = useState([])
 
@@ -73,6 +84,17 @@ const curriculumtree = () => {
   }
 
   useEffect(() => {
+    if (Curriculums.length > 0) {
+      const findMaxId = Curriculums?.reduce(
+        (max, current) => (current.curriculum_id > max.curriculum_id ? current : max),
+        Curriculums[0]
+      )
+      // console.log(findMaxId)
+      setCurriculumSelected(findMaxId.curriculum_id)
+    }
+  }, [Curriculums])
+
+  useEffect(() => {
     if (ContinueSubjects) {
       const dummy = []
       const getNodeID = recursionGetNodeID(dummy, ContinueSubjects)
@@ -81,6 +103,13 @@ const curriculumtree = () => {
       // console.log(...getNodeID)
     }
   }, [ContinueSubjects])
+
+  useEffect(() => {
+    if (curriculumSelected) {
+      // setCurriculumLoading(true)
+      reFetchContinueSubjects()
+    }
+  }, [curriculumSelected])
 
   const recursionGetNodeID = (store, nodes) => {
     return Object.values(nodes)?.map(item => {
@@ -92,26 +121,58 @@ const curriculumtree = () => {
       return store
     })
   }
+  // if (ContinueSubjectsLoading) {
+  //   return (
+  //     <Box sx={{ height: 120, m: 12 }}>
+  //       <CircleLoading />
+  //     </Box>
+  //   )
+  // }
 
   return (
     <Box>
-      {/* // header */}
       <Box display={'flex'} flexDirection={'row'}>
-        <Typography variant='h6'>Curriculum Tree</Typography>
+        <Typography variant='h6' sx={{ mr: 2 }}>
+          Curriculum Tree
+        </Typography>
+        <Selection
+          label={'Curriculum'}
+          height={40}
+          width={270}
+          // firstItemText={'แสดงทั้งหมด'}
+          selectionValue={curriculumSelected}
+          handleChange={e => setCurriculumSelected(e.target.value)}
+          Items={Object.values(Curriculums)?.map(curri => (
+            <MenuItem key={curri.curriculum_id} value={curri.curriculum_id}>
+              {curri.curriculum_name_th + ' ' + curri.curriculum_year}
+            </MenuItem>
+          ))}
+        />
       </Box>
-
-      <Grid container spacing={6} sx={{ mt: 5 }}></Grid>
-      <Grid item xs={12} sx={{ m: 12 }}>
-        <TreeView
-          expanded={expandedNodes} // expand node by nodeId
-          defaultCollapseIcon={<ChevronDown />}
-          defaultExpandIcon={<ChevronRight />}
-          sx={{ flexGrow: 1, overflowY: 'auto', maxWidth: 700 }}
-        >
-          {ContinueSubjects?.length !== 0 &&
-            Object.values(ContinueSubjects).map(nodes => recursionContinueSubjects(nodes))}
-        </TreeView>
-      </Grid>
+      {ContinueSubjectsLoading || curriculumSelected === 0 ? (
+        <Box sx={{ height: 120, m: 12 }}>
+          <CircleLoading />
+        </Box>
+      ) : ContinueSubjects.length > 0 && curriculumSelected !== 0 ? (
+        <>
+          <Grid container spacing={6} sx={{ mt: 5 }}></Grid>
+          <Grid item xs={12} sx={{ m: 2 }}>
+            {expandedNodes && (
+              <TreeView
+                expanded={expandedNodes} // expand node by nodeId
+                defaultCollapseIcon={<ChevronDown />}
+                defaultExpandIcon={<ChevronRight />}
+                sx={{ flexGrow: 1, overflowY: 'auto', maxWidth: 700 }}
+              >
+                {ContinueSubjects?.length !== 0 &&
+                  Object.values(ContinueSubjects).map(nodes => recursionContinueSubjects(nodes))}
+              </TreeView>
+            )}
+          </Grid>
+        </>
+      ) : (
+        <Typography sx={{ mt: 6 }}>this curriculum have no continue subject</Typography>
+      )}
       {/* <Grid container>
         <Grid item xs={12} sm={12} lg={12} mt={6}>
           {STUDENT_GROUPS.length !== 0 || !StudentGroupsLoading ? (

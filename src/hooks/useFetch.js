@@ -42,6 +42,7 @@ export default function useFetch(url, header) {
   }, [url])
 
   const reFetch = () => {
+    setLoading(true)
     if (header) {
       axios
         .get(url, header)
@@ -57,6 +58,7 @@ export default function useFetch(url, header) {
           console.log(err)
         })
     } else {
+      setLoading(true)
       axios
         .get(url)
         .then(res => {
@@ -72,5 +74,5 @@ export default function useFetch(url, header) {
     }
   }
 
-  return { data, setData, loading, error, reFetch }
+  return { data, setData, loading, setLoading, error, reFetch }
 }

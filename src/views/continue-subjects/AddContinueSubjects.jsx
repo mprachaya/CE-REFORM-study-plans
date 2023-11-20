@@ -20,7 +20,7 @@ import { useFetch } from 'src/hooks'
 
 
 function AddContinueSubjects({ open, handleClose, subject }) {
-  const URL_GET_CONTINUE_SUBJECT_BY_SUBJECT_ID = `${url.BASE_URL}/continue-subjects-subject-id/`
+  const URL_GET_CONTINUE_SUBJECT_BY_SUBJECT_ID = `${url.BASE_URL}/continue-subjects-subject/`
   const URL_GET_SUBJECTS = `${url.BASE_URL}/subjects-by-curriculum/`
   const URL_ADD_CONTINUE_SUBJECT = `${url.BASE_URL}/continue-subjects/`
 

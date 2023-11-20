@@ -12,6 +12,12 @@ export const masterNavigation = () => {
       path: '/pages/masterdata/curriculums'
     },
     {
+      title: 'Curriculum Tree',
+      icon: Domain,
+      path: '/pages/masterdata/curriculumtree'
+      // openInNewTab: true
+    },
+    {
       title: 'Faculty',
       icon: Domain,
       path: '/pages/masterdata/faculty'
@@ -41,12 +47,6 @@ export const masterNavigation = () => {
       icon: Domain,
       path: '/pages/masterdata/studentgroups'
       // openInNewTab: true
-    },
-    {
-      title: 'Curriculum Tree',
-      icon: Domain,
-      path: '/pages/masterdata/curriculumtree'
-      // openInNewTab: true
     }
   ]
 }
@@ -59,6 +59,11 @@ export const surveysNavigation = () => {
       title: 'Interest Surveys',
       icon: BookOutline,
       path: '/pages/surveys/interestsurveys'
+    },
+    {
+      title: 'Feedbacks',
+      icon: BookOutline,
+      path: '/pages/surveys/feedbacks'
     }
   ]
 }

@@ -36,22 +36,22 @@ const MasterData = () => {
                 handleclick={() => router.push('/pages/masterdata/curriculums')}
                 MenuIcon={mdiFolderOpenOutline}
                 MenuName={'Master Data'}
-                Content={
-                  <React.Fragment>
-                    <Typography variant='body2' letterSpacing={0}>
-                      - Faculty
-                    </Typography>
-                    <Typography variant='body2' letterSpacing={0}>
-                      - Student Groups
-                    </Typography>
-                    <Typography variant='body2' letterSpacing={0}>
-                      - Curriculums
-                    </Typography>
-                    <Typography variant='body2' letterSpacing={0}>
-                      - Job Positions
-                    </Typography>
-                  </React.Fragment>
-                }
+                // Content={
+                //   <React.Fragment>
+                //     <Typography variant='body2' letterSpacing={0}>
+                //       - Faculty
+                //     </Typography>
+                //     <Typography variant='body2' letterSpacing={0}>
+                //       - Student Groups
+                //     </Typography>
+                //     <Typography variant='body2' letterSpacing={0}>
+                //       - Curriculums
+                //     </Typography>
+                //     <Typography variant='body2' letterSpacing={0}>
+                //       - Job Positions
+                //     </Typography>
+                //   </React.Fragment>
+                // }
               />
             </OnHover>
           </Visible>
@@ -93,16 +93,16 @@ const MasterData = () => {
                 handleclick={() => console.log('Student Syst.')}
                 MenuIcon={mdiAccountMultipleOutline}
                 MenuName={'Student Syst.'}
-                Content={
-                  <React.Fragment>
-                    <Typography variant='body2' letterSpacing={0}>
-                      - Assessment Forms
-                    </Typography>
-                    <Typography variant='body2' letterSpacing={0}>
-                      - Feedback Forms
-                    </Typography>
-                  </React.Fragment>
-                }
+                // Content={
+                //   <React.Fragment>
+                //     <Typography variant='body2' letterSpacing={0}>
+                //       - Assessment Forms
+                //     </Typography>
+                //     <Typography variant='body2' letterSpacing={0}>
+                //       - Feedback Forms
+                //     </Typography>
+                //   </React.Fragment>
+                // }
               />
             </OnHover>
           </Visible>
@@ -113,7 +113,7 @@ const MasterData = () => {
         <Grid item xs={12} md={5} lg={4.2} sx={{ display: 'flex', justifyContent: 'center' }}>
           <Visible>
             <OnHover>
-              <CardMenu handleclick={() => console.log('Report')} MenuIcon={mdiFileTableOutline} MenuName={'Report'} />
+              <CardMenu handleclick={() => console.log('Report')} MenuIcon={mdiFileTableOutline} MenuName={'Reports'} />
             </OnHover>
           </Visible>
         </Grid>
