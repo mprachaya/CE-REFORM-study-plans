@@ -26,10 +26,10 @@ const MasterData = () => {
       </Grid>
 
       {/* --------------------------------------Grid ใหญ่------------------------------------------ */}
-      <Grid container spacing={8} sx={{ display: 'flex', justifyContent: 'center' }}>
+      <Grid container spacing={8} sx={{ justifyContent: 'center' }}>
         {/* -------------------------------------- Grid ลูกที่ 1---------------------------------------------------- */}
 
-        <Grid item sm={12} md={5} lg={4.2} sx={{ display: 'flex', justifyContent: 'center' }}>
+        <Grid item sm={12} md={5} lg={4.2} sx={{ justifyContent: 'center' }}>
           <Visible>
             <OnHover>
               <CardMenu
@@ -59,7 +59,7 @@ const MasterData = () => {
 
         {/* -------------------------------------- Grid ลูกที่ 2---------------------------------------------------- */}
 
-        <Grid item xs={12} md={5} lg={4.2} sx={{ display: 'flex', justifyContent: 'center' }}>
+        <Grid item xs={12} md={5} lg={4.2} sx={{ justifyContent: 'center' }}>
           <Visible>
             <OnHover>
               <CardMenu
@@ -86,7 +86,7 @@ const MasterData = () => {
 
         {/* -------------------------------------- Grid ลูกที่ 3---------------------------------------------------- */}
 
-        <Grid item xs={12} md={5} lg={4.2} sx={{ display: 'flex', justifyContent: 'center' }}>
+        <Grid item xs={12} md={5} lg={4.2} sx={{ justifyContent: 'center' }}>
           <Visible>
             <OnHover>
               <CardMenu
@@ -110,7 +110,7 @@ const MasterData = () => {
 
         {/* -------------------------------------- Grid ลูกที่ 4---------------------------------------------------- */}
 
-        <Grid item xs={12} md={5} lg={4.2} sx={{ display: 'flex', justifyContent: 'center' }}>
+        <Grid item xs={12} md={5} lg={4.2} sx={{ justifyContent: 'center' }}>
           <Visible>
             <OnHover>
               <CardMenu handleclick={() => console.log('Report')} MenuIcon={mdiFileTableOutline} MenuName={'Reports'} />

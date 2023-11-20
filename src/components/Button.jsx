@@ -6,6 +6,7 @@ function Btn(props) {
     <Button
       {...props}
       sx={{
+        width: props.width,
         bgcolor: 'primary.main',
         color: 'grey.50',
         '&:hover': {
@@ -13,7 +14,7 @@ function Btn(props) {
           color: 'primary.main'
         }
       }}
-      onClick={props.handleClick}
+      onClick={props.handleclick}
     >
       {props.label}
     </Button>

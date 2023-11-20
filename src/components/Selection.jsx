@@ -15,7 +15,7 @@ function Selection({
   disableSelect
 }) {
   return (
-    <FormControl sx={{ width: width }} disabled={disableSelect}>
+    <FormControl sx={{ width: width, mx: 2 }} disabled={disableSelect}>
       <InputLabel size='small' id='form-layouts-separator-select-label'>
         {label}
       </InputLabel>

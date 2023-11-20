@@ -104,13 +104,6 @@ const curriculumtree = () => {
     }
   }, [ContinueSubjects])
 
-  useEffect(() => {
-    if (curriculumSelected) {
-      // setCurriculumLoading(true)
-      reFetchContinueSubjects()
-    }
-  }, [curriculumSelected])
-
   const recursionGetNodeID = (store, nodes) => {
     return Object.values(nodes)?.map(item => {
       store.push(String(item?.continue_subject_id))

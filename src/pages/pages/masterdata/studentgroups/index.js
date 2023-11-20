@@ -150,7 +150,7 @@ const studentgroups = () => {
           </Box>
         </Grid>
         <Grid item xs={12} sm={4} md={4} lg={8}>
-          <Btn handleClick={handleClickOpen} label={'+ Add New'} />
+          <Btn handleclick={handleClickOpen} label={'+ Add New'} />
         </Grid>
       </Grid>
       <Grid container>
