@@ -30,6 +30,7 @@ function interestsurveysPage() {
   const [openEdit, setOpenEdit] = useState(false)
   const [dialogTitle, setDialogTitle] = useState('')
   const [dialogTextFieldValue, setDialogTextFieldValue] = useState('')
+  const [question, setQuestion] = useState([])
 
   const URL_GET_CURRICULUM = `${url.BASE_URL}/curriculums/`
   const URL_GET_INTEREST_SURVEYS = `${url.BASE_URL}/interest-surveys/`
@@ -52,43 +53,44 @@ function interestsurveysPage() {
     reFetch: reFetchInterestSurveys
   } = useFetch(URL_GET_INTEREST_SURVEYS + curriculumSelected)
 
-  const handleEdit = (type, object) => {
+  const handleEditQuestion = (type, object) => {
     setOpenEdit(true)
+    setQuestion(object)
     if (type === 1 && object) {
-      // for edit question
-      setDialogTitle('Edit Question')
+      // for edit question type 1 -> point 1-5
+      setDialogTitle('Edit Question (Point 1-5)')
       setDialogTextFieldValue(object?.interest_question_title)
-      console.log('interest_survey_id :', object?.interest_survey_id)
+      // console.log('interest_survey_id :', object?.interest_survey_id)
     } else if (type === 2 && object) {
-      // for edit answer
-      setDialogTitle('Edit Answer')
-      setDialogTextFieldValue(object?.interest_answer_title)
-      console.log('interest_question_id :', object?.interest_question_id)
+      // for edit  question type 2 -> have choice
+      setDialogTitle('Edit Question (Choices)')
+      setDialogTextFieldValue(object?.interest_question_title)
+      // console.log('interest_question_id :', object?.interest_survey_id)
     }
   }
-  const handleUpdate = (type, object, text) => {
-    if (type === 1 && object && text !== '') {
-      // for edit question
-      axios
-        .put(URL_PUT_INTEREST_QUESTION + object?.interest_question_id, {
-          interest_survey_id: object?.interest_survey_id,
-          interest_question_title: text,
-          interest_question_number: object?.interest_question_number
-        })
-        .then(res => res.data && console.log(res.data))
-        .catch(err => console.log(err))
-    } else if (type === 2 && object && text !== '') {
-      axios
-        .put(URL_PUT_INTEREST_ANSWER + object?.interest_answer_id, {
-          interest_question_id: object?.interest_question_id,
-          interest_answer_choice: text,
-          interest_answer_number: object?.interest_answer_number
-        })
-        .then(res => res.data && console.log(res.data))
-        .catch(err => console.log(err))
-      // for edit answer
-    }
-  }
+  // const handleUpdate = (type, object, text) => {
+  //   if (type === 1 && object && text !== '') {
+  //     // for edit question
+  //     axios
+  //       .put(URL_PUT_INTEREST_QUESTION + object?.interest_question_id, {
+  //         interest_survey_id: object?.interest_survey_id,
+  //         interest_question_title: text,
+  //         interest_question_number: object?.interest_question_number
+  //       })
+  //       .then(res => res.data && console.log(res.data))
+  //       .catch(err => console.log(err))
+  //   } else if (type === 2 && object && text !== '') {
+  //     axios
+  //       .put(URL_PUT_INTEREST_ANSWER + object?.interest_answer_id, {
+  //         interest_question_id: object?.interest_question_id,
+  //         interest_answer_choice: text,
+  //         interest_answer_number: object?.interest_answer_number
+  //       })
+  //       .then(res => res.data && console.log(res.data))
+  //       .catch(err => console.log(err))
+  //     // for edit answer
+  //   }
+  // }
 
   useEffect(() => {
     if (InterestSurveys) console.log(InterestSurveys)
@@ -177,7 +179,10 @@ function interestsurveysPage() {
                         </Grid>
                       </Grid>
                       <Grid item xs={2} md={1}>
-                        <Button sx={{ ml: 2, p: { xs: 0, md: 0.5 } }} onClick={() => handleEdit(1, question)}>
+                        <Button
+                          sx={{ ml: 2, p: { xs: 0, md: 0.5 } }}
+                          onClick={() => handleEditQuestion(question.interest_question_type, question)}
+                        >
                           <Icon path={mdiPen} size={0.75} style={{ margin: 0.5 }} />
                           Edit
                         </Button>
@@ -218,7 +223,7 @@ function interestsurveysPage() {
           )}
           <Dialog open={openEdit} onClose={() => setOpenEdit(false)} maxWidth={'md'} fullWidth>
             <DialogTitle>{dialogTitle}</DialogTitle>
-            <DialogContent>
+            <DialogContent sx={{ pb: 12 }}>
               <Grid container spacing={2} sx={{ my: 2 }}>
                 <Grid item xs={8}>
                   <TextField
@@ -232,6 +237,32 @@ function interestsurveysPage() {
                   <Button variant='contained' sx={{ width: '100%', height: '100%' }}>
                     Update
                   </Button>
+                </Grid>
+                <Grid container sx={{ m: 2, mt: 0, ml: 0 }} spacing={2}>
+                  {question?.interest_question_type === 2 &&
+                    question?.interest_answers.map((ans, index) => (
+                      <Grid
+                        container
+                        sx={{ display: 'flex' }}
+                        direction={'row'}
+                        item
+                        xs={12}
+                        key={ans.interest_answer_id}
+                        spacing={2}
+                      >
+                        <Grid item xs={0.5}>
+                          <Typography sx={{ p: 2 }}>{index + 1}).</Typography>
+                        </Grid>
+                        <Grid item xs={8.5}>
+                          <TextField size='small' fullWidth value={ans.interest_answer_title} />
+                        </Grid>
+                        <Grid item xs={3}>
+                          <Button variant='contained' sx={{ width: '100%', height: '100%' }}>
+                            Update
+                          </Button>
+                        </Grid>
+                      </Grid>
+                    ))}
                 </Grid>
               </Grid>
             </DialogContent>
