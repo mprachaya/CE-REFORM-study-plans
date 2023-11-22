@@ -101,6 +101,25 @@ function interestsurveysPage() {
         .catch(err => console.log(err))
     }
   }
+
+  const handleDeleteQuestion = questionId => {
+    if (questionId) {
+      let result = window.confirm('Confirm to Delete?')
+      if (result) {
+        setIsDone(false)
+        axios
+          .delete(URL_PUT_INTEREST_QUESTION + questionId)
+          .then(res => {
+            if (res.data) {
+              console.log(res.data)
+              reFetchInterestSurveys()
+              setIsDone(true)
+            }
+          })
+          .catch(err => console.log(err))
+      }
+    }
+  }
   // const handleUpdate = (type, object, text) => {
   //   if (type === 1 && object && text !== '') {
   //     // for edit question
@@ -212,8 +231,25 @@ function interestsurveysPage() {
               </Grid>
             )}
           </Grid>
-
-          {interestTemp[0] !== undefined ? (
+          <Dialog
+            open={!isDone && isDone !== null ? !isDone : false}
+            PaperProps={{
+              style: {
+                backgroundColor: 'transparent',
+                boxShadow: 'none'
+              }
+            }}
+          >
+            <Typography>
+              Processing...
+              <CircleLoading />
+            </Typography>
+          </Dialog>
+          {InterestSurveysLoading && interestTemp[0] === undefined ? (
+            <Box sx={{ height: 120, m: 12 }}>
+              <CircleLoading />
+            </Box>
+          ) : interestTemp[0] !== undefined ? (
             <Grid container>
               <Grid item xs={12} sx={{ my: 6 }}>
                 {interestTemp[0]?.interestQuestions.map((question, qIndex) => (
@@ -243,7 +279,7 @@ function interestsurveysPage() {
                           <Button
                             color='error'
                             sx={{ p: 1 }}
-                            onClick={() => handleEditQuestion(question.interest_question_type, question)}
+                            onClick={() => handleDeleteQuestion(question.interest_question_id)}
                           >
                             <Icon path={mdiTrashCan} size={0.75} style={{ margin: 0.5 }} />
                           </Button>
@@ -286,20 +322,6 @@ function interestsurveysPage() {
           <Dialog open={openEdit} onClose={() => setOpenEdit(false)} maxWidth={'md'} fullWidth>
             <DialogTitle>{dialogTitle}</DialogTitle>
             <DialogContent sx={{ pb: 12, minHeight: 500 }}>
-              <Dialog
-                open={!isDone && isDone !== null ? !isDone : false}
-                PaperProps={{
-                  style: {
-                    backgroundColor: 'transparent',
-                    boxShadow: 'none'
-                  }
-                }}
-              >
-                <Typography>
-                  Processing...
-                  <CircleLoading />
-                </Typography>
-              </Dialog>
               <Grid container sx={{ my: 2 }}>
                 <Grid container spacing={2} sx={{ m: 2, mt: 0 }}>
                   <Grid item xs={12}>
