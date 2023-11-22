@@ -340,6 +340,7 @@ function AddSubjectCompetency({ open, handleClose, subject, subjects, setSubject
                     </Grid>
                     <Grid item xs={12} md={8} lg={8}>
                       <TextField
+                        size='small'
                         fullWidth
                         // name={'competency_name'}
                         label='สมรรถนะหลัก'
@@ -350,7 +351,7 @@ function AddSubjectCompetency({ open, handleClose, subject, subjects, setSubject
                     <Grid item xs={12} md={4} lg={4}>
                       <Button
                         variant='contained'
-                        sx={{ px: 2, width: '100%', height: '100%' }}
+                        sx={{ px: 2, width: '100%' }}
                         onClick={() => competencieName !== '' && submitMain(competencieName)}
                       >
                         Submit
@@ -370,6 +371,7 @@ function AddSubjectCompetency({ open, handleClose, subject, subjects, setSubject
                       <Grid item xs={12} sm={12} md={8} lg={8}>
                         <TextField
                           fullWidth
+                          size='small'
                           // name={'competency_name'}
                           InputProps={{
                             startAdornment: <InputAdornment position='start'>{index + 1} .</InputAdornment>
@@ -384,7 +386,7 @@ function AddSubjectCompetency({ open, handleClose, subject, subjects, setSubject
                       <Grid item xs={12} sm={12} md={2} lg={2}>
                         <Button
                           variant='outlined'
-                          sx={{ px: 2, width: '100%', height: '100%' }}
+                          sx={{ px: 2, width: '100%' }}
                           onClick={() => confirmUpdateMain(mainCom.competency_id, mainCom.competency_name)}
                         >
                           Update
@@ -393,7 +395,7 @@ function AddSubjectCompetency({ open, handleClose, subject, subjects, setSubject
                       <Grid item xs={12} sm={12} md={2} lg={2}>
                         <Button
                           variant='outlined'
-                          sx={{ px: 2, width: '100%', height: '100%', color: 'red', borderColor: 'red' }}
+                          sx={{ px: 2, width: '100%', color: 'red', borderColor: 'red' }}
                           onClick={() => deleteMain(mainCom.competency_id)}
                         >
                           Delete
@@ -412,6 +414,7 @@ function AddSubjectCompetency({ open, handleClose, subject, subjects, setSubject
                                   <Grid container spacing={2}>
                                     <Grid item xs={6}>
                                       <TextField
+                                        size='small'
                                         fullWidth
                                         // name={'curriculum_name_th'}
                                         label='สมรรถนะย่อย'
@@ -424,7 +427,7 @@ function AddSubjectCompetency({ open, handleClose, subject, subjects, setSubject
                                     <Grid item xs={2}>
                                       <Button
                                         variant='outlined'
-                                        sx={{ px: 2, width: '100%', height: '100%' }}
+                                        sx={{ px: 2, width: '100%' }}
                                         onClick={() => handleOpenSubDesc(mainCom, filterSub)}
                                       >
                                         Description
@@ -433,7 +436,7 @@ function AddSubjectCompetency({ open, handleClose, subject, subjects, setSubject
                                     <Grid item xs={2}>
                                       <Button
                                         variant='outlined'
-                                        sx={{ px: 2, width: '100%', height: '100%' }}
+                                        sx={{ px: 2, width: '100%' }}
                                         onClick={e =>
                                           confirmUpdateSub(
                                             filterSub.competency_sub_id,
@@ -451,7 +454,7 @@ function AddSubjectCompetency({ open, handleClose, subject, subjects, setSubject
                                         sx={{
                                           px: 2,
                                           width: '100%',
-                                          height: '100%',
+                                          // height: '100%',
                                           color: 'red',
                                           borderColor: 'red'
                                         }}
@@ -467,6 +470,8 @@ function AddSubjectCompetency({ open, handleClose, subject, subjects, setSubject
                           </Grid>
                           <Grid item xs={8}>
                             <TextField
+                              sx={{ mb: 2 }}
+                              size='small'
                               fullWidth
                               label='สมรรถนะย่อย'
                               onChange={e => {
@@ -491,7 +496,7 @@ function AddSubjectCompetency({ open, handleClose, subject, subjects, setSubject
                                 submitSub(mainCom.competency_id, competencieSubName[index].subName, index)
                               }
                               variant='contained'
-                              sx={{ height: '100%', width: '100%' }}
+                              sx={{ width: '100%' }}
                             >
                               Submit
                             </Button>
