@@ -17,8 +17,8 @@ import {
 } from '@mui/material'
 
 import { CustomLayout } from 'src/views/custom-layout-surveys'
-import { mdiPen } from '@mdi/js'
-import { Btn, Selection } from 'src/components'
+import { mdiPen, mdiTrashCan } from '@mdi/js'
+import { Btn, CircleLoading, Selection } from 'src/components'
 import Icon from '@mdi/react'
 import { url } from 'src/configs/urlConfig'
 import { useFetch } from 'src/hooks'
@@ -64,6 +64,8 @@ function interestsurveysPage() {
     reFetch: reFetchJobs
   } = useFetch(URL_GET_JOBS)
 
+  const [isDone, setIsDone] = useState(null) // for delay after process
+
   const handleEditQuestion = (type, object) => {
     setOpenEdit(true)
     setQuestion(object)
@@ -77,6 +79,26 @@ function interestsurveysPage() {
       setDialogTitle('Edit Question (Choices)')
       setDialogTextFieldValue(object?.interest_question_title)
       // console.log('interest_question_id :', object?.interest_survey_id)
+    }
+  }
+
+  const handleUpdateQuestion = (questionLabel, object) => {
+    if (questionLabel && object) {
+      setIsDone(false)
+      axios
+        .put(URL_PUT_INTEREST_QUESTION + object?.interest_question_id, {
+          interest_survey_id: object?.interest_survey_id,
+          interest_question_title: questionLabel,
+          interest_question_type: object?.interest_question_type
+        })
+        .then(res => {
+          if (res.data) {
+            console.log(res.data)
+            reFetchInterestSurveys()
+            setIsDone(true)
+          }
+        })
+        .catch(err => console.log(err))
     }
   }
   // const handleUpdate = (type, object, text) => {
@@ -152,7 +174,7 @@ function interestsurveysPage() {
                 <Selection
                   label={'Curriculum'}
                   height={40}
-                  width={InterestSurveys.length > 0 ? '70%' : '100%'}
+                  width={interestTemp?.length > 0 ? '70%' : '100%'}
                   selectionValue={curriculumSelected}
                   handleChange={e => setCurriculumSelected(e.target.value)}
                   Items={Object.values(Curriculums)
@@ -163,7 +185,7 @@ function interestsurveysPage() {
                       </MenuItem>
                     ))}
                 />
-                {InterestSurveys.length !== 0 && (
+                {interestTemp?.length !== 0 && (
                   <Selection
                     label={'Version'}
                     height={40}
@@ -179,9 +201,16 @@ function interestsurveysPage() {
                 )}
               </Box>
             </Grid>
-            <Grid item xs={12} md={4} lg={2}>
-              <Btn width={'100%'} handleclick={() => void 0} label={'+ Add New'} />
-            </Grid>
+            {interestTemp?.length > 0 && (
+              <Grid item xs={12} md={4} lg={3.5}>
+                <Btn width={'100%'} handleclick={() => void 0} label={'+ Add New Question'} />
+              </Grid>
+            )}
+            {interestTemp?.length === 0 && (
+              <Grid item xs={12} md={4} lg={3.5}>
+                <Btn width={'100%'} handleclick={() => void 0} label={'Add New Survey'} />
+              </Grid>
+            )}
           </Grid>
 
           {interestTemp[0] !== undefined ? (
@@ -190,9 +219,9 @@ function interestsurveysPage() {
                 {interestTemp[0]?.interestQuestions.map((question, qIndex) => (
                   <Card sx={{ m: 2, pl: 3.5, py: 2 }} key={question.interest_question_id}>
                     <Grid container>
-                      <Grid container item xs={10} md={11} direction={{ xs: 'column', md: 'row' }}>
+                      <Grid container item xs={8} direction={{ xs: 'column', md: 'row' }}>
                         <Grid item>
-                          <Typography sx={{ mr: 2 }}>{qIndex + 1}).</Typography>
+                          <Typography sx={{ mr: { xs: 0, md: 2 } }}>{qIndex + 1}).</Typography>
                         </Grid>
                         <Grid item>
                           <Typography sx={{ fontSize: { xs: 14, md: 16 }, ml: { xs: 6, md: 0 } }}>
@@ -200,14 +229,25 @@ function interestsurveysPage() {
                           </Typography>
                         </Grid>
                       </Grid>
-                      <Grid item xs={2} md={1}>
-                        <Button
-                          sx={{ mx: 1.5, p: { xs: 0, md: 0.5 } }}
-                          onClick={() => handleEditQuestion(question.interest_question_type, question)}
-                        >
-                          <Icon path={mdiPen} size={0.75} style={{ margin: 0.5 }} />
-                          Edit
-                        </Button>
+                      <Grid container item xs={3.8} direction={'row'} spacing={2.5} justifyContent={'flex-end'}>
+                        <Grid item>
+                          <Button
+                            sx={{ p: 1 }}
+                            onClick={() => handleEditQuestion(question.interest_question_type, question)}
+                          >
+                            <Icon path={mdiPen} size={0.75} style={{ margin: 0.5 }} />
+                            Edit
+                          </Button>
+                        </Grid>
+                        <Grid item>
+                          <Button
+                            color='error'
+                            sx={{ p: 1 }}
+                            onClick={() => handleEditQuestion(question.interest_question_type, question)}
+                          >
+                            <Icon path={mdiTrashCan} size={0.75} style={{ margin: 0.5 }} />
+                          </Button>
+                        </Grid>
                       </Grid>
                     </Grid>
                     <Box sx={{ ml: 4, my: 1 }}>
@@ -246,6 +286,20 @@ function interestsurveysPage() {
           <Dialog open={openEdit} onClose={() => setOpenEdit(false)} maxWidth={'md'} fullWidth>
             <DialogTitle>{dialogTitle}</DialogTitle>
             <DialogContent sx={{ pb: 12, minHeight: 500 }}>
+              <Dialog
+                open={!isDone && isDone !== null ? !isDone : false}
+                PaperProps={{
+                  style: {
+                    backgroundColor: 'transparent',
+                    boxShadow: 'none'
+                  }
+                }}
+              >
+                <Typography>
+                  Processing...
+                  <CircleLoading />
+                </Typography>
+              </Dialog>
               <Grid container sx={{ my: 2 }}>
                 <Grid container spacing={2} sx={{ m: 2, mt: 0 }}>
                   <Grid item xs={12}>
@@ -261,7 +315,14 @@ function interestsurveysPage() {
                     />
                   </Grid>
                   <Grid item xs={4}>
-                    <Button variant='contained' sx={{ width: '100%', height: '100%' }}>
+                    <Button
+                      disabled={!isDone && isDone !== null ? true : false}
+                      variant='contained'
+                      sx={{ width: '100%', height: '100%' }}
+                      onClick={() =>
+                        (dialogTextFieldValue !== '') & handleUpdateQuestion(dialogTextFieldValue, question)
+                      }
+                    >
                       Update
                     </Button>
                   </Grid>
@@ -300,7 +361,11 @@ function interestsurveysPage() {
                       />
                     </Grid>
                     <Grid item xs={12}>
-                      <Button variant='contained' sx={{ width: '100%', height: '100%' }}>
+                      <Button
+                        disabled={!isDone && isDone !== null ? true : false}
+                        variant='contained'
+                        sx={{ width: '100%', height: '100%' }}
+                      >
                         Update
                       </Button>
                     </Grid>
@@ -310,56 +375,54 @@ function interestsurveysPage() {
                 <Grid container sx={{ m: 2 }} spacing={2}>
                   {question?.interest_question_type === 2 &&
                     question?.interest_answers.map((ans, index) => (
-                      <Grid
-                        container
-                        sx={{ display: 'flex' }}
-                        direction={'row'}
-                        item
-                        xs={12}
-                        key={ans.interest_answer_id}
-                        spacing={2}
-                      >
-                        <Grid item xs={12}>
-                          <Typography sx={{ p: 2 }}>แก้ไขคำตอบที่ {index + 1}).</Typography>
-                        </Grid>
+                      <Card key={ans.interest_answer_id} sx={{ width: '100%', p: 2, mb: 3.5 }}>
+                        <Grid container sx={{ display: 'flex' }} direction={'row'} item xs={12} spacing={2}>
+                          <Grid item xs={12}>
+                            <Typography sx={{ p: 2 }}>แก้ไขคำตอบที่ {index + 1}).</Typography>
+                          </Grid>
 
-                        <Grid item xs={12}>
-                          <TextField size='small' fullWidth value={ans.interest_answer_title} />
+                          <Grid item xs={12}>
+                            <TextField size='small' fullWidth value={ans.interest_answer_title} />
+                          </Grid>
+                          <Grid item xs={12}>
+                            <Autocomplete
+                              size='small'
+                              // key={clearAutoComplete} // if toggle will clear value of autocomplete
+                              disablePortal
+                              fullWidth
+                              multiple
+                              freeSolo
+                              renderTags={(value, getTagProps) =>
+                                value.map(option => (
+                                  <Chip
+                                    sx={{ m: 0, p: 0 }}
+                                    key={option?.job_position_id}
+                                    variant='outlined'
+                                    label={option?.job_position_name}
+                                    {...getTagProps(option?.job_position_id)}
+                                  />
+                                ))
+                              }
+                              // options={Jobs?.filter(sj => sj.subject_id !== subject.subject_id)}
+                              options={Jobs || []}
+                              getOptionLabel={option => option?.job_position_name}
+                              renderInput={params => <TextField {...params} label='Jobs Related ' />}
+                              // onChange={(e, value) => {
+                              //   setSubjectSelected(value)
+                              // }}
+                            />
+                          </Grid>
+                          <Grid item xs={12}>
+                            <Button
+                              disabled={!isDone && isDone !== null ? true : false}
+                              variant='contained'
+                              sx={{ width: '100%', height: '100%' }}
+                            >
+                              Update
+                            </Button>
+                          </Grid>
                         </Grid>
-                        <Grid item xs={12}>
-                          <Autocomplete
-                            size='small'
-                            // key={clearAutoComplete} // if toggle will clear value of autocomplete
-                            disablePortal
-                            fullWidth
-                            multiple
-                            freeSolo
-                            renderTags={(value, getTagProps) =>
-                              value.map(option => (
-                                <Chip
-                                  sx={{ m: 0, p: 0 }}
-                                  key={option?.job_position_id}
-                                  variant='outlined'
-                                  label={option?.job_position_name}
-                                  {...getTagProps(option?.job_position_id)}
-                                />
-                              ))
-                            }
-                            // options={Jobs?.filter(sj => sj.subject_id !== subject.subject_id)}
-                            options={Jobs || []}
-                            getOptionLabel={option => option?.job_position_name}
-                            renderInput={params => <TextField {...params} label='Jobs Related ' />}
-                            // onChange={(e, value) => {
-                            //   setSubjectSelected(value)
-                            // }}
-                          />
-                        </Grid>
-                        <Grid item xs={12}>
-                          <Button variant='contained' sx={{ width: '100%', height: '100%' }}>
-                            Update
-                          </Button>
-                        </Grid>
-                      </Grid>
+                      </Card>
                     ))}
                 </Grid>
               </Grid>
