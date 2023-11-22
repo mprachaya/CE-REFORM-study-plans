@@ -27,6 +27,7 @@ import axios from 'axios'
 function interestsurveysPage() {
   const [curriculumSelected, setCurriculumSelected] = useState(0)
   const [interestVersionSelected, setInterestVersionSelected] = useState(0)
+  const [interestTemp, setInterestTemp] = useState([])
 
   const [openEdit, setOpenEdit] = useState(false)
   const [dialogTitle, setDialogTitle] = useState('')
@@ -103,8 +104,10 @@ function interestsurveysPage() {
   // }
 
   useEffect(() => {
-    if (InterestSurveys) console.log(InterestSurveys)
-  }, [InterestSurveys])
+    if (curriculumSelected) {
+      reFetchInterestSurveys()
+    }
+  }, [curriculumSelected])
 
   useEffect(() => {
     if (Curriculums.length > 0) {
@@ -124,10 +127,19 @@ function interestsurveysPage() {
       )
       // console.log(findMaxId)
       setInterestVersionSelected(findMaxId.interest_survey_version)
+      setInterestTemp(InterestSurveys)
     } else {
       setInterestVersionSelected(0)
+      setInterestTemp([])
     }
+    console.log(InterestSurveys)
   }, [InterestSurveys])
+
+  useEffect(() => {
+    if (InterestSurveysError) {
+      setInterestTemp([])
+    }
+  }, [InterestSurveysError])
 
   return (
     <CustomLayout
@@ -172,10 +184,10 @@ function interestsurveysPage() {
             </Grid>
           </Grid>
 
-          {InterestSurveys[0] !== undefined ? (
+          {interestTemp[0] !== undefined ? (
             <Grid container>
               <Grid item xs={12} sx={{ my: 6 }}>
-                {InterestSurveys[0]?.interestQuestions.map((question, qIndex) => (
+                {interestTemp[0]?.interestQuestions.map((question, qIndex) => (
                   <Card sx={{ m: 2, pl: 3.5, py: 2 }} key={question.interest_question_id}>
                     <Grid container>
                       <Grid container item xs={10} md={11} direction={{ xs: 'column', md: 'row' }}>
