@@ -4,7 +4,7 @@ import {
   Typography,
   Grid,
   Box,
-  Hidden,
+  Autocomplete,
   MenuItem,
   Divider,
   Button,
@@ -12,6 +12,7 @@ import {
   DialogTitle,
   DialogContent,
   TextField,
+  Chip,
   Card
 } from '@mui/material'
 
@@ -34,6 +35,7 @@ function interestsurveysPage() {
 
   const URL_GET_CURRICULUM = `${url.BASE_URL}/curriculums/`
   const URL_GET_INTEREST_SURVEYS = `${url.BASE_URL}/interest-surveys/`
+  const URL_GET_JOBS = `${url.BASE_URL}/job-positions/`
   const URL_PUT_INTEREST_QUESTION = `${url.BASE_URL}/interest-questions/`
   const URL_PUT_INTEREST_ANSWER = `${url.BASE_URL}/interest-answers/`
 
@@ -52,6 +54,14 @@ function interestsurveysPage() {
     loading: InterestSurveysLoading,
     reFetch: reFetchInterestSurveys
   } = useFetch(URL_GET_INTEREST_SURVEYS + curriculumSelected)
+
+  const {
+    error: JobsError,
+    data: Jobs,
+    setData: setJobs,
+    loading: JobsLoading,
+    reFetch: reFetchJobs
+  } = useFetch(URL_GET_JOBS)
 
   const handleEditQuestion = (type, object) => {
     setOpenEdit(true)
@@ -180,7 +190,7 @@ function interestsurveysPage() {
                       </Grid>
                       <Grid item xs={2} md={1}>
                         <Button
-                          sx={{ ml: 2, p: { xs: 0, md: 0.5 } }}
+                          sx={{ mx: 1.5, p: { xs: 0, md: 0.5 } }}
                           onClick={() => handleEditQuestion(question.interest_question_type, question)}
                         >
                           <Icon path={mdiPen} size={0.75} style={{ margin: 0.5 }} />
@@ -223,22 +233,69 @@ function interestsurveysPage() {
           )}
           <Dialog open={openEdit} onClose={() => setOpenEdit(false)} maxWidth={'md'} fullWidth>
             <DialogTitle>{dialogTitle}</DialogTitle>
-            <DialogContent sx={{ pb: 12 }}>
-              <Grid container spacing={2} sx={{ my: 2 }}>
-                <Grid item xs={8}>
-                  <TextField
-                    sx={{ width: '100%' }}
-                    label={'Label'}
-                    value={dialogTextFieldValue || ''}
-                    onChange={e => setDialogTextFieldValue(e.target.value)}
-                  />
+            <DialogContent sx={{ pb: 12, minHeight: 500 }}>
+              <Grid container sx={{ my: 2 }}>
+                <Grid container spacing={2} sx={{ m: 2, mt: 0 }}>
+                  <Grid item xs={12}>
+                    <Typography>แก้ไขคำถาม</Typography>
+                  </Grid>
+                  <Grid item xs={8}>
+                    <TextField
+                      size={'small'}
+                      sx={{ width: '100%' }}
+                      label={'Question'}
+                      value={dialogTextFieldValue || ''}
+                      onChange={e => setDialogTextFieldValue(e.target.value)}
+                    />
+                  </Grid>
+                  <Grid item xs={4}>
+                    <Button variant='contained' sx={{ width: '100%', height: '100%' }}>
+                      Update
+                    </Button>
+                  </Grid>
                 </Grid>
-                <Grid item xs={4}>
-                  <Button variant='contained' sx={{ width: '100%', height: '100%' }}>
-                    Update
-                  </Button>
-                </Grid>
-                <Grid container sx={{ m: 2, mt: 0, ml: 0 }} spacing={2}>
+                {question?.interest_question_type === 1 && (
+                  <Grid container spacing={2} sx={{ m: 2 }}>
+                    <Grid item xs={12}>
+                      <Typography>เกี่ยวข้องกับอาชีพ (Jobs Related)</Typography>
+                    </Grid>
+                    <Grid item xs={12}>
+                      <Autocomplete
+                        size='small'
+                        // key={clearAutoComplete} // if toggle will clear value of autocomplete
+                        disablePortal
+                        fullWidth
+                        multiple
+                        freeSolo
+                        renderTags={(value, getTagProps) =>
+                          value.map(option => (
+                            <Chip
+                              sx={{ m: 0, p: 0 }}
+                              key={option?.job_position_id}
+                              variant='outlined'
+                              label={option?.job_position_name}
+                              {...getTagProps(option?.job_position_id)}
+                            />
+                          ))
+                        }
+                        // options={Jobs?.filter(sj => sj.subject_id !== subject.subject_id)}
+                        options={Jobs || []}
+                        getOptionLabel={option => option?.job_position_name}
+                        renderInput={params => <TextField {...params} label='Job Positions ' />}
+                        // onChange={(e, value) => {
+                        //   setSubjectSelected(value)
+                        // }}
+                      />
+                    </Grid>
+                    <Grid item xs={12}>
+                      <Button variant='contained' sx={{ width: '100%', height: '100%' }}>
+                        Update
+                      </Button>
+                    </Grid>
+                  </Grid>
+                )}
+
+                <Grid container sx={{ m: 2 }} spacing={2}>
                   {question?.interest_question_type === 2 &&
                     question?.interest_answers.map((ans, index) => (
                       <Grid
@@ -250,13 +307,42 @@ function interestsurveysPage() {
                         key={ans.interest_answer_id}
                         spacing={2}
                       >
-                        <Grid item xs={0.5}>
-                          <Typography sx={{ p: 2 }}>{index + 1}).</Typography>
+                        <Grid item xs={12}>
+                          <Typography sx={{ p: 2 }}>แก้ไขคำตอบที่ {index + 1}).</Typography>
                         </Grid>
-                        <Grid item xs={8.5}>
+
+                        <Grid item xs={12}>
                           <TextField size='small' fullWidth value={ans.interest_answer_title} />
                         </Grid>
-                        <Grid item xs={3}>
+                        <Grid item xs={12}>
+                          <Autocomplete
+                            size='small'
+                            // key={clearAutoComplete} // if toggle will clear value of autocomplete
+                            disablePortal
+                            fullWidth
+                            multiple
+                            freeSolo
+                            renderTags={(value, getTagProps) =>
+                              value.map(option => (
+                                <Chip
+                                  sx={{ m: 0, p: 0 }}
+                                  key={option?.job_position_id}
+                                  variant='outlined'
+                                  label={option?.job_position_name}
+                                  {...getTagProps(option?.job_position_id)}
+                                />
+                              ))
+                            }
+                            // options={Jobs?.filter(sj => sj.subject_id !== subject.subject_id)}
+                            options={Jobs || []}
+                            getOptionLabel={option => option?.job_position_name}
+                            renderInput={params => <TextField {...params} label='Jobs Related ' />}
+                            // onChange={(e, value) => {
+                            //   setSubjectSelected(value)
+                            // }}
+                          />
+                        </Grid>
+                        <Grid item xs={12}>
                           <Button variant='contained' sx={{ width: '100%', height: '100%' }}>
                             Update
                           </Button>
