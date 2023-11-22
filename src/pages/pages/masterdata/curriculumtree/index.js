@@ -4,7 +4,7 @@ import { Btn, CircleLoading, Selection, TextSearch } from 'src/components'
 import { Box, Grid, Hidden, Typography, alpha, MenuItem } from '@mui/material'
 
 import { ChevronRight, ChevronDown } from 'mdi-material-ui'
-import { TreeItem, TreeView } from '@mui/x-tree-view'
+import { TreeItem, TreeView, treeItemClasses } from '@mui/x-tree-view'
 import { url } from 'src/configs/urlConfig'
 import { useFetch } from 'src/hooks'
 
@@ -37,7 +37,25 @@ const curriculumtree = () => {
       <TreeItem
         sx={{
           mb: 2,
-          ml: nodes?.level !== 1 && { xs: 1, sm: 1, lg: 12 },
+          ml: nodes?.level !== 1 && { xs: 1, sm: 1, lg: 4 },
+          position: 'relative',
+          '&:before': {
+            pointerEvents: 'none',
+            content: '""',
+            position: 'absolute',
+            width: { xs: 29, md: 42 },
+            left: { xs: -29, md: -42 },
+            top: 24,
+            borderBottom:
+              // only display if the TreeItem is not root node
+              nodes?.level !== 1 ? `1px dashed #000` : 'none'
+          },
+
+          [`& .${treeItemClasses.group}`]: {
+            marginLeft: 4,
+            paddingLeft: 6,
+            borderLeft: `1px dashed #000`
+          },
           ['& .MuiTreeItem-content']: {
             border: 1,
             borderRadius: 1,
@@ -155,7 +173,7 @@ const curriculumtree = () => {
                 expanded={expandedNodes} // expand node by nodeId
                 defaultCollapseIcon={<ChevronDown />}
                 defaultExpandIcon={<ChevronRight />}
-                sx={{ flexGrow: 1, overflowY: 'auto', maxWidth: 700 }}
+                sx={{ flexGrow: 1, overflowY: 'auto', maxWidth: 800 }}
               >
                 {ContinueSubjects?.length !== 0 &&
                   Object.values(ContinueSubjects).map(nodes => recursionContinueSubjects(nodes))}

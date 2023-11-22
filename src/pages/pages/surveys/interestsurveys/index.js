@@ -32,7 +32,13 @@ function interestsurveysPage() {
   const [openEdit, setOpenEdit] = useState(false)
   const [dialogTitle, setDialogTitle] = useState('')
   const [dialogTextFieldValue, setDialogTextFieldValue] = useState('')
+
   const [question, setQuestion] = useState([])
+  const [jobsRelatedType1, setJobsRelatedType1] = useState([
+    // { job_position_id: 1, is_deleted: 0, job_position_name: 'วิศวกรซอฟต์แวร์ (Software Engineer)' }
+  ])
+
+  const [answer, setAnswer] = useState([])
 
   const URL_GET_CURRICULUM = `${url.BASE_URL}/curriculums/`
   const URL_GET_INTEREST_SURVEYS = `${url.BASE_URL}/interest-surveys/`
@@ -75,6 +81,7 @@ function interestsurveysPage() {
       setDialogTextFieldValue(object?.interest_question_title)
       // console.log('interest_survey_id :', object?.interest_survey_id)
     } else if (type === 2 && object) {
+      setAnswer(object?.interest_answers)
       // for edit  question type 2 -> have choice
       setDialogTitle('Edit Question (Choices)')
       setDialogTextFieldValue(object?.interest_question_title)
@@ -390,6 +397,7 @@ function interestsurveysPage() {
                         fullWidth
                         multiple
                         freeSolo
+                        value={jobsRelatedType1}
                         renderTags={(value, getTagProps) =>
                           value.map(option => (
                             <Chip
@@ -405,9 +413,10 @@ function interestsurveysPage() {
                         options={Jobs || []}
                         getOptionLabel={option => option?.job_position_name}
                         renderInput={params => <TextField {...params} label='Job Positions ' />}
-                        // onChange={(e, value) => {
-                        //   setSubjectSelected(value)
-                        // }}
+                        onChange={(e, value) => {
+                          console.log(value)
+                          setJobsRelatedType1(value)
+                        }}
                       />
                     </Grid>
                     <Grid item xs={12}>
@@ -431,7 +440,49 @@ function interestsurveysPage() {
                           </Grid>
 
                           <Grid item xs={12}>
-                            <TextField size='small' fullWidth value={ans.interest_answer_title} />
+                            <TextField
+                              size='small'
+                              fullWidth
+                              value={answer[index]?.interest_answer_title || ''}
+                              onChange={e => {
+                                // version 1
+                                // const findAnswer = answer?.find(a => a.interest_answer_id === ans.interest_answer_id)
+                                // const keepAnswer = answer?.filter(a => a.interest_answer_id !== ans.interest_answer_id)
+                                // findAnswer.interest_answer_title = e.target.value
+
+                                // setAnswer(() =>
+                                //   Array(...keepAnswer)
+                                //     .concat(findAnswer)
+                                //     .sort((a, b) => a.interest_answer_id - b.interest_answer_id)
+                                // )
+
+                                // version 2 chatGPT
+                                // const updatedAnswer = answer.map(a =>
+                                //   a.interest_answer_id === ans.interest_answer_id
+                                //     ? { ...a, interest_answer_title: e.target.value }
+                                //     : a
+                                // )
+                                // setAnswer(updatedAnswer.sort((a, b) => a.interest_answer_id - b.interest_answer_id))
+
+                                // version 3 chatGPT better perfomace
+                                const answerObject = answer.reduce((acc, a) => {
+                                  acc[a.interest_answer_id] = a
+                                  return acc
+                                }, {})
+
+                                // Update the answer
+                                if (answerObject[ans.interest_answer_id]) {
+                                  answerObject[ans.interest_answer_id].interest_answer_title = e.target.value
+                                }
+
+                                // Convert the object back to an array and sort it
+                                const updatedAnswer = Object.values(answerObject).sort(
+                                  (a, b) => a.interest_answer_id - b.interest_answer_id
+                                )
+
+                                setAnswer(updatedAnswer)
+                              }}
+                            />
                           </Grid>
                           <Grid item xs={12}>
                             <Autocomplete
@@ -456,9 +507,9 @@ function interestsurveysPage() {
                               options={Jobs || []}
                               getOptionLabel={option => option?.job_position_name}
                               renderInput={params => <TextField {...params} label='Jobs Related ' />}
-                              // onChange={(e, value) => {
-                              //   setSubjectSelected(value)
-                              // }}
+                              onChange={(e, value) => {
+                                console.log(value)
+                              }}
                             />
                           </Grid>
                           <Grid item xs={12}>
