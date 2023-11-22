@@ -348,6 +348,34 @@ function interestsurveysPage() {
                       Update
                     </Button>
                   </Grid>
+                  {question?.interest_question_type === 2 && (
+                    <Grid container item xs={12} spacing={2}>
+                      <Grid item xs={12}>
+                        <Typography>เพิ่มคำตอบ</Typography>
+                      </Grid>
+                      <Grid item xs={8}>
+                        <TextField
+                          size={'small'}
+                          sx={{ width: '100%' }}
+                          label={'New choice'}
+                          // value={dialogTextFieldValue || ''}
+                          // onChange={e => setDialogTextFieldValue(e.target.value)}
+                        />
+                      </Grid>
+                      <Grid item xs={4}>
+                        <Button
+                          disabled={!isDone && isDone !== null ? true : false}
+                          variant='outlined'
+                          sx={{ width: '100%', height: '100%' }}
+                          // onClick={() =>
+                          //   (dialogTextFieldValue !== '') & handleUpdateQuestion(dialogTextFieldValue, question)
+                          // }
+                        >
+                          Add New Choice
+                        </Button>
+                      </Grid>
+                    </Grid>
+                  )}
                 </Grid>
                 {question?.interest_question_type === 1 && (
                   <Grid container spacing={2} sx={{ m: 2 }}>
@@ -393,7 +421,6 @@ function interestsurveysPage() {
                     </Grid>
                   </Grid>
                 )}
-
                 <Grid container sx={{ m: 2 }} spacing={2}>
                   {question?.interest_question_type === 2 &&
                     question?.interest_answers.map((ans, index) => (
