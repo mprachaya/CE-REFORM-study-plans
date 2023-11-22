@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react'
 
 import { Btn, CircleLoading, Selection, TextSearch } from 'src/components'
-import { Box, Grid, Hidden, Typography, alpha, MenuItem } from '@mui/material'
+import { Box, Grid, Hidden, Typography, alpha, MenuItem, Popper } from '@mui/material'
 
 import { ChevronRight, ChevronDown } from 'mdi-material-ui'
 import { TreeItem, TreeView, treeItemClasses } from '@mui/x-tree-view'
+import Fade from '@mui/material/Fade'
+
 import { url } from 'src/configs/urlConfig'
 import { useFetch } from 'src/hooks'
 
@@ -32,9 +34,18 @@ const curriculumtree = () => {
 
   const [expandedNodes, setExpandedNodes] = useState([])
 
+  const [anchorEl, setAnchorEl] = useState(null)
+  const handleMoreInfo = event => {
+    setAnchorEl(anchorEl ? null : event.target)
+  }
+  const open = Boolean(anchorEl)
+  const id = open ? 'test-popper' : undefined
+
   const recursionContinueSubjects = nodes => {
     return (
       <TreeItem
+        aria-describedby={id}
+        onClick={handleMoreInfo}
         sx={{
           mb: 2,
           ml: nodes?.level !== 1 && { xs: 1, sm: 1, lg: 4 },
@@ -43,9 +54,9 @@ const curriculumtree = () => {
             pointerEvents: 'none',
             content: '""',
             position: 'absolute',
-            width: { xs: 29, md: 42 },
-            left: { xs: -29, md: -42 },
-            top: 24,
+            width: { xs: 29, sm: 29, lg: 42 },
+            left: { xs: -29, sm: -29, lg: -41 },
+            top: 28,
             borderBottom:
               // only display if the TreeItem is not root node
               nodes?.level !== 1 ? `1px dashed #000` : 'none'
@@ -54,6 +65,7 @@ const curriculumtree = () => {
           [`& .${treeItemClasses.group}`]: {
             marginLeft: 4,
             paddingLeft: 6,
+            marginBottom: 4,
             borderLeft: `1px dashed #000`
           },
           ['& .MuiTreeItem-content']: {
@@ -184,40 +196,34 @@ const curriculumtree = () => {
       ) : (
         <Typography sx={{ mt: 6 }}>this curriculum have no continue subject</Typography>
       )}
-      {/* <Grid container>
-        <Grid item xs={12} sm={12} lg={12} mt={6}>
-          {STUDENT_GROUPS.length !== 0 || !StudentGroupsLoading ? (
-            <DataGridTable rows={STUDENT_GROUPS} columns={columns} uniqueKey={'collegian_group_id'} />
-          ) : (
-            <Typography>ยังไม่มีข้อมูลกลุ่มนักศึกษาอยู่ในระบบ</Typography>
-          )}
-        </Grid>
-      </Grid>
-      <Grid container>
-        <AddStudentGroupsModal open={open} handleClose={handleClose} handleSubmit={handleSubmit} />
-      </Grid>
-
-      <Grid container>
-        <EditStudentGroupModal
-          state={editState}
-          open={openEdit}
-          handleClose={handleCloseEdit}
-          handleUpdate={handleUpdate}
-          openConfirmDelete={handleOpenConfirmDelete}
-        />
-      </Grid>
-
-      <Grid container>
-        <ConfirmModal
-          title={`DELETE Student Groups`}
-          text={`Are you sure you want to delete ${editState.collegian_group_name_th}?`}
-          displayIcon={mdiAlertRhombus}
-          submitLabel={'DELETE'}
-          open={openConfirmDelete}
-          handleClose={handleCloseConfirmDelete}
-          handleSubmit={handleDelete}
-        />
-      </Grid> */}
+      <Popper
+        id={id}
+        open={open}
+        anchorEl={anchorEl}
+        transition
+        // transformOrigin={{ vertical: 'right', horizontal: 'right' }}
+        // anchorOrigin={{
+        //   vertical: 'left',
+        //   horizontal: 'left'
+        // }}
+      >
+        {({ TransitionProps }) => (
+          <Fade {...TransitionProps} timeout={350}>
+            <Box
+              sx={{
+                bgcolor: 'background.default',
+                boxShadow: 1,
+                p: 3.5,
+                borderRadius: 3,
+                minWidth: 500,
+                minHeight: 150
+              }}
+            >
+              <Typography variant='body2'> More Information</Typography>
+            </Box>
+          </Fade>
+        )}
+      </Popper>
     </Box>
   )
 }
