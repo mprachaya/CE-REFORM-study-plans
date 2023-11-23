@@ -98,7 +98,7 @@ function subjectstructures() {
 
     {
       field: 'fn',
-      headerName: '',
+      headerName: 'Category',
       width: 300,
       renderCell: params => (
         <Grid container spacing={2}>
