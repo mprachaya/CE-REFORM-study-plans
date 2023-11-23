@@ -331,14 +331,14 @@ const studyplans = () => {
           <Btn
             disabled={Plans.length > 0 ? true : false}
             fullWidth
-            handleClick={() => setOpen(true)}
+            handleclick={() => setOpen(true)}
             label={'+ Create Plan'}
           />
         </Grid>
         <Grid item xs={6} sm={6} md={4}>
           <Btn
             fullWidth
-            handleClick={() => {
+            handleclick={() => {
               planSelected !== 0 && Plans.length > 0 && setOpenSub(true)
             }}
             disabled={Plans.length > 0 ? false : true}
