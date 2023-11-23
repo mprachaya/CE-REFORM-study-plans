@@ -200,7 +200,7 @@ const curriculums = () => {
             <Selection
               label={'Faculty'}
               height={40}
-              width={270}
+              width={'100%'}
               firstItemText={'แสดงทั้งหมด'}
               selectionValue={facultySelection}
               handleChange={e => handleChangeFilter(e.target.value)}
@@ -212,7 +212,7 @@ const curriculums = () => {
             />
           </Box>
         </Grid>
-        <Grid item xs={12} sm={4} md={4} lg={8}>
+        <Grid item xs={12} sm={4} md={4} lg={2}>
           <Btn handleclick={handleClickOpen} label={'+ Add New'} />
         </Grid>
       </Grid>

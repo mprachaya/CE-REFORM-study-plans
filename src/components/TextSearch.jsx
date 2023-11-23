@@ -8,6 +8,7 @@ function TextSearch(props) {
     <TextField
       {...props}
       size='small'
+      fullWidth
       sx={{ '& .MuiOutlinedInput-root': { borderRadius: 4 } }}
       InputProps={{
         startAdornment: (

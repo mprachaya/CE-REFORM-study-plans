@@ -156,7 +156,7 @@ const subjecttypes = () => {
             <TextSearch onChange={e => handleChangeSearch(e.target.value)} />
           </Box>
         </Grid>
-        <Grid item xs={12} sm={4} md={4} lg={8}>
+        <Grid item xs={12} sm={4} md={4} lg={2}>
           <Btn handleclick={handleClickOpen} label={'+ Add New'} />
         </Grid>
       </Grid>

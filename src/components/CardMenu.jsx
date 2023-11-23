@@ -9,7 +9,7 @@ import Icon from '@mdi/react'
 function CardMenu({ handleclick, MenuName, Content, MenuIcon }) {
   return (
     <Card style={{ background: 'transparent' }}>
-      <Button onClick={() => handleclick()}>
+      <Button onClick={() => handleclick()} sx={{ width: '100%' }}>
         <CardContent
           sx={{
             mx: 8,
@@ -18,7 +18,7 @@ function CardMenu({ handleclick, MenuName, Content, MenuIcon }) {
             flexDirection: 'row', // Display icon and text in a row
             alignItems: 'center', // Center the items vertically in the row
             padding: theme => `${theme.spacing(9.75, 5, 9.25)} !important`,
-            minWidth: 300
+            minWidth: 300,
           }}
         >
           <Box sx={{ m: 6 }}>

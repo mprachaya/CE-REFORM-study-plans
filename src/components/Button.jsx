@@ -6,7 +6,7 @@ function Btn(props) {
     <Button
       {...props}
       sx={{
-        width: props.width,
+        width: props.width || '100%',
         bgcolor: 'primary.main',
         color: 'grey.50',
         '&:hover': {

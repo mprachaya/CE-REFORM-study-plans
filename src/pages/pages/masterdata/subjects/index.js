@@ -277,7 +277,7 @@ const subjects = () => {
             <Selection
               label={'SubjectGroup'}
               height={40}
-              width={270}
+              width={'75%'}
               firstItemText={'แสดงทั้งหมด'}
               selectionValue={subjectGroupSelection}
               handleChange={e => handleChangeFilter(e.target.value)}
@@ -289,7 +289,7 @@ const subjects = () => {
             />
           </Box>
         </Grid>
-        <Grid item xs={12} sm={4} md={4} lg={6}>
+        <Grid item xs={12} sm={4} md={4} lg={2}>
           <Btn handleclick={handleClickOpen} label={'+ Add New'} />
         </Grid>
       </Grid>
@@ -344,7 +344,7 @@ const subjects = () => {
           handleClose={() => {
             setOpenCompetency(false)
           }}
-          // handleSubmit={handleDelete}
+        // handleSubmit={handleDelete}
         />
       </Grid>
       <Grid container>
