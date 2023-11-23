@@ -18,6 +18,12 @@ export const masterNavigation = () => {
       // openInNewTab: true
     },
     {
+      title: 'SJ Structures(Beta)',
+      icon: Domain,
+      path: '/pages/masterdata/subjectstructures'
+      // openInNewTab: true
+    },
+    {
       title: 'Faculty',
       icon: Domain,
       path: '/pages/masterdata/faculty'

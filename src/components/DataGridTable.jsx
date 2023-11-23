@@ -3,7 +3,15 @@ import { Box, Typography } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
 import CircleLoading from './CircleLoading'
 
-function DataGridTable({ hidePagination, rows, columns, uniqueKey, isLoading, noData = 'ไม่มีข้อมูลในระบบ' }) {
+function DataGridTable({
+  hidePagination,
+  rows,
+  columns,
+  uniqueKey,
+  isLoading,
+  noData = 'ไม่มีข้อมูลในระบบ',
+  rowHeight
+}) {
   if (isLoading) {
     return (
       <Box sx={{ height: 120, m: 12 }}>
@@ -16,8 +24,9 @@ function DataGridTable({ hidePagination, rows, columns, uniqueKey, isLoading, no
   // }
 
   return !isLoading && rows?.length > 0 ? (
-    <Box style={{ width: '100%' }}>
+    <Box sx={{ width: '100%', minHeight: 800 }}>
       <DataGrid
+        rowHeight={rowHeight}
         rows={rows || ''}
         columns={columns}
         initialState={{
