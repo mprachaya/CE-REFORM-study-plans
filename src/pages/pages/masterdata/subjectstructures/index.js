@@ -295,7 +295,7 @@ function subjectstructures() {
             />
           </Box>
         </Grid>
-        <Grid item xs={12} md={4} lg={3.5}>
+        <Grid item xs={12} md={4} lg={2.5}>
           <Btn width={'100%'} handleclick={() => handleOpenForm(0)} label={'+ Add New'} />
         </Grid>
         <Grid item xs={12}>
