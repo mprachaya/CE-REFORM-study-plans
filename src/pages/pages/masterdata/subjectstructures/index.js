@@ -79,7 +79,7 @@ function subjectstructures() {
     },
     {
       field: 'subject_category',
-      headerName: '',
+      headerName: 'Category',
       width: 220,
       valueGetter: params => params.row?.subjectCategory?.subject_category_name
     },
@@ -98,7 +98,7 @@ function subjectstructures() {
 
     {
       field: 'fn',
-      headerName: 'Category',
+
       width: 300,
       renderCell: params => (
         <Grid container spacing={2}>
