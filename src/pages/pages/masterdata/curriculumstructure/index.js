@@ -149,6 +149,55 @@ function curriculumstructure() {
     }
   }
 
+  const handleUpdate = () => {
+    if (
+      state.csv2_credit_total !== undefined &&
+      state.subject_category_id !== 0 &&
+      state.subject_category_id !== null
+    ) {
+      console.log(state)
+      axios.get(URL_GET_CURRICULUM_STRUCTURES + curriculumSelected).then(res => {
+        if (res.data) {
+          const duplicate = Object.values(res.data.data)?.find(
+            d => d.subjectGroup?.subject_group_id === state.subject_group_id
+          )
+          if (duplicate) {
+            alert('this subject group is already exist in curriculum!')
+          } else {
+            axios
+              .put(URL_GET_CURRICULUM_STRUCTURES + curriculumStructuresId, state)
+              .then(res => {
+                if (res.data) {
+                  setState(initialState)
+                  setOpen(false)
+                  reFetchCurriculumStructures()
+                }
+              })
+              .catch(err => console.log('error from update curriculum structure: ', err))
+          }
+        }
+      })
+    } else {
+      alert('Please Select Category')
+    }
+  }
+  const handleDelete = id => {
+    let result = window.confirm('Confirm to Delete?')
+    if (result) {
+      axios
+        .delete(URL_GET_CURRICULUM_STRUCTURES + id)
+        .then(res => {
+          if (res.data) {
+            setState(initialState)
+            setOpen(false)
+            reFetchCurriculumStructures()
+            console.log(res.data)
+          }
+        })
+        .catch(err => console.log('error from delete curriculum structure', err))
+    }
+  }
+
   useEffect(() => {
     if (Curriculums.length > 0) {
       const findMaxId = Curriculums?.reduce(
@@ -227,7 +276,7 @@ function curriculumstructure() {
                 size='small'
                 color='error'
                 variant='outlined'
-                onClick={() => handleDelete(params?.row?.subject_structure_id)}
+                onClick={() => handleDelete(params?.row?.curriculum_structures_v2_id)}
               >
                 <Icon path={mdiTrashCan} size={1} />
               </Button>
