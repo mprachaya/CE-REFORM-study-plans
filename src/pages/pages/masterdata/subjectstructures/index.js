@@ -5,15 +5,12 @@ import {
   Box,
   Autocomplete,
   MenuItem,
-  Divider,
   Button,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
-  TextField,
-  Chip,
-  Card
+  TextField
 } from '@mui/material'
 import axios from 'axios'
 import { mdiPen, mdiTrashCan } from '@mdi/js'
@@ -237,37 +234,43 @@ function subjectstructures() {
 
     {
       field: 'E/D',
-      width: 300,
+      width: 120,
+      align: 'right',
+      headerAlign: 'right',
       renderCell: params => (
         <Grid container spacing={2}>
           <Grid item xs={12}>
-            <Button
-              size='small'
-              color='secondary'
-              variant='outlined'
-              onClick={() =>
-                handleOpenForm(
-                  1,
-                  params?.row?.subject_structure_id,
-                  params?.row?.subject,
-                  params.row?.subjectCategory,
-                  params.row?.subjectType,
-                  params.row?.subjectGroup
-                )
-              }
-            >
-              <Icon path={mdiPen} size={1} />
-            </Button>
+            <Box sx={{ display: 'flex', flexDirection: 'row-reverse' }}>
+              <Button
+                size='small'
+                color='secondary'
+                variant='outlined'
+                onClick={() =>
+                  handleOpenForm(
+                    1,
+                    params?.row?.subject_structure_id,
+                    params?.row?.subject,
+                    params.row?.subjectCategory,
+                    params.row?.subjectType,
+                    params.row?.subjectGroup
+                  )
+                }
+              >
+                <Icon path={mdiPen} size={1} />
+              </Button>
+            </Box>
           </Grid>
           <Grid item xs={12}>
-            <Button
-              size='small'
-              color='error'
-              variant='outlined'
-              onClick={() => handleDelete(params?.row?.subject_structure_id)}
-            >
-              <Icon path={mdiTrashCan} size={1} />
-            </Button>
+            <Box sx={{ display: 'flex', flexDirection: 'row-reverse' }}>
+              <Button
+                size='small'
+                color='error'
+                variant='outlined'
+                onClick={() => handleDelete(params?.row?.subject_structure_id)}
+              >
+                <Icon path={mdiTrashCan} size={1} />
+              </Button>
+            </Box>
           </Grid>
         </Grid>
       )
@@ -300,14 +303,19 @@ function subjectstructures() {
           <Btn width={'100%'} handleclick={() => handleOpenForm(0)} label={'+ Add New'} />
         </Grid>
         <Grid item xs={12}>
-          <DataGridTable
-            rowHeight={80}
-            rows={Object.values(SubjectStructures).sort((a, b) => a.subject_structure_id - b.subject_structure_id)}
-            columns={columns}
-            uniqueKey={'subject_structure_id'}
-            isLoading={CurriculumLoading === null ? true : CurriculumLoading}
-          />
+          {SubjectStructures?.length > 0 ? (
+            <DataGridTable
+              rowHeight={80}
+              rows={Object.values(SubjectStructures).sort((a, b) => a.subject_structure_id - b.subject_structure_id)}
+              columns={columns}
+              uniqueKey={'subject_structure_id'}
+              isLoading={SubjectStructuresLoading === null ? true : SubjectStructuresLoading}
+            />
+          ) : (
+            <Typography sx={{ m: 6 }}> this curriculum has no subject structure yet</Typography>
+          )}
         </Grid>
+
         {/* form dialog */}
         <Dialog
           open={open}

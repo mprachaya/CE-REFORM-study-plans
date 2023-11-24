@@ -17,7 +17,6 @@ export default function useFetch(url, header) {
         .then(response => response.data)
         .then(res => {
           setLoading(false)
-
           res.data && setData(res.data.data)
         })
         .catch(err => {

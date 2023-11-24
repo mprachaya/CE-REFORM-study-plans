@@ -18,13 +18,13 @@ export const masterNavigation = () => {
       // openInNewTab: true
     },
     {
-      title: 'Curriculum Structures(Beta)',
+      title: 'Curriculum Structures',
       icon: Domain,
       path: '/pages/masterdata/curriculumstructure'
       // openInNewTab: true
     },
     {
-      title: 'SJ Structures(Beta)',
+      title: 'Subject Structures',
       icon: Domain,
       path: '/pages/masterdata/subjectstructures'
       // openInNewTab: true

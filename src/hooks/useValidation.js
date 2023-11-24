@@ -25,5 +25,5 @@ export const handleChangeEN = (e, setState) => {
 export const handleChangeNumber = (e, setState) => {
   const validNumber = new RegExp('^[0-9]+$')
   if (validNumber.test(e.target.value) || e.target.value === '')
-    setState(pre => ({ ...pre, [e.target.name]: e.target.value }))
+    setState(pre => ({ ...pre, [e.target.name]: parseInt(e.target.value) }))
 }

@@ -40,9 +40,8 @@ function DataGridTable({
         hideFooter={hidePagination}
       />
     </Box>
-  ) : (
-    <Typography sx={{ m: 6, ml: 0, color: 'gray' }}>{noData}</Typography>
-  )
+  ) : null
+  // <Typography sx={{ m: 6, ml: 0, color: 'gray' }}>{noData}</Typography>
 }
 
 export default DataGridTable
