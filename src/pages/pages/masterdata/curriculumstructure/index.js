@@ -37,9 +37,9 @@ function curriculumstructure() {
   const [formType, setFormType] = useState(0)
   const initialState = {
     curriculum_id: 0,
-    subject_category_id: 0,
-    subject_type_id: 0,
-    subject_group_id: 0,
+    subject_category_id: null,
+    subject_type_id: null,
+    subject_group_id: null,
     csv2_credit_total: 1
   }
   const [state, setState] = useState(initialState)
@@ -110,6 +110,42 @@ function curriculumstructure() {
         setGroupSelected(sjGroup)
       }
       if (structureId) setCurriculumStructuresId(structureId)
+    }
+  }
+
+  const handleSubmit = () => {
+    if (
+      state.csv2_credit_total !== undefined &&
+      state.subject_category_id !== 0 &&
+      state.subject_category_id !== null
+    ) {
+      console.log(state)
+      axios
+        .get(URL_GET_CURRICULUM_STRUCTURES + curriculumSelected)
+        .then(res => {
+          if (res.data) {
+            const duplicate = Object.values(res.data.data)?.find(
+              d => d.subjectGroup?.subject_group_id === state.subject_group_id
+            )
+            if (duplicate) {
+              alert('this subject group is already exist in curriculum!')
+            } else {
+              axios
+                .post(URL_GET_CURRICULUM_STRUCTURES, state)
+                .then(res => {
+                  if (res.data) {
+                    setState(initialState)
+                    setOpen(false)
+                    reFetchCurriculumStructures()
+                  }
+                })
+                .catch(err => console.log('error from insert new curriculum structure: ', err))
+            }
+          }
+        })
+        .catch(err => console.log('error from check duplicate:', err))
+    } else {
+      alert('Please Select Category')
     }
   }
 

@@ -120,7 +120,7 @@ function subjectstructures() {
   }
 
   const handleSubmit = () => {
-    if (state.subject_id !== '' && state.subject_category_id !== '') {
+    if ((state.subject_id !== '' && state.subject_category_id !== '') || state.subject_category_id !== null) {
       axios
         .get(URL_GET_SUBJECT_STRUCTURES + curriculumSelected)
         .then(res => {
@@ -279,7 +279,7 @@ function subjectstructures() {
 
   return (
     <>
-      <Typography variant='h6'>Subject Structure (Beta)</Typography>
+      <Typography variant='h6'>Subject Structure </Typography>
       <Grid container spacing={6} sx={{ mt: 5 }}>
         <Grid item xs={12} md={8} lg={8}>
           <Box display={'flex'} flexDirection={'row'}>
