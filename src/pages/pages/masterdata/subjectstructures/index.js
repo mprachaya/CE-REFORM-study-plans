@@ -107,8 +107,8 @@ function subjectstructures() {
       if (subject) {
         setState({
           subject_category_id: sjCategory?.subject_category_id,
-          subject_type_id: sjType?.subject_type_id,
-          subject_group_id: sjGroup?.subject_group_id,
+          subject_type_id: sjType?.subject_type_id || null,
+          subject_group_id: sjGroup?.subject_group_id || null,
           subject_id: subject?.subject_id
         })
         setFormType(1)
@@ -152,6 +152,7 @@ function subjectstructures() {
   }
   const handleUpdate = () => {
     if (state.subject_id !== '' && state.subject_category_id !== '') {
+      console.log(state)
       axios
         .put(URL_GET_SUBJECT_STRUCTURES + subjectStructureId, state)
         .then(res => {
@@ -370,7 +371,7 @@ function subjectstructures() {
                       setState(pre => ({ ...pre, subject_category_id: value.subject_category_id }))
                     } else {
                       setCategorySelected([])
-                      setState(pre => ({ ...pre, subject_category_id: '' }))
+                      setState(pre => ({ ...pre, subject_category_id: null }))
                     }
                   }}
                 />
@@ -392,7 +393,7 @@ function subjectstructures() {
                       setState(pre => ({ ...pre, subject_type_id: value.subject_type_id }))
                     } else {
                       setTypeSelected([])
-                      setState(pre => ({ ...pre, subject_type_id: '' }))
+                      setState(pre => ({ ...pre, subject_type_id: null }))
                     }
                   }}
                 />
@@ -419,7 +420,7 @@ function subjectstructures() {
                       setState(pre => ({ ...pre, subject_group_id: value.subject_group_id }))
                     } else {
                       setGroupSelected([])
-                      setState(pre => ({ ...pre, subject_group_id: '' }))
+                      setState(pre => ({ ...pre, subject_group_id: null }))
                     }
                   }}
                 />
