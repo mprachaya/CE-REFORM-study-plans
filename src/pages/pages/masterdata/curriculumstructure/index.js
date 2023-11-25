@@ -249,102 +249,6 @@ function curriculumstructure() {
       return result
     }, {})
   }
-  function DisplayGroupedData({ groupedData }) {
-    // Check if groupedData is empty
-    if (!Object.keys(groupedData).length) {
-      return <Typography>No data to display</Typography>
-    }
-
-    // Recursive function to display properties
-    // const displayProperties = (item, level = 0) => (
-    //   <div style={{ marginLeft: `${level * 20}px` }} key={item.id}>
-    //     {Object.entries(item).map(([key, value]) => (
-    //       <Typography key={key} component='div'>
-    //         <strong>{key}:</strong> {value}
-    //       </Typography>
-    //     ))}
-    //     {item.grouped && Object.entries(item.grouped).map(([subKey, subItem]) => displayProperties(subItem, level + 1))}
-    //   </div>
-    // )
-
-    return (
-      <div>
-        {Object.entries(groupedData).map(([subjectCategoryId, { subject_category_name, grouped }]) => (
-          <div key={subjectCategoryId}>
-            <Typography variant='h6'>{subject_category_name}</Typography>
-            {Object.entries(grouped).map(([subjectTypeId, { subject_type_name, grouped: group }]) => (
-              <div key={subjectTypeId}>
-                <Typography variant='subtitle1'>{subject_type_name}</Typography>
-                {Object.entries(group).map(([subjectGroupId, items]) => (
-                  <div key={subjectGroupId}>
-                    <Typography variant='body1'>Subject Group {subjectGroupId}</Typography>
-                    {/* <Typography>{items.id}</Typography> */}
-                    {/* {console.log(items)} */}
-                    {items.items.id !== null &&
-                      Object.values(items.items).map((item, index) => (
-                        <div key={item.curriculum_structures_v2_id}>{item.subjectGroup?.subject_group_name}</div>
-                      ))}
-                  </div>
-                ))}
-              </div>
-            ))}
-          </div>
-        ))}
-      </div>
-    )
-  }
-
-  const PreviewStructures = Obj => {
-    const { subject_category_id, subject_type_id, subject_group_id } = Obj
-    if (!Obj) {
-      return
-    } else if (subject_category_id !== null && subject_type_id !== null && subject_group_id !== null) {
-      return (
-        <Grid container spacing={3}>
-          <Grid item xs={12} md={3}>
-            <Typography>{Obj.subjectCategory?.subject_category_name}</Typography>
-          </Grid>
-          <Grid item xs={4} md={3}>
-            <Typography>{Obj.subjectType?.subject_type_name}</Typography>
-          </Grid>
-          <Grid item xs={6} md={3}>
-            <Typography>{Obj.subjectGroup?.subject_group_name}</Typography>
-          </Grid>
-          <Grid item xs={2} md={2}>
-            <Typography>{Obj.csv2_credit_total}</Typography>
-          </Grid>
-        </Grid>
-      )
-    } else if (subject_category_id !== null && subject_type_id !== null) {
-      return (
-        <Grid container spacing={3}>
-          <Grid item xs={12} md={3}>
-            <Typography>{Obj.subjectCategory?.subject_category_name}</Typography>
-          </Grid>
-          <Grid item xs={4} md={3}>
-            <Typography>{Obj.subjectType?.subject_type_name}</Typography>
-          </Grid>
-          <Grid item xs={2} md={2}>
-            <Typography>{Obj.csv2_credit_total}</Typography>
-          </Grid>
-        </Grid>
-      )
-    } else if (subject_category_id !== null && subject_group_id !== null) {
-      return (
-        <Grid container spacing={3}>
-          <Grid item xs={12} md={3}>
-            <Typography>{Obj.subjectCategory?.subject_category_name}</Typography>
-          </Grid>
-          <Grid item xs={4} md={3}>
-            <Typography>{Obj.subjectGroup?.subject_group_name}</Typography>
-          </Grid>
-          <Grid item xs={2} md={2}>
-            <Typography>{Obj.csv2_credit_total}</Typography>
-          </Grid>
-        </Grid>
-      )
-    }
-  }
 
   function getUniqueValues(arr, propertyPath) {
     const uniqueValuesSet = new Set()
@@ -372,12 +276,57 @@ function curriculumstructure() {
     const uniqueValuesArray = Array.from(uniqueValuesSet)
     return uniqueValuesArray
   }
+  const getUniqueMultiValues = (arr, propertyPath1, propertyPath2, outputName1, outputName2) => {
+    const uniqueValuesSet = new Set()
+
+    arr.forEach(obj => {
+      const nestedProperties1 = propertyPath1.split('.')
+      const nestedProperties2 = propertyPath2.split('.')
+      let propertyValue1 = obj
+      let propertyValue2 = obj
+
+      for (let prop of nestedProperties1) {
+        if (propertyValue1 && propertyValue1.hasOwnProperty(prop)) {
+          propertyValue1 = propertyValue1[prop]
+        } else {
+          propertyValue1 = undefined
+          break
+        }
+      }
+
+      for (let prop of nestedProperties2) {
+        if (propertyValue2 && propertyValue2.hasOwnProperty(prop)) {
+          propertyValue2 = propertyValue2[prop]
+        } else {
+          propertyValue2 = undefined
+          break
+        }
+      }
+
+      const uniqueObject = {
+        [outputName1]: propertyValue1,
+        [outputName2]: propertyValue2
+      }
+
+      uniqueValuesSet.add(JSON.stringify(uniqueObject))
+    })
+
+    const uniqueValuesArray = Array.from(uniqueValuesSet).map(str => JSON.parse(str))
+    return uniqueValuesArray
+  }
 
   const UniqueCategories = getUniqueValues(CurriculumStructures, 'subjectCategory.subject_category_name')
-  const UniqueTypes = getUniqueValues(CurriculumStructures, 'subjectType.subject_type_name')
+  // const UniqueTypes = getUniqueValues(CurriculumStructures, 'subjectType.subject_type_name')
+  const UniqueTypes = getUniqueMultiValues(
+    CurriculumStructures,
+    'subjectCategory.subject_category_name',
+    'subjectType.subject_type_name',
+    'subject_category_name',
+    'subject_type_name'
+  )
 
   console.log('UniqueCategories', UniqueCategories)
-  console.log('UniqueTypes', UniqueTypes)
+  console.log('UniqueTypeByCategory', UniqueTypes)
 
   useEffect(() => {
     if (Curriculums.length > 0) {
@@ -482,7 +431,7 @@ function curriculumstructure() {
   ]
 
   return (
-    <>
+    <Box sx={{ m: 6 }}>
       <Typography variant='h6'>Curriculums Structure</Typography>
       <Grid container spacing={6} sx={{ mt: 5 }}>
         <Grid item xs={12} md={8}>
@@ -640,17 +589,8 @@ function curriculumstructure() {
         <DialogTitle>Structure Preview</DialogTitle>
         <DialogContent sx={{ minHeight: 450 }}>
           <Grid container xs={12}>
-            <Grid container item xs={12}>
-              <Grid item xs={12}>
-                <Typography variant='body1'> curriculum detail</Typography>
-              </Grid>
-
-              <Grid item xs={12}>
-                ...
-              </Grid>
-            </Grid>
             <Grid item xs={12}>
-              <Box sx={{ width: '100%', bgcolor: 'gray' }}>
+              <Box sx={{ width: '100%' }}>
                 {/* {Object.values(groupedStructure)?.map(category => (
                   <Typography key={category.subject_category_name}>
                     {category.subject_category_name}
@@ -667,8 +607,9 @@ function curriculumstructure() {
                 {/* <DisplayGroupedData groupedData={groupedStructure} /> */}
                 {/* {Object.values(CurriculumStructures)?.map(data => PreviewStructures(data))} */}
                 {UniqueCategories.map(categoryHeader => (
-                  <Box key={categoryHeader}>
+                  <Box key={categoryHeader} maxWidth={600} sx={{ mb: 3 }}>
                     <Typography variant='body1'>{categoryHeader}</Typography>
+                    {/* case 1 */}
                     {CurriculumStructures?.filter(
                       case1 =>
                         // condition category && type or category && group
@@ -681,28 +622,63 @@ function curriculumstructure() {
                           case1.subjectCategory.subject_category_name === categoryHeader &&
                           case1.subject_type_id === null)
                     ).map(case1Result => (
-                      <Box key={case1Result.curriculum_structures_v2_id} sx={{ ml: 3 }}>
+                      <Box key={case1Result.curriculum_structures_v2_id}>
                         {case1Result.subject_type_id !== null ? (
-                          <Typography>
-                            {case1Result.subjectType.subject_type_name}
-                            {' ' + case1Result.csv2_credit_total + ' credit'}
-                          </Typography>
+                          <Box sx={{ display: 'flex', justifyContent: 'space-between', mx: 2 }}>
+                            <Typography>{case1Result.subjectType.subject_type_name}</Typography>
+                            <Typography> {' ' + case1Result.csv2_credit_total + ' credit'}</Typography>
+                          </Box>
                         ) : (
-                          <Typography>
-                            {' '}
-                            {case1Result.subjectGroup.subject_group_name}
-                            {' ' + case1Result.csv2_credit_total + ' credit'}{' '}
-                          </Typography>
+                          <Box sx={{ display: 'flex', justifyContent: 'space-between', mx: 2 }}>
+                            <Typography>{case1Result.subjectGroup.subject_group_name}</Typography>
+                            <Typography> {' ' + case1Result.csv2_credit_total + ' credit'} </Typography>
+                          </Box>
                         )}
                       </Box>
                     ))}
-                    <>
-                      {/* {UniqueTypes.map(typeHeader => (
-                        <>
-                          <Typography variant='body2'>{typeHeader}</Typography>
-                        </>
-                      ))} */}
-                    </>
+                    {UniqueTypes.filter(filterType => filterType.subject_category_name === categoryHeader).map(
+                      typeHeader => (
+                        <Box key={typeHeader.subject_type_name} sx={{ ml: 3 }}>
+                          {CurriculumStructures?.filter(
+                            case1 =>
+                              // condition category && type or category && group
+                              (case1.subject_category_id !== null &&
+                                case1.subject_type_id !== null &&
+                                case1.subjectCategory.subject_category_name === categoryHeader &&
+                                case1.subject_group_id === null) ||
+                              (case1.subject_category_id !== null &&
+                                case1.subject_group_id !== null &&
+                                case1.subjectCategory.subject_category_name === categoryHeader &&
+                                case1.subject_type_id === null)
+                          ).map(case1Duplicate => (
+                            <Box key={case1Duplicate.curriculum_structures_v2_id}>
+                              {case1Duplicate.subjectType.subject_type_name !== typeHeader.subject_type_name && (
+                                <Typography>{typeHeader.subject_type_name}</Typography>
+                              )}
+                            </Box>
+                          ))}
+                          {/* <Typography>{typeHeader.subject_type_name}</Typography> */}
+
+                          {/* case 2 */}
+                          {CurriculumStructures?.filter(
+                            case2 =>
+                              // condition category && type && group
+                              case2.subject_category_id !== null &&
+                              case2.subject_type_id !== null &&
+                              case2.subject_group_id !== null &&
+                              case2.subjectCategory.subject_category_name === categoryHeader &&
+                              case2.subjectType.subject_type_name === typeHeader.subject_type_name
+                          ).map(case2Result => (
+                            <Box key={case2Result.curriculum_structures_v2_id} sx={{ ml: 3 }}>
+                              <Box sx={{ display: 'flex', justifyContent: 'space-between', mx: 2 }}>
+                                <Typography>{case2Result.subjectGroup.subject_group_name}</Typography>
+                                <Typography> {' ' + case2Result.csv2_credit_total + ' credit'}</Typography>
+                              </Box>
+                            </Box>
+                          ))}
+                        </Box>
+                      )
+                    )}
                   </Box>
                 ))}
               </Box>
@@ -710,7 +686,7 @@ function curriculumstructure() {
           </Grid>
         </DialogContent>
       </Dialog>
-    </>
+    </Box>
   )
 }
 
