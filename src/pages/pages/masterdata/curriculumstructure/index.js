@@ -28,11 +28,16 @@ function curriculumstructure() {
   const URL_GET_GROUPS = `${url.BASE_URL}/subject-groups/`
   const [curriculumSelected, setCurriculumSelected] = useState(0)
 
-  const [categorySelected, setCategorySelected] = useState(0)
+  const [categorySelected, setCategorySelected] = useState(1)
   const [typeSelected, setTypeSelected] = useState(0)
   const [groupSelected, setGroupSelected] = useState(0)
   const [creditTotal, setCreditTotal] = useState(3)
+
+  const [groupedStructure, setGroupedStructrue] = useState([])
+
   const [open, setOpen] = useState(false)
+  const [openPreview, setOpenPreview] = useState(false)
+
   // 0 -> insert , 1 -> edit
   const [formType, setFormType] = useState(0)
   const initialState = {
@@ -198,10 +203,101 @@ function curriculumstructure() {
     }
   }
 
+  // function groupByKeys(data) {
+  //   return data.reduce((result, item) => {
+  //     const { subject_category_id, subject_type_id, subject_group_id } = item
+
+  //     result[subject_category_id] ??= {
+  //       subject_category_name: item.subjectCategory.subject_category_name,
+  //       grouped: {}
+  //     }
+
+  //     result[subject_category_id].grouped[subject_type_id] ??= {
+  //       subject_type_name: item.subjectType.subject_type_name,
+  //       grouped: {}
+  //     }
+
+  //     result[subject_category_id].grouped[subject_type_id].grouped[subject_group_id] ??= []
+  //     result[subject_category_id].grouped[subject_type_id].grouped[subject_group_id].push(item)
+
+  //     return result
+  //   }, {})
+  // }
+  function groupByKeys(data) {
+    return data.reduce((result, item) => {
+      const { subject_category_id, subject_type_id, subject_group_id } = item
+
+      result[subject_category_id] ??= {
+        id: subject_category_id,
+        subject_category_name: item.subjectCategory.subject_category_name,
+        grouped: {}
+      }
+
+      result[subject_category_id].grouped[subject_type_id] ??= {
+        id: subject_type_id,
+        subject_type_name: item.subjectType.subject_type_name,
+        grouped: {}
+      }
+
+      result[subject_category_id].grouped[subject_type_id].grouped[subject_group_id] ??= {
+        id: subject_group_id,
+        items: []
+      }
+
+      result[subject_category_id].grouped[subject_type_id].grouped[subject_group_id].items.push(item)
+
+      return result
+    }, {})
+  }
+  function DisplayGroupedData({ groupedData }) {
+    // Check if groupedData is empty
+    if (!Object.keys(groupedData).length) {
+      return <Typography>No data to display</Typography>
+    }
+
+    // Recursive function to display properties
+    // const displayProperties = (item, level = 0) => (
+    //   <div style={{ marginLeft: `${level * 20}px` }} key={item.id}>
+    //     {Object.entries(item).map(([key, value]) => (
+    //       <Typography key={key} component='div'>
+    //         <strong>{key}:</strong> {value}
+    //       </Typography>
+    //     ))}
+    //     {item.grouped && Object.entries(item.grouped).map(([subKey, subItem]) => displayProperties(subItem, level + 1))}
+    //   </div>
+    // )
+
+    return (
+      <div>
+        {Object.entries(groupedData).map(([subjectCategoryId, { subject_category_name, grouped }]) => (
+          <div key={subjectCategoryId}>
+            <Typography variant='h6'>{subject_category_name}</Typography>
+            {Object.entries(grouped).map(([subjectTypeId, { subject_type_name, grouped: group }]) => (
+              <div key={subjectTypeId}>
+                <Typography variant='subtitle1'>{subject_type_name}</Typography>
+                {Object.entries(group).map(([subjectGroupId, items]) => (
+                  <div key={subjectGroupId}>
+                    <Typography variant='body1'>Subject Group {subjectGroupId}</Typography>
+                    {/* <Typography>{items.id}</Typography> */}
+                    {/* {console.log(items)} */}
+                    {items.items.id !== null &&
+                      Object.values(items.items).map((item, index) => (
+                        <div key={item.curriculum_structures_v2_id}>{item.subjectGroup?.subject_group_name}</div>
+                      ))}
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
+    )
+  }
+
   useEffect(() => {
     if (Curriculums.length > 0) {
       const findMaxId = Curriculums?.reduce(
-        (max, current) => (current.curriculum_id > max.curriculum_id ? current : max),
+        (max, current) => (current.curriculum_id < max.curriculum_id ? current : max),
         Curriculums[0]
       )
       // console.log(findMaxId)
@@ -213,6 +309,17 @@ function curriculumstructure() {
       console.log(state)
     }
   }, [state])
+
+  useEffect(() => {
+    if (CurriculumStructures) {
+      const groupedData = groupByKeys(CurriculumStructures)
+      console.log('groupedData: ', groupedData)
+      // console.log(Object(JSON.stringify(groupedData, null, 2)))
+      setGroupedStructrue(groupedData)
+    } else {
+      setGroupedStructrue([])
+    }
+  }, [CurriculumStructures])
 
   const columns = [
     {
@@ -309,6 +416,11 @@ function curriculumstructure() {
         </Grid>
         <Grid item xs={12} md={4} lg={2.5}>
           <Btn width={'100%'} handleclick={() => handleOpenForm(0)} label={'+ Add New'} />
+        </Grid>
+        <Grid item xs={12} md={4} lg={1.5}>
+          <Button variant='outlined' sx={{ width: '100%' }} onClick={() => setOpenPreview(true)}>
+            Preview
+          </Button>
         </Grid>
         <Grid item xs={12}>
           {CurriculumStructures.length > 0 ? (
@@ -436,6 +548,40 @@ function curriculumstructure() {
             Close
           </Button>
         </DialogActions>
+      </Dialog>
+      <Dialog open={openPreview} onClose={() => setOpenPreview(false)} fullWidth maxWidth={'md'}>
+        <DialogTitle>Structure Preview</DialogTitle>
+        <DialogContent sx={{ minHeight: 450 }}>
+          <Grid container xs={12}>
+            <Grid container item xs={12}>
+              <Grid item xs={12}>
+                <Typography variant='body1'> curriculum detail</Typography>
+              </Grid>
+
+              <Grid item xs={12}>
+                ...
+              </Grid>
+            </Grid>
+            <Grid item xs={12}>
+              <Box sx={{ width: '100%', bgcolor: 'gray' }}>
+                {/* {Object.values(groupedStructure)?.map(category => (
+                  <Typography key={category.subject_category_name}>
+                    {category.subject_category_name}
+                    {Object.values(category.grouped)?.map(ty => (
+                      <Typography key={ty.subject_type_name} sx={{ ml: 3.5 }}>
+                        {ty.subject_type_name}
+                        {Object.values(ty.grouped).map(g => (
+                          <Typography key={g?.curriculum_structures_v2_id}>{g.curriculum_structures_v2_id}</Typography>
+                        ))}
+                      </Typography>
+                    ))}
+                  </Typography>
+                ))} */}
+                <DisplayGroupedData groupedData={groupedStructure} />
+              </Box>
+            </Grid>
+          </Grid>
+        </DialogContent>
       </Dialog>
     </>
   )
