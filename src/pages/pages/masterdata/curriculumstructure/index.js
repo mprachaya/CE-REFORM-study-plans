@@ -294,6 +294,91 @@ function curriculumstructure() {
     )
   }
 
+  const PreviewStructures = Obj => {
+    const { subject_category_id, subject_type_id, subject_group_id } = Obj
+    if (!Obj) {
+      return
+    } else if (subject_category_id !== null && subject_type_id !== null && subject_group_id !== null) {
+      return (
+        <Grid container spacing={3}>
+          <Grid item xs={12} md={3}>
+            <Typography>{Obj.subjectCategory?.subject_category_name}</Typography>
+          </Grid>
+          <Grid item xs={4} md={3}>
+            <Typography>{Obj.subjectType?.subject_type_name}</Typography>
+          </Grid>
+          <Grid item xs={6} md={3}>
+            <Typography>{Obj.subjectGroup?.subject_group_name}</Typography>
+          </Grid>
+          <Grid item xs={2} md={2}>
+            <Typography>{Obj.csv2_credit_total}</Typography>
+          </Grid>
+        </Grid>
+      )
+    } else if (subject_category_id !== null && subject_type_id !== null) {
+      return (
+        <Grid container spacing={3}>
+          <Grid item xs={12} md={3}>
+            <Typography>{Obj.subjectCategory?.subject_category_name}</Typography>
+          </Grid>
+          <Grid item xs={4} md={3}>
+            <Typography>{Obj.subjectType?.subject_type_name}</Typography>
+          </Grid>
+          <Grid item xs={2} md={2}>
+            <Typography>{Obj.csv2_credit_total}</Typography>
+          </Grid>
+        </Grid>
+      )
+    } else if (subject_category_id !== null && subject_group_id !== null) {
+      return (
+        <Grid container spacing={3}>
+          <Grid item xs={12} md={3}>
+            <Typography>{Obj.subjectCategory?.subject_category_name}</Typography>
+          </Grid>
+          <Grid item xs={4} md={3}>
+            <Typography>{Obj.subjectGroup?.subject_group_name}</Typography>
+          </Grid>
+          <Grid item xs={2} md={2}>
+            <Typography>{Obj.csv2_credit_total}</Typography>
+          </Grid>
+        </Grid>
+      )
+    }
+  }
+
+  function getUniqueValues(arr, propertyPath) {
+    const uniqueValuesSet = new Set()
+
+    arr.forEach(obj => {
+      // Use propertyPath to access nested properties
+      const nestedProperties = propertyPath.split('.')
+      let propertyValue = obj
+
+      for (let prop of nestedProperties) {
+        if (propertyValue && propertyValue.hasOwnProperty(prop)) {
+          propertyValue = propertyValue[prop]
+        } else {
+          // Handle cases where the nested property doesn't exist
+          propertyValue = undefined
+          break
+        }
+      }
+
+      // Add the value to the Set
+      uniqueValuesSet.add(propertyValue)
+    })
+
+    // Convert the Set back to an array and return it
+    const uniqueValuesArray = Array.from(uniqueValuesSet)
+    return uniqueValuesArray
+  }
+
+  const UniqueCategories = getUniqueValues(CurriculumStructures, 'subjectCategory.subject_category_name')
+  const UniqueTypes = getUniqueValues(CurriculumStructures, 'subjectType.subject_type_name')
+
+  console.log('UniqueCategories', UniqueCategories)
+  console.log('UniqueTypes', UniqueTypes)
+
   useEffect(() => {
     if (Curriculums.length > 0) {
       const findMaxId = Curriculums?.reduce(
@@ -309,6 +394,8 @@ function curriculumstructure() {
       console.log(state)
     }
   }, [state])
+
+  console.log(CurriculumStructures)
 
   useEffect(() => {
     if (CurriculumStructures) {
@@ -577,7 +664,47 @@ function curriculumstructure() {
                     ))}
                   </Typography>
                 ))} */}
-                <DisplayGroupedData groupedData={groupedStructure} />
+                {/* <DisplayGroupedData groupedData={groupedStructure} /> */}
+                {/* {Object.values(CurriculumStructures)?.map(data => PreviewStructures(data))} */}
+                {UniqueCategories.map(categoryHeader => (
+                  <Box key={categoryHeader}>
+                    <Typography variant='body1'>{categoryHeader}</Typography>
+                    {CurriculumStructures?.filter(
+                      case1 =>
+                        // condition category && type or category && group
+                        (case1.subject_category_id !== null &&
+                          case1.subject_type_id !== null &&
+                          case1.subjectCategory.subject_category_name === categoryHeader &&
+                          case1.subject_group_id === null) ||
+                        (case1.subject_category_id !== null &&
+                          case1.subject_group_id !== null &&
+                          case1.subjectCategory.subject_category_name === categoryHeader &&
+                          case1.subject_type_id === null)
+                    ).map(case1Result => (
+                      <Box key={case1Result.curriculum_structures_v2_id} sx={{ ml: 3 }}>
+                        {case1Result.subject_type_id !== null ? (
+                          <Typography>
+                            {case1Result.subjectType.subject_type_name}
+                            {' ' + case1Result.csv2_credit_total + ' credit'}
+                          </Typography>
+                        ) : (
+                          <Typography>
+                            {' '}
+                            {case1Result.subjectGroup.subject_group_name}
+                            {' ' + case1Result.csv2_credit_total + ' credit'}{' '}
+                          </Typography>
+                        )}
+                      </Box>
+                    ))}
+                    <>
+                      {/* {UniqueTypes.map(typeHeader => (
+                        <>
+                          <Typography variant='body2'>{typeHeader}</Typography>
+                        </>
+                      ))} */}
+                    </>
+                  </Box>
+                ))}
               </Box>
             </Grid>
           </Grid>
