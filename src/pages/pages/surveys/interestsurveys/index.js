@@ -37,6 +37,9 @@ function interestsurveysPage() {
   const [jobsRelatedType1, setJobsRelatedType1] = useState([])
   const [jobsRelatedType1Temp, setJobsRelatedType1Temp] = useState([]) // type1 for compare when update jobs
 
+  const [jobsRelatedType2, setJobsRelatedType2] = useState([])
+  const [jobsRelatedType2Temp, setJobsRelatedType2Temp] = useState([]) // type2 for compare when update jobs
+
   const [answer, setAnswer] = useState([])
 
   const URL_GET_CURRICULUM = `${url.BASE_URL}/curriculums/`
@@ -89,7 +92,14 @@ function interestsurveysPage() {
       setJobsRelatedType1(jobsData)
       // console.log('interest_survey_id :', object?.interest_survey_id)
     } else if (type === 2 && object) {
+      // console.log(object?.interest_answers.interest_answers_job)
+      const jobsData = object?.interest_answers.map(interestJob => interestJob.interest_answers_job)
+      // console.log(test)
+      // console.log('object?.interest_answers', object?.interest_answers.interest_answers_job)
       setAnswer(object?.interest_answers)
+      console.log(jobsData)
+      // console.log('jobsData', jobsData)
+      setJobsRelatedType2(jobsData)
       // for edit  question type 2 -> have choice
       setDialogTitle('Edit Question (Choices)')
       setDialogTextFieldValue(object?.interest_question_title)
@@ -231,6 +241,10 @@ function interestsurveysPage() {
       reFetchInterestSurveys()
     }
   }, [curriculumSelected])
+
+  useEffect(() => {
+    console.log('jobsRelatedType2', jobsRelatedType2)
+  }, [jobsRelatedType2])
 
   useEffect(() => {
     if (Curriculums.length > 0) {
@@ -581,14 +595,15 @@ function interestsurveysPage() {
                               fullWidth
                               multiple
                               freeSolo
+                              value={jobsRelatedType2[index]}
                               renderTags={(value, getTagProps) =>
                                 value.map(option => (
                                   <Chip
                                     sx={{ m: 0, p: 0 }}
-                                    key={option?.job_position_id}
+                                    key={option?.jobPosition?.job_position_id || option?.job_position_id}
                                     variant='outlined'
-                                    label={option?.job_position_name}
-                                    {...getTagProps(option?.job_position_id)}
+                                    label={option?.jobPosition?.job_position_name || option?.job_position_name}
+                                    {...getTagProps(option?.jobPosition?.job_position_id || option?.job_position_id)}
                                   />
                                 ))
                               }
@@ -597,7 +612,27 @@ function interestsurveysPage() {
                               getOptionLabel={option => option?.job_position_name}
                               renderInput={params => <TextField {...params} label='Jobs Related ' />}
                               onChange={(e, value) => {
-                                console.log(value)
+                                // setJobsRelatedType2(pre => ({ ...pre, value }))
+                                const tempState = question?.interest_answers.filter(
+                                  f => f.interest_answer_id !== ans.interest_answer_id
+                                )
+                                const updateState = ans
+                                // console.log(value.map(v => v.job_position_name))
+                                //  console.log(value[value.length - 1])
+                                const newJob = {
+                                  jobPosition: {
+                                    job_position_id: value[value.length - 1].job_position_id,
+                                    job_position_name: value[value.length - 1].job_position_name
+                                  }
+                                }
+                                updateState.interest_answers_job.push(newJob)
+                                tempState.push(updateState)
+
+                                const jobsData = tempState?.map(interestJob => interestJob.interest_answers_job)
+                                // console.log('jobsRelatedType2', jobsRelatedType2)
+                                // jobsRelatedType2[index] = updateState
+                                // setJobsRelatedType2(jobsData)
+                                // console.log('jobsData', jobsData)
                               }}
                             />
                           </Grid>
