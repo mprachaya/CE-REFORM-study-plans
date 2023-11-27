@@ -588,7 +588,7 @@ function curriculumstructure() {
       <Dialog open={openPreview} onClose={() => setOpenPreview(false)} fullWidth maxWidth={'md'}>
         <DialogTitle>Structure Preview</DialogTitle>
         <DialogContent sx={{ minHeight: 450 }}>
-          <Grid container xs={12}>
+          <Grid sx={{ ml: 6, pb: 12 }} container xs={12}>
             <Grid item xs={12}>
               <Box sx={{ width: '100%' }}>
                 {/* {Object.values(groupedStructure)?.map(category => (
@@ -608,7 +608,7 @@ function curriculumstructure() {
                 {/* {Object.values(CurriculumStructures)?.map(data => PreviewStructures(data))} */}
                 {UniqueCategories.map(categoryHeader => (
                   <Box key={categoryHeader} maxWidth={600} sx={{ mb: 3 }}>
-                    <Typography variant='body1'>{categoryHeader}</Typography>
+                    <Typography variant='h6'>{categoryHeader}</Typography>
                     {/* case 1 */}
                     {CurriculumStructures?.filter(
                       case1 =>
@@ -639,17 +639,13 @@ function curriculumstructure() {
                     {UniqueTypes.filter(filterType => filterType.subject_category_name === categoryHeader).map(
                       typeHeader => (
                         <Box key={typeHeader.subject_type_name} sx={{ ml: 3 }}>
+                          {/* {typeHeader.subject_type_name} */}
                           {CurriculumStructures?.filter(
                             case1 =>
-                              // condition category && type or category && group
-                              (case1.subject_category_id !== null &&
-                                case1.subject_type_id !== null &&
-                                case1.subjectCategory.subject_category_name === categoryHeader &&
-                                case1.subject_group_id === null) ||
-                              (case1.subject_category_id !== null &&
-                                case1.subject_group_id !== null &&
-                                case1.subjectCategory.subject_category_name === categoryHeader &&
-                                case1.subject_type_id === null)
+                              // condition category && type
+                              case1.subject_category_id !== null &&
+                              case1.subject_type_id !== null &&
+                              case1.subject_group_id === null
                           ).map(case1Duplicate => (
                             <Box key={case1Duplicate.curriculum_structures_v2_id}>
                               {case1Duplicate.subjectType.subject_type_name !== typeHeader.subject_type_name && (
