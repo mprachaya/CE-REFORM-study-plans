@@ -608,7 +608,14 @@ function interestsurveysPage() {
                                 ))
                               }
                               // options={Jobs?.filter(sj => sj.subject_id !== subject.subject_id)}
-                              options={Jobs || []}
+                              options={
+                                Jobs.filter(
+                                  jobFilter =>
+                                    !jobsRelatedType2[index].find(
+                                      job2 => job2.job_position_id === jobFilter.job_position_id
+                                    )
+                                ) || []
+                              }
                               getOptionLabel={option => option?.job_position_name}
                               renderInput={params => <TextField {...params} label='Jobs Related ' />}
                               onChange={(e, value) => {
