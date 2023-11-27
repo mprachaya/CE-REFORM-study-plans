@@ -3,6 +3,8 @@ import { FormControl, InputLabel, MenuItem, Select } from '@mui/material'
 
 function Selection({
   label,
+  m,
+  ml,
   firstItemText,
   selectionValue,
   Items,
@@ -15,7 +17,7 @@ function Selection({
   disableSelect
 }) {
   return (
-    <FormControl sx={{ width: width }} disabled={disableSelect}>
+    <FormControl sx={{ width: width, m: m, ml: ml }} disabled={disableSelect}>
       <InputLabel size='small' id='form-layouts-separator-select-label'>
         {label}
       </InputLabel>

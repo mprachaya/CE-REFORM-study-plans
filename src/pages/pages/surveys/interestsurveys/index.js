@@ -34,9 +34,8 @@ function interestsurveysPage() {
   const [dialogTextFieldValue, setDialogTextFieldValue] = useState('')
 
   const [question, setQuestion] = useState([])
-  const [jobsRelatedType1, setJobsRelatedType1] = useState([
-    // { job_position_id: 1, is_deleted: 0, job_position_name: 'วิศวกรซอฟต์แวร์ (Software Engineer)' }
-  ])
+  const [jobsRelatedType1, setJobsRelatedType1] = useState([])
+  const [jobsRelatedType1Temp, setJobsRelatedType1Temp] = useState([]) // type1 for compare when update jobs
 
   const [answer, setAnswer] = useState([])
 
@@ -44,7 +43,7 @@ function interestsurveysPage() {
   const URL_GET_INTEREST_SURVEYS = `${url.BASE_URL}/interest-surveys/`
   const URL_GET_JOBS = `${url.BASE_URL}/job-positions/`
   const URL_PUT_INTEREST_QUESTION = `${url.BASE_URL}/interest-questions/`
-  const URL_PUT_INTEREST_ANSWER = `${url.BASE_URL}/interest-answers/`
+  const URL_POST_INTEREST_ANSWER_JOB = `${url.BASE_URL}/interest-answers-jobs/`
 
   const {
     error: CurriculumError,
@@ -72,13 +71,22 @@ function interestsurveysPage() {
 
   const [isDone, setIsDone] = useState(null) // for delay after process
 
-  const handleEditQuestion = (type, object) => {
+  const handleEditQuestion = (type, object, jobs) => {
     setOpenEdit(true)
     setQuestion(object)
-    if (type === 1 && object) {
+    if (type === 1 && object && jobs) {
       // for edit question type 1 -> point 1-5
       setDialogTitle('Edit Question (Point 1-5)')
       setDialogTextFieldValue(object?.interest_question_title)
+      // console.log('jobs', jobs)
+      const jobsData = Object.values(jobs)?.map(job => ({
+        interest_answers_job_id: job.interest_answer_job_id,
+        job_position_id: job.jobPosition.job_position_id,
+        job_position_name: job.jobPosition.job_position_name
+      }))
+      console.log(jobsData)
+      setJobsRelatedType1Temp(jobsData)
+      setJobsRelatedType1(jobsData)
       // console.log('interest_survey_id :', object?.interest_survey_id)
     } else if (type === 2 && object) {
       setAnswer(object?.interest_answers)
@@ -127,6 +135,73 @@ function interestsurveysPage() {
       }
     }
   }
+
+  const handleUpdateJobsType1 = () => {
+    const newJobs = jobsRelatedType1.filter(
+      job => !jobsRelatedType1Temp.find(temp => temp.job_position_id === job.job_position_id)
+    )
+    const insertNewJobs = () => {
+      if (newJobs.length > 0) {
+        newJobs.map(job => {
+          setIsDone(false)
+          const jobState = {
+            interest_answer_id: question?.interest_answers[0]?.interest_answer_id,
+            job_position_id: job.job_position_id,
+            interest_answers_job_score: null
+          }
+          console.log('jobsState', jobState)
+          axios
+            .post(URL_POST_INTEREST_ANSWER_JOB, jobState)
+            .then(res => {
+              if (res.data) {
+                console.log(res.data)
+                reFetchInterestSurveys()
+              }
+            })
+            .catch(err => console.log(`err from insert job, jobState = ${jobState} with err ${err}`))
+            .finally(setIsDone(true))
+        })
+      }
+    }
+
+    const deleteJobs = () => {
+      const deleteState = jobsRelatedType1Temp.filter(
+        temp => !jobsRelatedType1.find(job => temp.job_position_id === job.job_position_id)
+      )
+      console.log('deleteState', deleteState)
+      if (deleteState.length > 0) {
+        setIsDone(false)
+        deleteState.map(del => {
+          axios
+            .delete(URL_POST_INTEREST_ANSWER_JOB + del.interest_answers_job_id)
+            .then(res => {
+              if (res.data) {
+                console.log(res.data)
+                reFetchInterestSurveys()
+              }
+            })
+            .catch(err => console.log(`err from delete job, deleteState = ${deleteState} with err ${err}`))
+            .finally(setIsDone(true))
+        })
+      }
+    }
+
+    console.log('newJobs', newJobs)
+    if (jobsRelatedType1.length > jobsRelatedType1Temp.length) {
+      console.log('job have added')
+      insertNewJobs()
+    } else if (jobsRelatedType1 == jobsRelatedType1Temp) {
+      console.log('nothing happened')
+    } else if (newJobs.length > 0) {
+      console.log('some job have removed and added new job')
+      deleteJobs()
+      insertNewJobs()
+    } else {
+      deleteJobs()
+      console.log('job have removed')
+    }
+  }
+
   // const handleUpdate = (type, object, text) => {
   //   if (type === 1 && object && text !== '') {
   //     // for edit question
@@ -213,6 +288,7 @@ function interestsurveysPage() {
                 />
                 {interestTemp?.length !== 0 && (
                   <Selection
+                    ml={2}
                     label={'Version'}
                     height={40}
                     width={'30%'}
@@ -276,7 +352,13 @@ function interestsurveysPage() {
                         <Grid item>
                           <Button
                             sx={{ p: 1 }}
-                            onClick={() => handleEditQuestion(question.interest_question_type, question)}
+                            onClick={() =>
+                              handleEditQuestion(
+                                question.interest_question_type,
+                                question,
+                                question.interest_answers[0].interest_answers_job
+                              )
+                            }
                           >
                             <Icon path={mdiPen} size={0.75} style={{ margin: 0.5 }} />
                             Edit
@@ -352,7 +434,7 @@ function interestsurveysPage() {
                         (dialogTextFieldValue !== '') & handleUpdateQuestion(dialogTextFieldValue, question)
                       }
                     >
-                      Update
+                      Update Question
                     </Button>
                   </Grid>
                   {question?.interest_question_type === 2 && (
@@ -410,12 +492,18 @@ function interestsurveysPage() {
                           ))
                         }
                         // options={Jobs?.filter(sj => sj.subject_id !== subject.subject_id)}
-                        options={Jobs || []}
+                        options={
+                          Jobs.filter(
+                            jobFilter =>
+                              !jobsRelatedType1.find(job1 => job1.job_position_id === jobFilter.job_position_id)
+                          ) || []
+                        }
                         getOptionLabel={option => option?.job_position_name}
                         renderInput={params => <TextField {...params} label='Job Positions ' />}
                         onChange={(e, value) => {
                           console.log(value)
                           setJobsRelatedType1(value)
+                          console.log(value)
                         }}
                       />
                     </Grid>
@@ -424,8 +512,9 @@ function interestsurveysPage() {
                         disabled={!isDone && isDone !== null ? true : false}
                         variant='contained'
                         sx={{ width: '100%', height: '100%' }}
+                        onClick={() => handleUpdateJobsType1()}
                       >
-                        Update
+                        Update Jobs
                       </Button>
                     </Grid>
                   </Grid>
@@ -518,7 +607,7 @@ function interestsurveysPage() {
                               variant='contained'
                               sx={{ width: '100%', height: '100%' }}
                             >
-                              Update
+                              Update Jobs
                             </Button>
                           </Grid>
                         </Grid>
