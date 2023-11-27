@@ -667,8 +667,10 @@ function curriculumstructure() {
                           ).map(case2Result => (
                             <Box key={case2Result.curriculum_structures_v2_id} sx={{ ml: 3 }}>
                               <Box sx={{ display: 'flex', justifyContent: 'space-between', mx: 2 }}>
-                                <Typography>{case2Result.subjectGroup.subject_group_name}</Typography>
-                                <Typography> {' ' + case2Result.csv2_credit_total + ' credit'}</Typography>
+                                <Typography variant='body2'>{case2Result.subjectGroup.subject_group_name}</Typography>
+                                <Typography variant='body1'>
+                                  {' ' + case2Result.csv2_credit_total + ' credit'}
+                                </Typography>
                               </Box>
                             </Box>
                           ))}
