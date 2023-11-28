@@ -139,7 +139,7 @@ function AddSubjectModal({ open, handleClose, handleSubmit, curriculumId, subjec
           <Grid container spacing={6}>
             <Grid item xs={12} sm={12} md={12} lg={12} height={200}>
               <TextField
-                sx={{ m: 2 }}
+                sx={{ mt: 2 }}
                 fullWidth
                 name={'subject_description'}
                 label='Description*'
