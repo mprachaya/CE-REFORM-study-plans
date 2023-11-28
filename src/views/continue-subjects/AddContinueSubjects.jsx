@@ -227,7 +227,7 @@ function AddContinueSubjects({ open, handleClose, subject }) {
                 boxShadow:'none',
               }
              }}>
-              <DialogContent>
+            <DialogContent sx={{overflow:'hidden'}}>
                 <CircleLoading/>
               </DialogContent>
               </Dialog>

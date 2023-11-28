@@ -508,7 +508,7 @@ function interestsurveysPage() {
               }
             }}
           >
-            <DialogContent>
+            <DialogContent sx={{ overflow: 'hidden' }}>
               <CircleLoading />
             </DialogContent>
           </Dialog>
