@@ -161,7 +161,7 @@ const curriculumtree = () => {
         <Selection
           label={'Curriculum'}
           height={40}
-          width={270}
+          width={{ xs: 300, md: 600 }}
           // firstItemText={'แสดงทั้งหมด'}
           selectionValue={curriculumSelected}
           handleChange={e => setCurriculumSelected(e.target.value)}
@@ -201,11 +201,11 @@ const curriculumtree = () => {
         open={open}
         anchorEl={anchorEl}
         transition
-        // transformOrigin={{ vertical: 'right', horizontal: 'right' }}
-        // anchorOrigin={{
-        //   vertical: 'left',
-        //   horizontal: 'left'
-        // }}
+      // transformOrigin={{ vertical: 'right', horizontal: 'right' }}
+      // anchorOrigin={{
+      //   vertical: 'left',
+      //   horizontal: 'left'
+      // }}
       >
         {({ TransitionProps }) => (
           <Fade {...TransitionProps} timeout={350}>
