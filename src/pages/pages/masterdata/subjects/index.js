@@ -250,7 +250,7 @@ const subjects = () => {
       {/* // header */}
       <Box display={'flex'} flexDirection={'row'}>
         <Typography variant='h6'>Subjects</Typography>
-        <Box sx={{ ml: 6 }}>
+        {/* <Box sx={{ ml: 6 }}>
           <Selection
             label={'หลักสูตร'}
             height={40}
@@ -263,7 +263,7 @@ const subjects = () => {
               </MenuItem>
             ))}
           />
-        </Box>
+        </Box> */}
       </Box>
       <Grid container spacing={6} sx={{ mt: 5 }}>
         <Grid item xs={12} sm={12} md={8} lg={6}>
@@ -345,7 +345,7 @@ const subjects = () => {
           handleClose={() => {
             setOpenCompetency(false)
           }}
-          // handleSubmit={handleDelete}
+        // handleSubmit={handleDelete}
         />
       </Grid>
       <Grid container>
