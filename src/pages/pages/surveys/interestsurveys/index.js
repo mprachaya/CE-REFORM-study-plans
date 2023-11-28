@@ -770,7 +770,7 @@ function interestsurveysPage() {
                               options={
                                 jobsType2.filter(
                                   jobFilter =>
-                                    !jobsRelatedType2[index].find(
+                                    !jobsRelatedType2[index]?.find(
                                       job2 => job2.job_position_id === jobFilter.jobPosition.job_position_id
                                     )
                                 ) || []
