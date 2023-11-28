@@ -221,7 +221,7 @@ function AddContinueSubjects({ open, handleClose, subject }) {
           <React.Fragment>
             <DialogContent>
               {/* // for wait fetching data  */}
-             <Dialog maxWidth={'lg'} fullWidth open={!isDone && isDone !== null ? !isDone : false} PaperProps={{
+             <Dialog  sx={{ overflow: 'hidden' }} maxWidth={'lg'} fullWidth open={!isDone && isDone !== null ? !isDone : false} PaperProps={{
               style: {
                 backgroundColor:'transparent',
                 boxShadow:'none',
