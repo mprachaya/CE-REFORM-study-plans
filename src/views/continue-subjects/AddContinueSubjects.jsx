@@ -221,12 +221,12 @@ function AddContinueSubjects({ open, handleClose, subject }) {
           <React.Fragment>
             <DialogContent>
               {/* // for wait fetching data  */}
-             <Dialog open={!isDone && isDone !== null ? !isDone : false} PaperProps={{
+             <Dialog maxWidth={'lg'} fullWidth open={!isDone && isDone !== null ? !isDone : false} PaperProps={{
               style: {
                 backgroundColor:'transparent',
                 boxShadow:'none',
               }
-             }}><Typography>Processing...<CircleLoading/></Typography></Dialog>
+             }}><CircleLoading/></Dialog>
               <Grid container>
                 <Grid item xs={12}>
                   <Typography sx={{ mb: 2 }}>{subject?.subject_code + ' ' + subject?.subject_name_th + ' '}</Typography>
@@ -250,8 +250,7 @@ function AddContinueSubjects({ open, handleClose, subject }) {
 
                         {ContinueSubjects[0] === undefined && (
                     <Box display={'flex'} flexDirection={'row'}>
-                      <Typography sx={{textDecoration: 'none', '&:hover': {textDecoration: 'underline',color:'primary.main'},'&:active': {textDecoration: 'underline',}, cursor: 'pointer',
-                      }}
+                      <Button         
                       onClick={()=>{
                         setIsDone(false)
                         axios
@@ -260,9 +259,9 @@ function AddContinueSubjects({ open, handleClose, subject }) {
                           if(res.data){console.log(res.data)
                            reFetchContinueSubjects();
                           }}).catch(err => console.log('err from create root node',err)).finally(()=>setIsDone(true))
-
-                      }}
-                      >Create root node</Typography>
+                      }}variant='contained'>
+                      Create root node
+                      </Button>
                     </Box>
                   )}
                   {ContinueSubjects[0]?.parent_id === null && (
