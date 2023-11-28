@@ -319,7 +319,8 @@ function AddContinueSubjects({ open, handleClose, subject }) {
                           variant='contained'
                           sx={{ height: '100%', width: '100%' }}
                           onClick={() =>
-                            checkSubject(subjectSelected?.subject_id, () => addNewChildren(subjectSelected))
+                            // checkSubject(subjectSelected?.subject_id, () => addNewChildren(subjectSelected))
+                            addNewChildren(subjectSelected)
                           }
                         >
                           เพิ่มวิชาตัวต่อ

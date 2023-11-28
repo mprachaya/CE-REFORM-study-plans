@@ -4,7 +4,7 @@ import CircularProgress, { circularProgressClasses } from '@mui/material/Circula
 
 function CircleProgress(props) {
   return (
-    <Box sx={{ position: 'relative', top: '50%', left: '50%' }}>
+    <Box sx={{ position: 'relative', top: '50%', left: '50%', overflow: 'hidden' }}>
       <CircularProgress
         variant='determinate'
         sx={{
