@@ -86,6 +86,27 @@ function interestsurveysPage() {
 
   const [isDone, setIsDone] = useState(null) // for delay after process
 
+  const handleCreateSurveys = () => {
+    let result = window.confirm('Create survey in curriculum?')
+
+    if (result) {
+      setIsDone(false)
+      axios
+        .post(URL_GET_INTEREST_SURVEYS, {
+          curriculum_id: curriculumSelected,
+          interest_survey_version: 1
+        })
+        .then(res => {
+          if (res.data) {
+            console.log(res.data)
+            reFetchInterestSurveys()
+          }
+        })
+        .catch(err => console.log('err from create new survey', err))
+        .finally(() => setIsDone(false))
+    }
+  }
+
   const handleInsertQuestion = () => {
     if (!questionInsertTitle && interestTemp[0]?.interest_survey_id !== undefined) {
       return
@@ -474,7 +495,7 @@ function interestsurveysPage() {
             )}
             {interestTemp?.length === 0 && (
               <Grid item xs={12} md={4} lg={3.5}>
-                <Btn width={'100%'} handleclick={() => void 0} label={'Add New Survey'} />
+                <Btn width={'100%'} handleclick={() => handleCreateSurveys()} label={'Add New Survey'} />
               </Grid>
             )}
           </Grid>
