@@ -22,13 +22,13 @@ const subjects = () => {
   const [open, setOpen] = useState(false)
   const [openCompetency, setOpenCompetency] = useState(false)
   const [openContinueSubject, setOpenContinueSubject] = useState(false)
-  const [curriculumSelection, setCurriculumSelection] = useState(0)
+  // const [curriculumSelection, setCurriculumSelection] = useState(0)
   const [subjectSelection, setSubjectSelection] = useState([])
   const [subjectGroupSelection, setSubjectGroupSelection] = useState(0)
   const [editState, setEditState] = useState([])
   const router = useRouter()
 
-  const URL_GET_SUBJECTS = `https://my-backend-adonis.onrender.com/api/v1/subjects-by-curriculum/${curriculumSelection}`
+  const URL_GET_SUBJECTS = `https://my-backend-adonis.onrender.com/api/v1/subjects-by-curriculum/${router.query.curriculum_id}`
   const URL_GET_SUBJECT_GROUPS = `https://my-backend-adonis.onrender.com/api/v1/subject-groups/`
   const URL_GET_CURRICULUM = `https://my-backend-adonis.onrender.com/api/v1/curriculums/`
 
@@ -103,14 +103,17 @@ const subjects = () => {
     useSearchText(text, setSubjects, setSearchText, SubjectsTemp, columnsSubject)
   }
 
-  const handleChangeCurriculum = value => {
-    setCurriculumSelection(value)
-  }
+  // const handleChangeCurriculum = value => {
+  //   setCurriculumSelection(value)
+  // }
 
   const handleChangeFilter = value => {
     setSubjectGroupSelection(value)
     useFilter(value, 'subject_group_id', setSubjects, SubjectsTemp)
   }
+
+
+
 
   useMemo(() => {
     if (!SubjectLoading) {
@@ -144,31 +147,41 @@ const subjects = () => {
     )
   }
 
-  useMemo(() => {
-    if (!CurriculumLoading) {
-      if (router.query.curriculum_id) setCurriculumSelection(router.query.curriculum_id)
-      else {
-        const findCurrent =
-          Curriculums.length !== 0 &&
-          Curriculums.reduce(
-            (max, obj) => (obj.curriculum_id > max ? obj.curriculum_id : max, Curriculums[0].curriculum_id)
-          )
+  // useMemo(() => {
+  //   if (!CurriculumLoading) {
+  //     if (router.query.curriculum_id) null
+  //     else {
+  //       // const findCurrent =
+  //       //   Curriculums.length !== 0 &&
+  //       //   Curriculums.reduce(
+  //       //     (max, obj) => (obj.curriculum_id > max ? obj.curriculum_id : max, Curriculums[0].curriculum_id)
+  //       //   )
 
-        // console.log('current: ', findCurrent)
-        setCurriculumSelection(findCurrent)
-      }
+  //       // // console.log('current: ', findCurrent)
+  //       // setCurriculumSelection(findCurrent)
+
+
+  //     }
+  //   }
+  // }, [CurriculumLoading])
+
+  useEffect(() => {
+    if (router.query.curriculum_id) {
+      return
+    } else {
+      router.push('/pages/masterdata/curriculums')
     }
-  }, [CurriculumLoading])
+  }, [])
 
   useMemo(() => {
     if (Subjects) console.log(Subjects)
   }, [Subjects])
 
-  useMemo(() => {
-    if (curriculumSelection) {
-      reFetchSubjects(URL_GET_SUBJECTS)
-    }
-  }, [curriculumSelection])
+  // useMemo(() => {
+  //   if (curriculumSelection) {
+  //     reFetchSubjects(URL_GET_SUBJECTS)
+  //   }
+  // }, [curriculumSelection])
 
   // useEffect(() => {
   //   // if (!openCompetency) {
@@ -308,7 +321,7 @@ const subjects = () => {
           open={open}
           handleClose={handleClose}
           handleSubmit={handleSubmit}
-          curriculumId={parseInt(curriculumSelection)}
+          curriculumId={parseInt(router.query.curriculum_id)}
           subjectGroups={SubjectGroup}
         />
       </Grid>
@@ -319,7 +332,7 @@ const subjects = () => {
           open={openEdit}
           handleClose={handleCloseEdit}
           handleUpdate={handleUpdate}
-          curriculumId={parseInt(curriculumSelection)}
+          curriculumId={parseInt(router.query.curriculum_id)}
           subjectGroups={SubjectGroup}
           openConfirmDelete={handleOpenConfirmDelete}
         />
