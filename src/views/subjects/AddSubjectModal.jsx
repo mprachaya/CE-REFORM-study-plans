@@ -13,7 +13,7 @@ function AddSubjectModal({ open, handleClose, handleSubmit, curriculumId, subjec
 
   const initialsState = {
     curriculum_id: curriculumId,
-    subject_group_id: 0,
+    subject_group_id: null,
     subject_code: '',
     subject_name_th: '',
     subject_name_en: '',
@@ -23,7 +23,7 @@ function AddSubjectModal({ open, handleClose, handleSubmit, curriculumId, subjec
 
   const [state, setState] = useState({
     curriculum_id: curriculumId,
-    subject_group_id: 0,
+    subject_group_id: null,
     subject_code: '',
     subject_name_th: '',
     subject_name_en: '',
@@ -35,14 +35,21 @@ function AddSubjectModal({ open, handleClose, handleSubmit, curriculumId, subjec
     var isEmpty = false
 
     Object.keys(object).forEach(function (key) {
-      var val = object[key]
-      if (val === '' || val === 0) {
-        isEmpty = true
+      // if (key !== 'subject_group_id') {
+      // }
+
+      if (key !== 'subject_group_id') {
+        var val = object[key]
+        if (val === '' || val === 0) {
+          isEmpty = true
+        }
       }
     })
 
     if (isEmpty) {
       alert('Please Fill All TextFields')
+    } else {
+      console.log('state', object)
     }
 
     return isEmpty
@@ -132,6 +139,7 @@ function AddSubjectModal({ open, handleClose, handleSubmit, curriculumId, subjec
           <Grid container spacing={6}>
             <Grid item xs={12} sm={12} md={12} lg={12} height={200}>
               <TextField
+                sx={{ m: 2 }}
                 fullWidth
                 name={'subject_description'}
                 label='Description*'
