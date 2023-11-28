@@ -29,7 +29,7 @@ const MasterData = () => {
       <Grid container spacing={8} sx={{ justifyContent: 'center' }}>
         {/* -------------------------------------- Grid ลูกที่ 1---------------------------------------------------- */}
 
-        <Grid item sm={12} md={5} lg={4.2} sx={{ justifyContent: 'center' }}>
+        <Grid item xs={12} md={5} lg={4.2} sx={{ justifyContent: 'center' }}>
           <Visible>
             <OnHover>
               <CardMenu

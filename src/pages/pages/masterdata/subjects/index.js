@@ -254,7 +254,7 @@ const subjects = () => {
           <Selection
             label={'หลักสูตร'}
             height={40}
-            width={220}
+            width={{ xs: 300, md: 600 }}
             selectionValue={curriculumSelection}
             handleChange={e => handleChangeCurriculum(e.target.value)}
             Items={Object.values(Curriculums)?.map(curri => (
@@ -275,6 +275,7 @@ const subjects = () => {
               </Box>
             </Hidden>
             <Selection
+              ml={2}
               label={'SubjectGroup'}
               height={40}
               width={'75%'}
@@ -344,7 +345,7 @@ const subjects = () => {
           handleClose={() => {
             setOpenCompetency(false)
           }}
-        // handleSubmit={handleDelete}
+          // handleSubmit={handleDelete}
         />
       </Grid>
       <Grid container>
