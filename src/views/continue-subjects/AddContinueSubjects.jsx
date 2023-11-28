@@ -50,13 +50,13 @@ function AddContinueSubjects({ open, handleClose, subject }) {
     {
       field: 'subject_code',
       headerName: 'Code',
-      valueGetter: params => params.row?.subjects?.subject_code,
+      valueGetter: params => params.row?.parent?.subject_code,
       flex: 0.3
     },
     {
       field: 'subject_name_th',
       headerName: 'Subject',
-      valueGetter: params => params.row?.subjects?.subject_name_th,
+      valueGetter: params => params.row?.parent?.subject_name_th,
       flex: 1.2
     }
     // { field: 'subject_name_en', headerName: 'Name EN', width: 230 },
