@@ -38,6 +38,8 @@ function curriculumstructure() {
   const [open, setOpen] = useState(false)
   const [openPreview, setOpenPreview] = useState(false)
 
+  const [showDefaultCategory, setShowDefaultCategory] = useState([])
+
   // 0 -> insert , 1 -> edit
   const [formType, setFormType] = useState(0)
   const initialState = {
@@ -116,6 +118,24 @@ function curriculumstructure() {
       }
       if (structureId) setCurriculumStructuresId(structureId)
     }
+  }
+
+  const findCategory = () => {
+    console.log('CurriculumStructures', CurriculumStructures);
+    const categoryByStructer = Object.values(CurriculumStructures)?.filter(
+      categoryDuplicate =>
+        categoryDuplicate.subject_category_id !== null &&
+        categoryDuplicate.subject_type_id === null &&
+        categoryDuplicate.subject_group_id === null
+    )
+    console.log('findCategory', findCategory);
+    if (categoryByStructer?.length > 0) {
+      const unDuplicateCagetory = Object.values(UniqueCategories)?.filter(d => d !== categoryByStructer?.find(s => s.subjectCategory?.subject_category_name))
+      setShowDefaultCategory(unDuplicateCagetory)
+    }
+
+
+
   }
 
   const handleSubmit = () => {
@@ -430,6 +450,12 @@ function curriculumstructure() {
     }
   ]
 
+  useEffect(() => {
+    if (CurriculumStructures) {
+      findCategory()
+    }
+  }, [CurriculumStructures])
+
   return (
     <Box sx={{ m: 6 }}>
       <Typography variant='h6'>Curriculums Structure</Typography>
@@ -608,7 +634,45 @@ function curriculumstructure() {
                 {/* {Object.values(CurriculumStructures)?.map(data => PreviewStructures(data))} */}
                 {UniqueCategories.map(categoryHeader => (
                   <Box key={categoryHeader} maxWidth={600} sx={{ mb: 3 }}>
-                    <Typography variant='h6'>{categoryHeader}</Typography>
+
+                    {CurriculumStructures?.filter(
+                      categoryHasCredit =>
+                        categoryHasCredit.subject_category_id !== null &&
+                        categoryHasCredit.subject_type_id === null &&
+                        categoryHasCredit.subject_group_id === null &&
+                        categoryHasCredit.subjectCategory?.subject_category_name === categoryHeader
+                    ).length > 0 ? (
+                      CurriculumStructures?.filter(
+                        categoryHasCredit =>
+                          categoryHasCredit.subject_category_id !== null &&
+                          categoryHasCredit.subject_type_id === null &&
+                          categoryHasCredit.subject_group_id === null &&
+                          categoryHasCredit.subjectCategory?.subject_category_name === categoryHeader
+                      ).map(categoryHasCreditResult => (
+                        <Box key={categoryHasCreditResult.curriculum_structures_v2_id} sx={{ display: 'flex', justifyContent: 'space-between', mr: 2 }}>
+                          <Typography variant='h6'>{categoryHasCreditResult?.subjectCategory?.subject_category_name}</Typography>
+                          <Typography> {' ' + categoryHasCreditResult?.csv2_credit_total + ' credit'}</Typography>
+                        </Box>
+                      ))
+                    ) : (
+                      <Typography key={categoryHeader} variant='h6'>{categoryHeader}</Typography>
+                    )}
+
+
+                    {/* {CurriculumStructures?.filter(
+                      categoryDuplicate =>
+                        // condition category && type
+                        categoryDuplicate.subject_category_id !== null &&
+                        categoryDuplicate.subject_type_id === null &&
+                        categoryDuplicate.subject_group_id === null
+                    ).map(categoryDuplicateResult => (
+                      <Box key={categoryDuplicateResult.curriculum_structures_v2_id}>
+                        {categoryDuplicateResult.subjectCategory.subject_category_name !== categoryHeader && (
+                          <Typography variant='h6'>{categoryHeader}</Typography>
+                        )}
+                      </Box>
+                    ))} */}
+
                     {/* case 1 */}
                     {CurriculumStructures?.filter(
                       case1 =>
