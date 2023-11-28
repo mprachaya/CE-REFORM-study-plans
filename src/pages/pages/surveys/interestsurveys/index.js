@@ -540,7 +540,7 @@ function interestsurveysPage() {
                               handleEditQuestion(
                                 question.interest_question_type,
                                 question,
-                                question.interest_answers[0].interest_answers_job
+                                question.interest_answers[0]?.interest_answers_job
                               )
                             }
                           >
