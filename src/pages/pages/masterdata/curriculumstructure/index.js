@@ -229,13 +229,13 @@ function curriculumstructure() {
 
       result[subject_category_id] ??= {
         id: subject_category_id,
-        subject_category_name: item.subjectCategory.subject_category_name,
+        subject_category_name: item.subjectCategory?.subject_category_name,
         grouped: {}
       }
 
       result[subject_category_id].grouped[subject_type_id] ??= {
         id: subject_type_id,
-        subject_type_name: item.subjectType.subject_type_name,
+        subject_type_name: item.subjectType?.subject_type_name,
         grouped: {}
       }
 
