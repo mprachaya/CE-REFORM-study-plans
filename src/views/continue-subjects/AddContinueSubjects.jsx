@@ -221,12 +221,16 @@ function AddContinueSubjects({ open, handleClose, subject }) {
           <React.Fragment>
             <DialogContent>
               {/* // for wait fetching data  */}
-             <Dialog sx={{ width: 800, height: 1000 }} open={!isDone && isDone !== null ? !isDone : false} PaperProps={{
+             <Dialog  open={!isDone && isDone !== null ? !isDone : false} PaperProps={{
               style: {
                 backgroundColor:'transparent',
                 boxShadow:'none',
               }
-             }}><CircleLoading/></Dialog>
+             }}>
+              <DialogContent>
+                <CircleLoading/>
+              </DialogContent>
+              </Dialog>
               <Grid container>
                 <Grid item xs={12}>
                   <Typography sx={{ mb: 2 }}>{subject?.subject_code + ' ' + subject?.subject_name_th + ' '}</Typography>

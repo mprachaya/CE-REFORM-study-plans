@@ -500,7 +500,6 @@ function interestsurveysPage() {
             )}
           </Grid>
           <Dialog
-            sx={{ width: 800, height: 1000 }}
             open={!isDone && isDone !== null ? !isDone : false}
             PaperProps={{
               style: {
@@ -509,7 +508,9 @@ function interestsurveysPage() {
               }
             }}
           >
-            <CircleLoading />
+            <DialogContent>
+              <CircleLoading />
+            </DialogContent>
           </Dialog>
           {InterestSurveysLoading && interestTemp[0] === undefined ? (
             <Box sx={{ height: 120, m: 12 }}>
