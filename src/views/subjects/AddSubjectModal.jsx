@@ -7,7 +7,7 @@ import { handleChangeEN, handleChangeNumber, handleChangeTH } from 'src/hooks/us
 
 function AddSubjectModal({ open, handleClose, handleSubmit, curriculumId, subjectGroups }) {
   const [curriculumSelection, setCurriculumSelection] = useState(0)
-  const [subjectGroupSelection, setSubjectGroupSelection] = useState(0)
+  const [subjectGroupSelection, setSubjectGroupSelection] = useState(null)
   const [studentGroupsSelection, setStudentGroupsSelection] = useState(0)
   const [duplicateState, setDuplicateState] = useState(false)
 
