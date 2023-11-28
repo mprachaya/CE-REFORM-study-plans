@@ -82,6 +82,7 @@ function AddSubjectModal({ open, handleClose, handleSubmit, curriculumId, subjec
           <Grid container spacing={6}>
             <Grid item xs={12} sm={12} md={12} lg={6}>
               <Selection
+                label={'Subject Group'}
                 width={'100%'}
                 firstItemText={'No group'}
                 selectionValue={subjectGroupSelection}
