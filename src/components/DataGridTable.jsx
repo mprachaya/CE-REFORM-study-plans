@@ -24,7 +24,7 @@ function DataGridTable({
   // }
 
   return !isLoading && rows?.length > 0 ? (
-    <Box sx={{ width: '100%', minHeight: 800 }}>
+    <Box sx={{ width: '100%', minHeight: 300 }}>
       <DataGrid
         rowHeight={rowHeight}
         rows={rows || ''}

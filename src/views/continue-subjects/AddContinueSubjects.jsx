@@ -212,7 +212,7 @@ function AddContinueSubjects({ open, handleClose, subject }) {
 
   return (
     <Dialog open={open} onClose={handleClose} maxWidth={'xl'} fullWidth>
-      <DialogContent sx={{ minHeight: 600 }}>
+      <DialogContent sx={{ minHeight: 400 }}>
         {ContinueSubjectsLoading ? (
           <Box sx={{ width: '100%', height: '100%', mt: 24 }}>
             <CircleLoading />
@@ -247,6 +247,24 @@ function AddContinueSubjects({ open, handleClose, subject }) {
                           />
                         </React.Fragment>
                       )}
+
+                        {ContinueSubjects[0] === undefined && (
+                    <Box display={'flex'} flexDirection={'row'}>
+                      <Typography sx={{textDecoration: 'none', '&:hover': {textDecoration: 'underline',color:'primary.main'},'&:active': {textDecoration: 'underline',}, cursor: 'pointer',
+                      }}
+                      onClick={()=>{
+                        setIsDone(false)
+                        axios
+                        .post(URL_ADD_CONTINUE_SUBJECT, { parent_id: null, subject_id: subject?.subject_id })
+                        .then(res => {
+                          if(res.data){console.log(res.data)
+                           reFetchContinueSubjects();
+                          }}).catch(err => console.log('err from create root node',err)).finally(()=>setIsDone(true))
+
+                      }}
+                      >Create root node</Typography>
+                    </Box>
+                  )}
                   {ContinueSubjects[0]?.parent_id === null && (
                     <Box display={'flex'} flexDirection={'row'}>
                       <Typography sx={{ color: 'gray' ,mt:1.5}}>วิชานี้เป็น Root node </Typography>
