@@ -29,6 +29,7 @@ function interestsurveysPage() {
   const [interestVersionSelected, setInterestVersionSelected] = useState(0)
   const [interestTemp, setInterestTemp] = useState([])
 
+  const [openInsert, setOpenInsert] = useState(false)
   const [openEdit, setOpenEdit] = useState(false)
   const [dialogTitle, setDialogTitle] = useState('')
   const [dialogTextFieldValue, setDialogTextFieldValue] = useState('')
@@ -37,16 +38,26 @@ function interestsurveysPage() {
   const [jobsRelatedType1, setJobsRelatedType1] = useState([])
   const [jobsRelatedType1Temp, setJobsRelatedType1Temp] = useState([]) // type1 for compare when update jobs
 
+  const questionTypes = [
+    { interest_question_type: 1, label: 'แบบให้คะแนน' },
+    { interest_question_type: 2, label: 'แบบตัวเลือก' }
+  ]
+  const [selectedQuestionType, setSelectedQuestionType] = useState(1)
+  const [questionInsertTitle, setQuestionInsertTitle] = useState(null)
+  const [jobSelected, setJobSelected] = useState('')
+
   const [jobsRelatedType2, setJobsRelatedType2] = useState([])
   const [jobsRelatedType2Temp, setJobsRelatedType2Temp] = useState([]) // type2 for compare when update jobs
   const [jobsType2, setJobType2] = useState([])
 
   const [answer, setAnswer] = useState([])
+  const [answerChoiceTitle, setAnswerChoiceTitle] = useState('')
 
   const URL_GET_CURRICULUM = `${url.BASE_URL}/curriculums/`
   const URL_GET_INTEREST_SURVEYS = `${url.BASE_URL}/interest-surveys/`
   const URL_GET_JOBS = `${url.BASE_URL}/job-positions/`
   const URL_PUT_INTEREST_QUESTION = `${url.BASE_URL}/interest-questions/`
+  const URL_POST_INTEREST_ANSWER = `${url.BASE_URL}/interest-answers/`
   const URL_POST_INTEREST_ANSWER_JOB = `${url.BASE_URL}/interest-answers-jobs/`
 
   const {
@@ -74,6 +85,37 @@ function interestsurveysPage() {
   } = useFetch(URL_GET_JOBS)
 
   const [isDone, setIsDone] = useState(null) // for delay after process
+
+  const handleInsertQuestion = () => {
+    if (!questionInsertTitle && interestTemp[0]?.interest_survey_id !== undefined) {
+      return
+    }
+    // console.log(interestTemp)
+    setIsDone(false)
+    console.log({
+      interest_survey_id: interestTemp[0]?.interest_survey_id,
+      interest_question_title: questionInsertTitle,
+      interest_question_type: selectedQuestionType,
+      job_position_id: jobSelected
+    })
+    setOpenInsert(false)
+    axios
+      .post(URL_PUT_INTEREST_QUESTION, {
+        interest_survey_id: interestTemp[0]?.interest_survey_id,
+        interest_question_title: questionInsertTitle,
+        interest_question_type: selectedQuestionType,
+        job_position_id: jobSelected
+      })
+      .then(res => {
+        if (res.data) {
+          reFetchInterestSurveys()
+          setQuestionInsertTitle('')
+          console.log(res.data)
+        }
+      })
+      .catch(err => console.log('err from insert new Question : ', err))
+      .finally(setIsDone(true))
+  }
 
   const handleEditQuestion = (type, object, jobs) => {
     setOpenEdit(true)
@@ -122,10 +164,10 @@ function interestsurveysPage() {
           if (res.data) {
             console.log(res.data)
             reFetchInterestSurveys()
-            setIsDone(true)
           }
         })
         .catch(err => console.log(err))
+        .finally(() => setIsDone(true))
     }
   }
 
@@ -140,11 +182,56 @@ function interestsurveysPage() {
             if (res.data) {
               console.log(res.data)
               reFetchInterestSurveys()
-              setIsDone(true)
             }
           })
           .catch(err => console.log(err))
+          .finally(() => setIsDone(true))
       }
+    }
+  }
+
+  const handleInsertChoiceType2 = () => {
+    if (answerChoiceTitle && question.interest_question_id) {
+      setIsDone(false)
+      axios
+        .post(URL_POST_INTEREST_ANSWER, {
+          interest_question_id: question.interest_question_id,
+          interest_answer_title: answerChoiceTitle
+        })
+        .then(res => {
+          if (res.data) {
+            console.log(res.data)
+            const tempAnswer = question
+            tempAnswer.interest_answers.push(res.data.data)
+            reFetchInterestSurveys()
+            setAnswerChoiceTitle('')
+          }
+        })
+        .catch(err => console.log('err from insert choice question type 2', err))
+        .finally(() => setIsDone(true))
+    }
+  }
+
+  const handleDeleteAnswer = anwserId => {
+    let result = window.confirm('Confirm to Delete?')
+    if (anwserId && result) {
+      setIsDone(false)
+      axios
+        .delete(URL_POST_INTEREST_ANSWER + anwserId)
+        .then(res => {
+          if (res.data) {
+            console.log(res.data)
+            const updateAnswer = question.interest_answers.filter(
+              q => q.interest_answer_id !== res.data.data.interest_answer_id
+            )
+            const tempAnswer = question
+            tempAnswer.interest_answers = updateAnswer
+            reFetchInterestSurveys()
+            setAnswerChoiceTitle('')
+          }
+        })
+        .catch(err => console.log('err from delete choice question type 2', err))
+        .finally(() => setIsDone(true))
     }
   }
 
@@ -293,6 +380,9 @@ function interestsurveysPage() {
       const jobsMenu = Jobs?.map(j => ({ jobPosition: { ...j } }))
       // console.log('test new jobs menu', jobsMenu)
       setJobType2(jobsMenu)
+      // for insert question form
+      const maxJobId = Jobs?.reduce((max, obj) => (obj.job_position_id < max ? obj.job_position_id : max), Infinity)
+      setJobSelected(maxJobId)
     }
   }, [Jobs])
 
@@ -379,7 +469,7 @@ function interestsurveysPage() {
             </Grid>
             {interestTemp?.length > 0 && (
               <Grid item xs={12} md={4} lg={3.5}>
-                <Btn width={'100%'} handleclick={() => void 0} label={'+ Add New Question'} />
+                <Btn width={'100%'} handleclick={() => setOpenInsert(true)} label={'+ Add New Question'} />
               </Grid>
             )}
             {interestTemp?.length === 0 && (
@@ -521,8 +611,8 @@ function interestsurveysPage() {
                           size={'small'}
                           sx={{ width: '100%' }}
                           label={'New choice'}
-                          // value={dialogTextFieldValue || ''}
-                          // onChange={e => setDialogTextFieldValue(e.target.value)}
+                          value={answerChoiceTitle || ''}
+                          onChange={e => setAnswerChoiceTitle(e.target.value)}
                         />
                       </Grid>
                       <Grid item xs={4}>
@@ -530,9 +620,7 @@ function interestsurveysPage() {
                           disabled={!isDone && isDone !== null ? true : false}
                           variant='outlined'
                           sx={{ width: '100%', height: '100%' }}
-                          // onClick={() =>
-                          //   (dialogTextFieldValue !== '') & handleUpdateQuestion(dialogTextFieldValue, question)
-                          // }
+                          onClick={() => handleInsertChoiceType2()}
                         >
                           Add New Choice
                         </Button>
@@ -598,8 +686,19 @@ function interestsurveysPage() {
                     question?.interest_answers.map((ans, index) => (
                       <Card key={ans.interest_answer_id} sx={{ width: '100%', p: 2, mb: 3.5 }}>
                         <Grid container sx={{ display: 'flex' }} direction={'row'} item xs={12} spacing={2}>
-                          <Grid item xs={12}>
-                            <Typography sx={{ p: 2 }}>แก้ไขคำตอบที่ {index + 1}).</Typography>
+                          <Grid container item xs={12} sx={{ p: 2 }} justifyContent='space-between'>
+                            <Grid item>
+                              <Typography>แก้ไขคำตอบที่ {index + 1}).</Typography>
+                            </Grid>
+                            <Grid item>
+                              <Button
+                                color='error'
+                                sx={{ p: 1 }}
+                                onClick={() => handleDeleteAnswer(ans.interest_answer_id)}
+                              >
+                                <Icon path={mdiTrashCan} size={0.75} style={{ margin: 0.5 }} />
+                              </Button>
+                            </Grid>
                           </Grid>
 
                           <Grid item xs={12}>
@@ -608,26 +707,6 @@ function interestsurveysPage() {
                               fullWidth
                               value={answer[index]?.interest_answer_title || ''}
                               onChange={e => {
-                                // version 1
-                                // const findAnswer = answer?.find(a => a.interest_answer_id === ans.interest_answer_id)
-                                // const keepAnswer = answer?.filter(a => a.interest_answer_id !== ans.interest_answer_id)
-                                // findAnswer.interest_answer_title = e.target.value
-
-                                // setAnswer(() =>
-                                //   Array(...keepAnswer)
-                                //     .concat(findAnswer)
-                                //     .sort((a, b) => a.interest_answer_id - b.interest_answer_id)
-                                // )
-
-                                // version 2 chatGPT
-                                // const updatedAnswer = answer.map(a =>
-                                //   a.interest_answer_id === ans.interest_answer_id
-                                //     ? { ...a, interest_answer_title: e.target.value }
-                                //     : a
-                                // )
-                                // setAnswer(updatedAnswer.sort((a, b) => a.interest_answer_id - b.interest_answer_id))
-
-                                // version 3 chatGPT better perfomace
                                 const answerObject = answer.reduce((acc, a) => {
                                   acc[a.interest_answer_id] = a
                                   return acc
@@ -711,6 +790,61 @@ function interestsurveysPage() {
                         </Grid>
                       </Card>
                     ))}
+                </Grid>
+              </Grid>
+            </DialogContent>
+          </Dialog>
+
+          <Dialog open={openInsert} onClose={() => setOpenInsert(false)} maxWidth={'md'} fullWidth>
+            <DialogTitle>Form insert new question</DialogTitle>
+            <DialogContent sx={{ pb: 12, minHeight: 500 }}>
+              <Grid container sx={{ my: 2 }} spacing={4}>
+                <Grid item xs={12} md={12}>
+                  <TextField
+                    size={'small'}
+                    sx={{ width: '100%' }}
+                    label={'Question Title'}
+                    value={questionInsertTitle || ''}
+                    onChange={e => setQuestionInsertTitle(e.target.value)}
+                  />
+                </Grid>
+                <Grid item xs={12} md={4}>
+                  <Selection
+                    label={'Question Type'}
+                    height={40}
+                    width={'100%'}
+                    selectionValue={selectedQuestionType}
+                    handleChange={e => setSelectedQuestionType(e.target.value)}
+                    Items={Object.values(questionTypes)?.map(type => (
+                      <MenuItem key={type.interest_question_type} value={type.interest_question_type}>
+                        {type.label}
+                      </MenuItem>
+                    ))}
+                  />
+                </Grid>
+                <Grid item xs={12} md={8}>
+                  <Selection
+                    label={'Job Related'}
+                    height={40}
+                    width={'100%'}
+                    selectionValue={jobSelected}
+                    handleChange={e => setJobSelected(e.target.value)}
+                    Items={Object.values(Jobs)?.map(job => (
+                      <MenuItem key={job.job_position_id} value={job.job_position_id}>
+                        {job.job_position_name}
+                      </MenuItem>
+                    ))}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <Button
+                    disabled={!isDone && isDone !== null ? true : false}
+                    variant='contained'
+                    sx={{ width: '100%', height: '100%' }}
+                    onClick={() => handleInsertQuestion()}
+                  >
+                    Submit Question
+                  </Button>
                 </Grid>
               </Grid>
             </DialogContent>
