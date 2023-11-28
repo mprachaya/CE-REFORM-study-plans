@@ -615,22 +615,22 @@ function curriculumstructure() {
                         // condition category && type or category && group
                         (case1.subject_category_id !== null &&
                           case1.subject_type_id !== null &&
-                          case1.subjectCategory.subject_category_name === categoryHeader &&
+                          case1.subjectCategory?.subject_category_name === categoryHeader &&
                           case1.subject_group_id === null) ||
                         (case1.subject_category_id !== null &&
                           case1.subject_group_id !== null &&
-                          case1.subjectCategory.subject_category_name === categoryHeader &&
+                          case1.subjectCategory?.subject_category_name === categoryHeader &&
                           case1.subject_type_id === null)
                     ).map(case1Result => (
                       <Box key={case1Result.curriculum_structures_v2_id}>
                         {case1Result.subject_type_id !== null ? (
                           <Box sx={{ display: 'flex', justifyContent: 'space-between', mx: 2 }}>
-                            <Typography>{case1Result.subjectType.subject_type_name}</Typography>
+                            <Typography>{case1Result.subjectType?.subject_type_name}</Typography>
                             <Typography> {' ' + case1Result.csv2_credit_total + ' credit'}</Typography>
                           </Box>
                         ) : (
                           <Box sx={{ display: 'flex', justifyContent: 'space-between', mx: 2 }}>
-                            <Typography>{case1Result.subjectGroup.subject_group_name}</Typography>
+                            <Typography>{case1Result.subjectGroup?.subject_group_name}</Typography>
                             <Typography> {' ' + case1Result.csv2_credit_total + ' credit'} </Typography>
                           </Box>
                         )}
@@ -662,12 +662,12 @@ function curriculumstructure() {
                               case2.subject_category_id !== null &&
                               case2.subject_type_id !== null &&
                               case2.subject_group_id !== null &&
-                              case2.subjectCategory.subject_category_name === categoryHeader &&
-                              case2.subjectType.subject_type_name === typeHeader.subject_type_name
+                              case2.subjectCategory?.subject_category_name === categoryHeader &&
+                              case2.subjectType?.subject_type_name === typeHeader.subject_type_name
                           ).map(case2Result => (
                             <Box key={case2Result.curriculum_structures_v2_id} sx={{ ml: 3 }}>
                               <Box sx={{ display: 'flex', justifyContent: 'space-between', mx: 2 }}>
-                                <Typography variant='body2'>{case2Result.subjectGroup.subject_group_name}</Typography>
+                                <Typography variant='body2'>{case2Result.subjectGroup?.subject_group_name}</Typography>
                                 <Typography variant='body1'>
                                   {' ' + case2Result.csv2_credit_total + ' credit'}
                                 </Typography>
