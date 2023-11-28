@@ -147,7 +147,7 @@ function interestsurveysPage() {
       setDialogTextFieldValue(object?.interest_question_title)
       // console.log('jobs', jobs)
       const jobsData = Object.values(jobs)?.map(job => ({
-        interest_answers_job_id: job.interest_answer_job_id,
+        interest_answer_job_id: job.interest_answer_job_id,
         job_position_id: job.jobPosition.job_position_id,
         job_position_name: job.jobPosition.job_position_name
       }))
@@ -157,7 +157,7 @@ function interestsurveysPage() {
       // console.log('interest_survey_id :', object?.interest_survey_id)
     } else if (type === 2 && object) {
       // console.log(object?.interest_answers.interest_answers_job)
-      const jobsData = object?.interest_answers.map(interestJob => interestJob.interest_answers_job)
+      const jobsData = object?.interest_answers?.map(interestJob => interestJob.interest_answers_job)
       // console.log(test)
       // console.log('object?.interest_answers', object?.interest_answers.interest_answers_job)
       setAnswer(object?.interest_answers)
@@ -258,9 +258,9 @@ function interestsurveysPage() {
 
   const handleUpdateJobs = (type, index, ansId) => {
     const insertNewJobs = newJobs => {
-      if (newJobs.length > 0) {
+      if (newJobs?.length > 0) {
         // console.log('newJobs', newJobs)
-        newJobs.map(job => {
+        newJobs?.map(job => {
           setIsDone(false)
           const jobState = {
             interest_answer_id: question?.interest_answers[0]?.interest_answer_id,
@@ -282,9 +282,9 @@ function interestsurveysPage() {
       }
     }
     const insertNewJobsType2 = newJobs => {
-      if (newJobs.length > 0) {
+      if (newJobs?.length > 0) {
         // console.log('newJobs', newJobs)
-        newJobs.map(job => {
+        newJobs?.map(job => {
           setIsDone(false)
           const jobState = {
             interest_answer_id: ansId,
@@ -308,9 +308,9 @@ function interestsurveysPage() {
 
     const deleteJobs = removeJobs => {
       console.log('deleteState', removeJobs)
-      if (removeJobs.length > 0) {
+      if (removeJobs?.length > 0) {
         setIsDone(false)
-        removeJobs.map(del => {
+        removeJobs?.map(del => {
           axios
             .delete(URL_POST_INTEREST_ANSWER_JOB + del.interest_answer_job_id)
             .then(res => {
@@ -326,14 +326,14 @@ function interestsurveysPage() {
     }
 
     if (type == 1) {
-      const newJobs1 = jobsRelatedType1.filter(
-        job => !jobsRelatedType1Temp.find(temp => temp.job_position_id === job.job_position_id)
+      const newJobs1 = jobsRelatedType1?.filter(
+        job => !jobsRelatedType1Temp?.find(temp => temp.job_position_id === job.job_position_id)
       )
       const deleteState = jobsRelatedType1Temp.filter(
-        temp => !jobsRelatedType1.find(job => temp.job_position_id === job.job_position_id)
+        temp => !jobsRelatedType1?.find(job => temp.job_position_id === job.job_position_id)
       )
       console.log('newJobs', newJobs1)
-      if (jobsRelatedType1.length > jobsRelatedType1Temp.length) {
+      if (jobsRelatedType1?.length > jobsRelatedType1Temp?.length) {
         console.log('job have added')
         insertNewJobs(newJobs1)
       } else if (jobsRelatedType1 == jobsRelatedType1Temp) {
@@ -347,16 +347,15 @@ function interestsurveysPage() {
         console.log('job have removed')
       }
     } else {
-      const newJobs2 = jobsRelatedType2[index]
-        .map(d => d.jobPosition)
-        .filter(job => !jobsRelatedType2Temp[index].find(temp => temp.job_position_id === job.job_position_id))
-      const deleteState2 = jobsRelatedType2Temp[index].filter(
-        temp => !jobsRelatedType2[index].find(job => temp.job_position_id === job.job_position_id)
+      const newJobs2 = jobsRelatedType2[index]?.map(d => d.jobPosition)
+        .filter(job => !jobsRelatedType2Temp[index]?.find(temp => temp.job_position_id === job.job_position_id))
+      const deleteState2 = jobsRelatedType2Temp[index]?.filter(
+        temp => !jobsRelatedType2[index]?.find(job => temp.job_position_id === job.job_position_id)
       )
 
       console.log('newJobs', newJobs2)
       console.log('deleteState', deleteState2)
-      if (jobsRelatedType2[index].length > jobsRelatedType2Temp[index].length) {
+      if (jobsRelatedType2[index]?.length > jobsRelatedType2Temp[index]?.length) {
         console.log('job have added')
         insertNewJobsType2(newJobs2)
       } else if (jobsRelatedType2[index] == jobsRelatedType2Temp[index]) {
@@ -428,7 +427,7 @@ function interestsurveysPage() {
     }
   }, [Curriculums])
   useEffect(() => {
-    if (InterestSurveys.length > 0) {
+    if (InterestSurveys?.length > 0) {
       const findMaxId = InterestSurveys?.reduce(
         (max, current) => (current.interest_survey_version > max.interest_survey_version ? current : max),
         InterestSurveys[0]
