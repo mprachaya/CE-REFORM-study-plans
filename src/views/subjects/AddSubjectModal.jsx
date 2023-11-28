@@ -83,9 +83,11 @@ function AddSubjectModal({ open, handleClose, handleSubmit, curriculumId, subjec
             <Grid item xs={12} sm={12} md={12} lg={6}>
               <Selection
                 width={'100%'}
-                firstItemText={'Choose Subject Group*'}
+                firstItemText={'No group'}
                 selectionValue={subjectGroupSelection}
-                handleChange={e => setSubjectGroupSelection(e.target.value)}
+                handleChange={e => {
+                  e.target.value === 0 ? setSubjectGroupSelection(null) : setSubjectGroupSelection(e.target.value)
+                }}
                 Items={Object.values(subjectGroups)?.map(sjg => (
                   <MenuItem key={sjg.subject_group_id} value={sjg.subject_group_id}>
                     {sjg.subject_group_name}
