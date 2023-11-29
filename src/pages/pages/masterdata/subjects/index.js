@@ -22,7 +22,6 @@ const subjects = () => {
   const [open, setOpen] = useState(false)
   const [openCompetency, setOpenCompetency] = useState(false)
   const [openContinueSubject, setOpenContinueSubject] = useState(false)
-  // const [curriculumSelection, setCurriculumSelection] = useState(0)
   const [subjectSelection, setSubjectSelection] = useState([])
   const [subjectGroupSelection, setSubjectGroupSelection] = useState(0)
   const [editState, setEditState] = useState([])
@@ -103,17 +102,10 @@ const subjects = () => {
     useSearchText(text, setSubjects, setSearchText, SubjectsTemp, columnsSubject)
   }
 
-  // const handleChangeCurriculum = value => {
-  //   setCurriculumSelection(value)
-  // }
-
   const handleChangeFilter = value => {
     setSubjectGroupSelection(value)
     useFilter(value, 'subject_group_id', setSubjects, SubjectsTemp)
   }
-
-
-
 
   useMemo(() => {
     if (!SubjectLoading) {
@@ -147,24 +139,6 @@ const subjects = () => {
     )
   }
 
-  // useMemo(() => {
-  //   if (!CurriculumLoading) {
-  //     if (router.query.curriculum_id) null
-  //     else {
-  //       // const findCurrent =
-  //       //   Curriculums.length !== 0 &&
-  //       //   Curriculums.reduce(
-  //       //     (max, obj) => (obj.curriculum_id > max ? obj.curriculum_id : max, Curriculums[0].curriculum_id)
-  //       //   )
-
-  //       // // console.log('current: ', findCurrent)
-  //       // setCurriculumSelection(findCurrent)
-
-
-  //     }
-  //   }
-  // }, [CurriculumLoading])
-
   useEffect(() => {
     if (router.query.curriculum_id) {
       return
@@ -177,17 +151,6 @@ const subjects = () => {
     if (Subjects) console.log(Subjects)
   }, [Subjects])
 
-  // useMemo(() => {
-  //   if (curriculumSelection) {
-  //     reFetchSubjects(URL_GET_SUBJECTS)
-  //   }
-  // }, [curriculumSelection])
-
-  // useEffect(() => {
-  //   // if (!openCompetency) {
-  //   //   router.reload()
-  //   // }
-  // }, [openCompetency])
 
   const loadingState = SubjectLoading || SubjectGroupLoading || CurriculumLoading
   const errorState = SubjectError || SubjectGroupError || CurriculumError
@@ -202,12 +165,10 @@ const subjects = () => {
   const columns = [
     { field: 'subject_code', headerName: 'Code', width: 100 },
     { field: 'subject_name_th', headerName: 'Name TH', width: 210 },
-    // { field: 'subject_name_en', headerName: 'Name EN', width: 230 },
     {
       field: 'subject_credit',
       headerName: 'Credit',
       width: 130
-      // valueGetter: params => params.row?.SubjectGroup?.SubjectGroup_name_th
     },
     {
       field: 'subject_groups',
@@ -243,9 +204,6 @@ const subjects = () => {
             <Button
               color='secondary'
               variant='outlined'
-              // endIcon={
-              //   <Icon path={mdiCircle} size={0.4} color={params.row.competencies.length > 0 ? 'green' : 'red'} />
-              // }
               onClick={() => {
                 handleClickOpenContinueSubjects(params.row)
               }}
@@ -263,20 +221,6 @@ const subjects = () => {
       {/* // header */}
       <Box display={'flex'} flexDirection={'row'}>
         <Typography variant='h6'>Subjects</Typography>
-        {/* <Box sx={{ ml: 6 }}>
-          <Selection
-            label={'หลักสูตร'}
-            height={40}
-            width={{ xs: 300, md: 600 }}
-            selectionValue={curriculumSelection}
-            handleChange={e => handleChangeCurriculum(e.target.value)}
-            Items={Object.values(Curriculums)?.map(curri => (
-              <MenuItem key={curri.curriculum_id} value={curri.curriculum_id}>
-                {curri.curriculum_name_th + ' ' + curri.curriculum_year}
-              </MenuItem>
-            ))}
-          />
-        </Box> */}
       </Box>
       <Grid container spacing={6} sx={{ mt: 5 }}>
         <Grid item xs={12} sm={12} md={8} lg={6}>

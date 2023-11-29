@@ -84,7 +84,7 @@ function AddCurriculumModal({ open, handleClose, handleSubmit, curriculums, facu
     setStudentGroupsSelection(0)
     setFacultySelection(0)
     setDuplicateState(false)
-  }, [open])
+  }, open)
 
   useEffect(() => {
     console.log(state)
