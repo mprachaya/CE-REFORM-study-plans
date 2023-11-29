@@ -14,7 +14,7 @@ import EditFacultyModal from 'src/views/faculty/EditFacultyModal'
 import { url } from 'src/configs/urlConfig'
 import FacultyDetailsModal from 'src/views/faculty/FacultyDetails'
 
-const faculty = () => {
+const Faculty = () => {
   const [open, setOpen] = useState(false)
   const [editState, setEditState] = useState([])
 
@@ -204,4 +204,4 @@ const faculty = () => {
   )
 }
 
-export default faculty
+export default Faculty

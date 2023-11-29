@@ -24,7 +24,7 @@ import { url } from 'src/configs/urlConfig'
 import { useFetch } from 'src/hooks'
 import axios from 'axios'
 
-function interestsurveysPage() {
+function InterestsurveysPage() {
   const [curriculumSelected, setCurriculumSelected] = useState(0)
   const [interestVersionSelected, setInterestVersionSelected] = useState(0)
   const [interestTemp, setInterestTemp] = useState([])
@@ -873,6 +873,6 @@ function interestsurveysPage() {
     />
   )
 }
-interestsurveysPage.getLayout = page => <BlankLayout>{page}</BlankLayout>
+InterestsurveysPage.getLayout = page => <BlankLayout>{page}</BlankLayout>
 
-export default interestsurveysPage
+export default InterestsurveysPage

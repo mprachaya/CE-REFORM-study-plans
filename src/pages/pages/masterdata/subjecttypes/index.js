@@ -13,7 +13,7 @@ import { url } from 'src/configs/urlConfig'
 import EditSubjectCategoriesModal from '../../../../views/subjecttypes/EditSubjectTypesModal'
 import AddSubjectCategoriesGroupsModal from '../../../../views/subjecttypes/AddSubjectTypesModal'
 
-const subjecttypes = () => {
+const Subjecttypes = () => {
   const [open, setOpen] = useState(false)
   const [editState, setEditState] = useState([])
 
@@ -205,4 +205,4 @@ const subjecttypes = () => {
   )
 }
 
-export default subjecttypes
+export default Subjecttypes

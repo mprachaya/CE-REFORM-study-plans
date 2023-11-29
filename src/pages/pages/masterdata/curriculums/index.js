@@ -16,7 +16,7 @@ import useSearchText from 'src/hooks/useSearchText'
 import useFilter from 'src/hooks/useFilter'
 import { url } from 'src/configs/urlConfig'
 
-const curriculums = () => {
+const Curriculums = () => {
   const [open, setOpen] = useState(false)
   const [facultySelection, setFacultySelection] = useState(0)
   const [editState, setEditState] = useState([])
@@ -274,4 +274,4 @@ const curriculums = () => {
   )
 }
 
-export default curriculums
+export default Curriculums

@@ -19,7 +19,7 @@ import { useFetch } from 'src/hooks'
 import { url } from 'src/configs/urlConfig'
 import { Btn, DataGridTable, Selection } from 'src/components'
 
-function subjectstructures() {
+function Subjectstructures() {
   const URL_GET_CURRICULUM = `${url.BASE_URL}/curriculums/`
   const URL_GET_SUBJECT_STRUCTURES = `${url.BASE_URL}/subject-structures/`
   const URL_GET_CATEGORIES = `${url.BASE_URL}/subject-categories/`
@@ -459,4 +459,4 @@ function subjectstructures() {
   )
 }
 
-export default subjectstructures
+export default Subjectstructures

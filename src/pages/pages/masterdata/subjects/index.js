@@ -18,7 +18,7 @@ import AddSubjectCompetency from 'src/views/competencies/AddSubjectCompetency'
 import curriculums from '../curriculums'
 import AddContinueSubjects from 'src/views/continue-subjects/AddContinueSubjects'
 
-const subjects = () => {
+const Subjects = () => {
   const [open, setOpen] = useState(false)
   const [openCompetency, setOpenCompetency] = useState(false)
   const [openContinueSubject, setOpenContinueSubject] = useState(false)
@@ -316,4 +316,4 @@ const subjects = () => {
   )
 }
 
-export default subjects
+export default Subjects

@@ -36,6 +36,7 @@ const MasterData = () => {
                 handleclick={() => router.push('/pages/masterdata/curriculums')}
                 MenuIcon={mdiFolderOpenOutline}
                 MenuName={'Master Data'}
+
                 // Content={
                 //   <React.Fragment>
                 //     <Typography variant='body2' letterSpacing={0}>
@@ -66,6 +67,7 @@ const MasterData = () => {
                 handleclick={() => router.push('/pages/surveys/interestsurveys')}
                 MenuIcon={mdiAccountCardOutline}
                 MenuName={'Surveys & Forms'}
+
                 // Content={
                 //   <React.Fragment>
                 //     <Typography variant='body2' letterSpacing={0}>
@@ -93,6 +95,7 @@ const MasterData = () => {
                 handleclick={() => console.log('Student Syst.')}
                 MenuIcon={mdiAccountMultipleOutline}
                 MenuName={'Student Syst.'}
+                
                 // Content={
                 //   <React.Fragment>
                 //     <Typography variant='body2' letterSpacing={0}>

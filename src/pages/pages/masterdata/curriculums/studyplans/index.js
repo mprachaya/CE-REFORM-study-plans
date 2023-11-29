@@ -13,7 +13,7 @@ import AddStudyPlanRecordsModal from 'src/views/curriculums/AddStudyPlanRecordsM
 // import EditSubjectCategoriesModal from '../../../../views/subjecttypes/EditSubjectTypesModal'
 // import AddSubjectCategoriesGroupsModal from '../../../../views/subjecttypes/AddSubjectTypesModal'
 
-const studyplans = () => {
+const Studyplans = () => {
   const URL_GET_PLANS = `${url.BASE_URL}/study-plans/`
   const URL_GET_PLAN_RECORDS = `${url.BASE_URL}/study-plan-records/`
 
@@ -446,4 +446,4 @@ const studyplans = () => {
   )
 }
 
-export default studyplans
+export default Studyplans

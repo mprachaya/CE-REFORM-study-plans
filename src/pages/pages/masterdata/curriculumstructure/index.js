@@ -20,7 +20,7 @@ import { Btn, DataGridTable, Selection } from 'src/components'
 import { useFetch } from 'src/hooks'
 import { handleChangeNumber } from 'src/hooks/useValidation'
 
-function curriculumstructure() {
+function Curriculumstructure() {
   const URL_GET_CURRICULUM = `${url.BASE_URL}/curriculums/`
   const URL_GET_CURRICULUM_STRUCTURES = `${url.BASE_URL}/curriculum-structures-v2/`
   const URL_GET_CATEGORIES = `${url.BASE_URL}/subject-categories/`
@@ -752,4 +752,4 @@ function curriculumstructure() {
   )
 }
 
-export default curriculumstructure
+export default Curriculumstructure

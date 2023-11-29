@@ -10,7 +10,7 @@ import Fade from '@mui/material/Fade'
 import { url } from 'src/configs/urlConfig'
 import { useFetch } from 'src/hooks'
 
-const curriculumtree = () => {
+const Curriculumtree = () => {
   const URL_GETALL_CONTINUE_SUBJECTS = `${url.BASE_URL}/continue-subjects-curriculum/`
   const URL_GET_CURRICULUM = `${url.BASE_URL}/curriculums/`
 
@@ -228,4 +228,4 @@ const curriculumtree = () => {
   )
 }
 
-export default curriculumtree
+export default Curriculumtree

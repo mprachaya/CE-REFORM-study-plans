@@ -9,7 +9,7 @@ import { useRouter } from 'next/router'
 import axios from 'axios'
 import SnackbarStyled from 'src/components/SnackbarStyled'
 
-function curriculumstructure() {
+function Curriculumstructure() {
   const textSize = 14
   const detailColor = 'gray'
 
@@ -508,4 +508,4 @@ function curriculumstructure() {
   )
 }
 
-export default curriculumstructure
+export default Curriculumstructure

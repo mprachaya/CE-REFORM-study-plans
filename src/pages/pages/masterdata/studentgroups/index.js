@@ -13,7 +13,7 @@ import AddStudentGroupsModal from 'src/views/studentgroups/AddStudentGroupsModal
 import EditStudentGroupModal from 'src/views/studentgroups/EditStudentGroupModal'
 import { url } from 'src/configs/urlConfig'
 
-const studentgroups = () => {
+const Studentgroups = () => {
   const [open, setOpen] = useState(false)
   const [editState, setEditState] = useState([])
 
@@ -192,4 +192,4 @@ const studentgroups = () => {
   )
 }
 
-export default studentgroups
+export default Studentgroups
