@@ -10,6 +10,7 @@ import { useRouter } from 'next/router'
 import axios from 'axios'
 import AddStudyPlanModal from 'src/views/curriculums/AddStudyPlanModal'
 import AddStudyPlanRecordsModal from 'src/views/curriculums/AddStudyPlanRecordsModal'
+
 // import EditSubjectCategoriesModal from '../../../../views/subjecttypes/EditSubjectTypesModal'
 // import AddSubjectCategoriesGroupsModal from '../../../../views/subjecttypes/AddSubjectTypesModal'
 
@@ -28,6 +29,7 @@ const Studyplans = () => {
   } = useFetch(URL_GET_PLANS + router.query.curriculum_id)
 
   const [planSelected, setPlanSelected] = useState(0)
+
   // const [planCredit, setPlanCredit] = useState(0)
 
   const {
@@ -57,21 +59,27 @@ const Studyplans = () => {
       setYearSelected(1)
       setSemesterSelected(1)
     }
-  }, [planSelected])
+  }, [planSelected,URL_GET_PLAN_RECORDS])
 
   const handleCreatePlan = (state, createBy, setIsDone, subPlans) => {
+
     if (state.curriculum_id < 1) {
       if (state.study_plan_name === '') return alert('Please Fill Plan Name')
+
       return alert('Please Choose Curriculum')
+
     } else {
+
       // 0 = no reference
       // 1 = with reference
 
       // if (createBy == 0) {
+
       const submitState = {
         curriculum_id: router.query.curriculum_id,
         study_plan_name: state.study_plan_name,
         study_plan_total_credit: 0
+
         // study_plan_version: 1
       }
       setIsDone(false)
@@ -88,118 +96,15 @@ const Studyplans = () => {
           }
         })
         .catch(err => console.log(err))
-      // console.log(state)
-      // } else {
-      //   const submitState = {
-      //     curriculum_id: router.query.curriculum_id,
-      //     study_plan_name: state.study_plan_name,
-      //     study_plan_total_credit: state.study_plan_version,
-      //     study_plan_version: state.study_plan_version
-      //   }
-      //   setIsDone(false)
-
-      //   axios
-      //     .post(URL_GET_PLANS, submitState)
-      //     .then(res => {
-      //       if (res.data.status === 201) {
-      //         if (subPlans) {
-      //           Object.values(subPlans)?.map(subPlan => {
-      //             axios
-      //               .post(
-      //                 URL_GET_PLAN_RECORDS,
-
-      //                 {
-      //                   study_plan_id: res.data.data.study_plan_id,
-      //                   subject_id: subPlan.subject_id !== null ? subPlan.subject_id : '',
-      //                   study_plan_record_elective_course:
-      //                     subPlan.study_plan_record_elective_course !== null
-      //                       ? subPlan.study_plan_record_elective_course
-      //                       : '',
-      //                   study_plan_record_semester: subPlan.study_plan_record_semester,
-      //                   study_plan_record_year: subPlan.study_plan_record_year
-      //                 }
-      //               )
-      //               .then(res => {
-      //                 // console.log(res.data.data)
-      //               })
-      //           })
-      //         }
-      //         setIsDone(true)
-      //         reFetchPlan()
-      //         setTimeout(() => {
-      //           setOpen(false)
-      //           setPlanSelected(res.data.data.study_plan_id)
-      //         }, 500)
-      //       }
-      //     })
-      //     .catch(err => console.log(err))
-      // }
+    ch(err => console.log(err))
     }
   }
-  // console.log(
-  //   URL_GET_PLAN_RECORDS +
-  //     Math.max.apply(
-  //       null,
-  //       Plans.map(function (o) {
-  //         return o.study_plan_id
-  //       })
-  //     )
-  // )
-  // console.log(Plans)
-
-  // const {
-  //   error: CategoriesError,
-  //   data: Categories,
-  //   setData: setCategories,
-  //   loading: CategoriesLoading,
-  //   reFetch: reFetchCategories
-  // } = useFetch(URL_GET_SUBJECT_CATEGORY)
-
-  // const columnsSubjectType = ['subject_type_name', 'subject_category_name']
-
-  // const [PlanRecordsTemp, setPlanRecordsTemp] = useState([])
-
-  // const [searchText, setSearchText] = useState('')
-
-  // const handleChangeSearch = text => {
-  //   useSearchText(text, setPlanRecords, setSearchText, PlanRecordsTemp, columnsSubjectType)
-  // }
-
-  // useMemo(() => {
-  //   if (!PlanLoading) {
-  //     setPlanRecordsTemp(PlanRecords)
-  //   } else {
-  //   }
-  // }, [PlanLoading])
-
-  // const handleSubmit = submitState => {
-  //   useSubmit(URL_INSERT, submitState, () => setOpen(false), reFetchPlanRecords)
-  // }
-
-  // const handleUpdate = updateState => {
-  //   useUpdate(URL_UPDATE, updateState, () => setOpenEdit(false), reFetchPlanRecords)
-  // }
-
-  // const handleDelete = () => {
-  //   useDelete(
-  //     URL_DELETE,
-  //     () => {
-  //       setOpenConfirmDelete(false)
-  //       setOpenEdit(false)
-  //     },
-  //     reFetchPlanRecords
-  //   )
-  // }
-
-  // const loadingState = PlanLoading
-  // const errorState = PlanRecordsError
 
   useEffect(() => {
     if (Plans.length > 0) {
       console.log(Plans)
       setPlanSelected(String(Plans[0]?.study_plan_id))
 
-      // setPlanCredit(Plans[0].study_plan_total_credit)
     } else {
       setPlanSelected(0)
     }
@@ -296,7 +201,6 @@ const Studyplans = () => {
             height={40}
             width={'100%'}
             label={'Year'}
-            // firstItemText={'Year'}
             selectionValue={yearSelected}
             handleChange={e => setYearSelected(e.target.value)}
             Items={years.map(y => (
@@ -311,7 +215,6 @@ const Studyplans = () => {
             height={40}
             width={'100%'}
             label={'Semester'}
-            // firstItemText={'Semester'}
             selectionValue={semesterSelected}
             handleChange={e => setSemesterSelected(e.target.value)}
             Items={semesters.map(s =>
@@ -438,7 +341,6 @@ const Studyplans = () => {
             studyPlan={Plans[0]}
             year={yearSelected}
             semester={semesterSelected}
-            // handleSubmit={handleCreatePlan}
           />
         </Grid>
       </Grid>

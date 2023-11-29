@@ -38,7 +38,7 @@ function CurriculumDetailsModal({ curriculumId, state, open, handleClose, rows_d
     } else {
       setCurriculumId(0)
     }
-  }, open)
+  }, [open,curriculumId])
 
   useEffect(() => {
     if (SubjectsLoading) {

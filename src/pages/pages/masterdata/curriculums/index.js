@@ -1,6 +1,6 @@
 import React from 'react'
 import { Hidden, MenuItem } from '@mui/material'
-import { useFetch, useSubmit, useUpdate, useDelete } from 'src/hooks'
+import { useFetch as UseFetch, useSubmit as UseSubmit, useUpdate as UseUpdate, useDelete as UseDelete} from 'src/hooks'
 import { useMemo, useState } from 'react'
 
 import { Btn, CircleLoading, ConfirmModal, DataGridTable, Selection, TextSearch } from 'src/components'
@@ -12,8 +12,8 @@ import { mdiPen, mdiDownload, mdiDotsHorizontal, mdiAlertRhombus, mdiFilter } fr
 import AddCurriculumModal from 'src/views/curriculums/AddCurriculumModal'
 import CurriculumEditModal from 'src/views/curriculums/CurriculumEditModal'
 import CurriculumDetailsModal from 'src/views/curriculums/CurriculumDetailsModal'
-import useSearchText from 'src/hooks/useSearchText'
-import useFilter from 'src/hooks/useFilter'
+import {useSearchText as UseSearchText} from 'src/hooks/useSearchText'
+import {useFilter as UseFilter} from 'src/hooks/useFilter'
 import { url } from 'src/configs/urlConfig'
 
 const Curriculums = () => {
@@ -74,7 +74,7 @@ const Curriculums = () => {
     setData: setCurriculums,
     loading: CurriculumLoading,
     reFetch: reFetchCurriculums
-  } = useFetch(URL_GET_CURRICULUM)
+  } = UseFetch(URL_GET_CURRICULUM)
 
   const columnsCurriculum = [
     'curriculum_name_th',
@@ -89,12 +89,12 @@ const Curriculums = () => {
   const [searchText, setSearchText] = useState('')
 
   const handleChangeSearch = text => {
-    useSearchText(text, setCurriculums, setSearchText, curriculumsTemp, columnsCurriculum)
+    UseSearchText(text, setCurriculums, setSearchText, curriculumsTemp, columnsCurriculum)
   }
 
   const handleChangeFilter = value => {
     setFacultySelection(value)
-    useFilter(value, 'faculty_id', setCurriculums, curriculumsTemp)
+    UseFilter(value, 'faculty_id', setCurriculums, curriculumsTemp)
   }
 
   useMemo(() => {
@@ -102,26 +102,26 @@ const Curriculums = () => {
       setCurriculumsTemp(Curriculums)
     } else {
     }
-  }, [CurriculumLoading])
+  }, [CurriculumLoading,Curriculums])
 
-  const { error: FacultyError, data: Faculty, loading: FacultyLoading } = useFetch(URL_GET_FACULTY)
+  const { error: FacultyError, data: Faculty, loading: FacultyLoading } = UseFetch(URL_GET_FACULTY)
 
   const {
     error: StudentGroupsError,
     data: StudentGroups,
     loading: StudentGroupsLoading
-  } = useFetch(URL_GET_STUDENT_GROUPS)
+  } = UseFetch(URL_GET_STUDENT_GROUPS)
 
   const handleSubmit = (submitState, isDone) => {
-    useSubmit(URL_INSERT, submitState, () => setOpen(false), reFetchCurriculums, isDone)
+    UseSubmit(URL_INSERT, submitState, () => setOpen(false), reFetchCurriculums, isDone)
   }
 
   const handleUpdate = updateState => {
-    useUpdate(URL_UPDATE, updateState, () => setOpenEdit(false), reFetchCurriculums)
+    UseUpdate(URL_UPDATE, updateState, () => setOpenEdit(false), reFetchCurriculums)
   }
 
   const handleDelete = () => {
-    useDelete(
+    UseDelete(
       URL_DELETE,
       () => {
         setOpenConfirmDelete(false)

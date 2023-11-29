@@ -26,12 +26,15 @@ function Curriculumstructure() {
   const [state, setState] = useState({
     subjectGroups: []
   })
+
   const [subjectCategory, setSubjectCategory] = useState({
     category: []
   })
+
   const [subjectTypes, setSubjectTypes] = useState({
     type: []
   })
+
   const [row, setRow] = useState(undefined)
   const [subjectGroupSelected, setSubjectGroupSelected] = useState(0)
 
@@ -58,15 +61,8 @@ function Curriculumstructure() {
   useEffect(() => {
     if (Structure !== state.subjectGroups) {
       setState(() => ({ subjectGroups: Structure }))
-      // console.log(Structure)
     }
-  }, [Structure])
-
-  // useEffect(() => {
-  //   console.log(state.subjectGroups)
-  // }, [state])
-
-  // console.log(SubjectGroups)
+  }, [Structure,state.subjectGroups])
 
   const handleAddSubjectGroups = () => {
     if (row !== undefined) {
@@ -90,8 +86,6 @@ function Curriculumstructure() {
   }
 
   const handleChangeTotalCredit = (row, updateCredit) => {
-    // const findById = Object.values(state.subjectGroups).find(x => x.subject_group_id === row.subject_group_id)
-    // console.log(findById)
     const regex = /^[0-9\b]+$/
     if (regex.test(updateCredit)) {
       const cloneState = [...state.subjectGroups]
@@ -102,7 +96,6 @@ function Curriculumstructure() {
           else cloneState[index].credit_total = String(updateCredit)
         }
       })
-      // console.log(cloneState)
       setState({ subjectGroups: cloneState })
     } else if (updateCredit === '') {
       const cloneState = [...state.subjectGroups]
@@ -111,7 +104,6 @@ function Curriculumstructure() {
           cloneState[index].credit_total = String(1)
         }
       })
-      // console.log(cloneState)
       setState({ subjectGroups: cloneState })
     }
   }
@@ -124,18 +116,15 @@ function Curriculumstructure() {
       const value = data[i][field]
 
       if (value) {
-        // Add the value to the uniqueValues set only if it's not already present
         if (!uniqueValues.has(value)) {
           uniqueValues.add(value)
           sums[value] = parseInt(data[i].credit_total, 10)
         } else {
-          // If the value is already in uniqueValues, update the credit_total
           sums[value] += parseInt(data[i].credit_total, 10)
         }
       }
     }
 
-    // Convert the sums object into an array of objects
     const sumsArray = Array.from(uniqueValues).map(value => ({
       [field]: value,
       sum: sums[value]
@@ -146,13 +135,9 @@ function Curriculumstructure() {
 
   const handleUpdateStructure = () => {
     if (state.subjectGroups !== Structure) {
-      //check exists value has deleted
       const checkIsDeleted = Structure.filter(function (obj) {
         return state.subjectGroups.indexOf(obj) == -1
       })
-      // console.log('isDeleted:', checkIsDeleted)
-
-      // update delete exists value
       if (checkIsDeleted) {
         checkIsDeleted.map(de =>
           axios.delete(URL_GET_STRUCTURE + de.curriculum_structure_id).then(res => {
@@ -163,14 +148,12 @@ function Curriculumstructure() {
           })
         )
       }
-      // check exists value has changed
       function findEqualObjects(arr1, arr2) {
         return arr1.filter(obj1 => {
           return arr2.find(obj2 => obj2.subject_id === obj1.subject_id)
         })
       }
       const updateState = findEqualObjects(Array(state.subjectGroups), Array(Structure))
-      // console.log('updateState', updateState[0])
       if (updateState[0]) {
         updateState[0].map(
           ust =>
@@ -184,9 +167,7 @@ function Curriculumstructure() {
               .then(res => res.data.status === 200 && console.log(res.data.message))
         )
       }
-      // update value has changed
 
-      // check new value
       const newValues = state.subjectGroups.filter(function (obj) {
         return Structure.indexOf(obj) == -1
       })
@@ -201,14 +182,12 @@ function Curriculumstructure() {
             })
             .then(res => {
               if (res.data.status === 201) {
-                // console.log(`insert new value subject group id ${newValue.subject_group_id}  success`)
-
-                // update curriculum structure is inserted
                 const findCS = state.subjectGroups.find(
                   updateCS => updateCS.subject_group_id === newValue.subject_group_id
                 )
 
                 findCS.curriculum_structure_id = res.data.data.curriculum_structure_id
+                
                 const updateMainState = state.subjectGroups.filter(
                   ums => ums.subject_group_id !== findCS.subject_group_id
                 )
@@ -261,10 +240,7 @@ function Curriculumstructure() {
         }
       }
       setSubjectCategory(uniqueSubjectCategory)
-      // console.log('get Subject Category ', uniqueSubjectCategory)
     }
-    // console.log(state.subjectGroups)
-    // console.log(subjectCategory)
     console.log(state)
   }, [state])
 
@@ -395,12 +371,8 @@ function Curriculumstructure() {
                   )}
                 </Box>
               ))}
-              {/* {state.subjectGroups.length !== 0 && <Divider sx={{ mt: 2, mb: 4 }} />} */}
             </Box>
           ))}
-
-          {/* ))
-            )} */}
         </Box>
       </Grid>
       <Grid container display={'flex'} my={6} ml={0}>
@@ -448,7 +420,6 @@ function Curriculumstructure() {
                       )
                       const UpdateState = Object.values(state.subjectGroups)?.filter(sj => sj !== findById)
                       UpdateState.length !== 0 ? setState({ subjectGroups: UpdateState }) : setState(initialize)
-                      // console.log(UpdateState)
                     }}
                   >
                     X
@@ -486,7 +457,6 @@ function Curriculumstructure() {
                       setRow(undefined)
                     }
                     console.log(sjg)
-                    // console.log('check', checkUniqId)
                   }}
                   key={sjg.subject_group_id}
                   value={sjg.subject_group_id}
