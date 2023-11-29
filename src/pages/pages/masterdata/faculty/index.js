@@ -1,5 +1,5 @@
 import React from 'react'
-import { useFetch, useSubmit, useUpdate, useDelete } from 'src/hooks'
+import { useFetch as UseFetch, useSubmit as UseSubmit, useUpdate as UseUpdate, useDelete as UseDelete,useSearchText as UseSearchText} from 'src/hooks'
 import { useMemo, useState } from 'react'
 
 import { Btn, CircleLoading, ConfirmModal, DataGridTable, TextSearch } from 'src/components'
@@ -8,7 +8,6 @@ import Icon from '@mdi/react'
 
 import { mdiPen, mdiAlertRhombus, mdiDotsHorizontal } from '@mdi/js/'
 
-import useSearchText from 'src/hooks/useSearchText'
 import AddFacultyModal from 'src/views/faculty/AddFacultyModal'
 import EditFacultyModal from 'src/views/faculty/EditFacultyModal'
 import { url } from 'src/configs/urlConfig'
@@ -72,7 +71,7 @@ const Faculty = () => {
     setData: setFACULTY,
     loading: FacultyLoading,
     reFetch: reFetchFACULTY
-  } = useFetch(URL_GET_FACULTY)
+  } = UseFetch(URL_GET_FACULTY)
 
   const columnsFaculty = ['faculty_name_th', 'faculty_name_en']
 
@@ -81,7 +80,7 @@ const Faculty = () => {
   const [searchText, setSearchText] = useState('')
 
   const handleChangeSearch = text => {
-    useSearchText(text, setFACULTY, setSearchText, FACULTYTemp, columnsFaculty)
+    UseSearchText(text, setFACULTY, setSearchText, FACULTYTemp, columnsFaculty)
   }
 
   useMemo(() => {
@@ -89,18 +88,18 @@ const Faculty = () => {
       setFACULTYTemp(FACULTY)
     } else {
     }
-  }, [FacultyLoading])
+  }, [FacultyLoading,FACULTY])
 
   const handleSubmit = submitState => {
-    useSubmit(URL_INSERT, submitState, () => setOpen(false), reFetchFACULTY)
+    UseSubmit(URL_INSERT, submitState, () => setOpen(false), reFetchFACULTY)
   }
 
   const handleUpdate = updateState => {
-    useUpdate(URL_UPDATE, updateState, () => setOpenEdit(false), reFetchFACULTY)
+    UseUpdate(URL_UPDATE, updateState, () => setOpenEdit(false), reFetchFACULTY)
   }
 
   const handleDelete = () => {
-    useDelete(
+    UseDelete(
       URL_DELETE,
       () => {
         setOpenConfirmDelete(false)

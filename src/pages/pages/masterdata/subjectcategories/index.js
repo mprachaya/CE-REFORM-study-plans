@@ -1,5 +1,5 @@
 import React from 'react'
-import { useFetch, useSubmit, useUpdate, useDelete } from 'src/hooks'
+import { useFetch as UseFetch, useSubmit as UseSubmit, useUpdate as UseUpdate, useDelete as UseDelete,useSearchText as UseSearchText} from 'src/hooks'
 import { useMemo, useState } from 'react'
 
 import { Btn, CircleLoading, ConfirmModal, DataGridTable, TextSearch } from 'src/components'
@@ -8,7 +8,6 @@ import Icon from '@mdi/react'
 
 import { mdiPen, mdiAlertRhombus } from '@mdi/js/'
 
-import useSearchText from 'src/hooks/useSearchText'
 import { url } from 'src/configs/urlConfig'
 import EditSubjectCategoriesModal from '../../../../views/subjectcategories/EditSubjectCategoriesModal'
 import AddSubjectCategoriesGroupsModal from '../../../../views/subjectcategories/AddSubjectCategoriesModal'
@@ -62,7 +61,7 @@ const Subjectcategories = () => {
     setData: setSUBJECT_CATEGORY,
     loading: SubjectCategoryLoading,
     reFetch: reFetchSUBJECT_CATEGORY
-  } = useFetch(URL_GET_SUBJECT_CATEGORY)
+  } = UseFetch(URL_GET_SUBJECT_CATEGORY)
 
   const columnsSubjectCategory = ['subject_category_name']
 
@@ -71,7 +70,7 @@ const Subjectcategories = () => {
   const [searchText, setSearchText] = useState('')
 
   const handleChangeSearch = text => {
-    useSearchText(text, setSUBJECT_CATEGORY, setSearchText, SUBJECT_CATEGORYTemp, columnsSubjectCategory)
+    UseSearchText(text, setSUBJECT_CATEGORY, setSearchText, SUBJECT_CATEGORYTemp, columnsSubjectCategory)
   }
 
   useMemo(() => {
@@ -82,15 +81,15 @@ const Subjectcategories = () => {
   }, [SubjectCategoryLoading])
 
   const handleSubmit = submitState => {
-    useSubmit(URL_INSERT, submitState, () => setOpen(false), reFetchSUBJECT_CATEGORY)
+    UseSubmit(URL_INSERT, submitState, () => setOpen(false), reFetchSUBJECT_CATEGORY)
   }
 
   const handleUpdate = updateState => {
-    useUpdate(URL_UPDATE, updateState, () => setOpenEdit(false), reFetchSUBJECT_CATEGORY)
+    UseUpdate(URL_UPDATE, updateState, () => setOpenEdit(false), reFetchSUBJECT_CATEGORY)
   }
 
   const handleDelete = () => {
-    useDelete(
+    UseDelete(
       URL_DELETE,
       () => {
         setOpenConfirmDelete(false)

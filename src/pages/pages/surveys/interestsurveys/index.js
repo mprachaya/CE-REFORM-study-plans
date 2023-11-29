@@ -111,6 +111,7 @@ function InterestsurveysPage() {
     if (!questionInsertTitle && interestTemp[0]?.interest_survey_id !== undefined) {
       return
     }
+
     // console.log(interestTemp)
     setIsDone(false)
     console.log({
@@ -142,9 +143,11 @@ function InterestsurveysPage() {
     setOpenEdit(true)
     setQuestion(object)
     if (type === 1 && object && jobs) {
+
       // for edit question type 1 -> point 1-5
       setDialogTitle('Edit Question (Point 1-5)')
       setDialogTextFieldValue(object?.interest_question_title)
+
       // console.log('jobs', jobs)
       const jobsData = Object.values(jobs)?.map(job => ({
         interest_answer_job_id: job.interest_answer_job_id,
@@ -154,25 +157,35 @@ function InterestsurveysPage() {
       console.log(jobsData)
       setJobsRelatedType1Temp(jobsData)
       setJobsRelatedType1(jobsData)
+
       // console.log('interest_survey_id :', object?.interest_survey_id)
     } else if (type === 2 && object) {
+
       // console.log(object?.interest_answers.interest_answers_job)
       const jobsData = object?.interest_answers?.map(interestJob => interestJob.interest_answers_job)
+
       // console.log(test)
       // console.log('object?.interest_answers', object?.interest_answers.interest_answers_job)
+
       setAnswer(object?.interest_answers)
       console.log(jobsData)
+
       // console.log('jobsData', jobsData)
+
       setJobsRelatedType2(jobsData)
       setJobsRelatedType2Temp(jobsData)
+
       // for edit  question type 2 -> have choice
+
       setDialogTitle('Edit Question (Choices)')
       setDialogTextFieldValue(object?.interest_question_title)
+
       // console.log('interest_question_id :', object?.interest_survey_id)
     }
   }
 
   const handleUpdateQuestion = (questionLabel, object) => {
+
     if (questionLabel && object) {
       setIsDone(false)
       axios
@@ -242,9 +255,11 @@ function InterestsurveysPage() {
         .then(res => {
           if (res.data) {
             console.log(res.data)
+
             const updateAnswer = question.interest_answers.filter(
               q => q.interest_answer_id !== res.data.data.interest_answer_id
             )
+
             const tempAnswer = question
             tempAnswer.interest_answers = updateAnswer
             reFetchInterestSurveys()
@@ -259,9 +274,12 @@ function InterestsurveysPage() {
   const handleUpdateJobs = (type, index, ansId) => {
     const insertNewJobs = newJobs => {
       if (newJobs?.length > 0) {
+
         // console.log('newJobs', newJobs)
+
         newJobs?.map(job => {
           setIsDone(false)
+
           const jobState = {
             interest_answer_id: question?.interest_answers[0]?.interest_answer_id,
             job_position_id: job.job_position_id,
@@ -281,11 +299,14 @@ function InterestsurveysPage() {
         })
       }
     }
+
     const insertNewJobsType2 = newJobs => {
       if (newJobs?.length > 0) {
+
         // console.log('newJobs', newJobs)
         newJobs?.map(job => {
           setIsDone(false)
+
           const jobState = {
             interest_answer_id: ansId,
             job_position_id: job.job_position_id,
@@ -326,13 +347,16 @@ function InterestsurveysPage() {
     }
 
     if (type == 1) {
+
       const newJobs1 = jobsRelatedType1?.filter(
         job => !jobsRelatedType1Temp?.find(temp => temp.job_position_id === job.job_position_id)
       )
+
       const deleteState = jobsRelatedType1Temp.filter(
         temp => !jobsRelatedType1?.find(job => temp.job_position_id === job.job_position_id)
       )
       console.log('newJobs', newJobs1)
+
       if (jobsRelatedType1?.length > jobsRelatedType1Temp?.length) {
         console.log('job have added')
         insertNewJobs(newJobs1)
@@ -347,8 +371,10 @@ function InterestsurveysPage() {
         console.log('job have removed')
       }
     } else {
+
       const newJobs2 = jobsRelatedType2[index]?.map(d => d.jobPosition)
         .filter(job => !jobsRelatedType2Temp[index]?.find(temp => temp.job_position_id === job.job_position_id))
+        
       const deleteState2 = jobsRelatedType2Temp[index]?.filter(
         temp => !jobsRelatedType2[index]?.find(job => temp.job_position_id === job.job_position_id)
       )
@@ -398,8 +424,10 @@ function InterestsurveysPage() {
   useEffect(() => {
     if (Jobs) {
       const jobsMenu = Jobs?.map(j => ({ jobPosition: { ...j } }))
+
       // console.log('test new jobs menu', jobsMenu)
       setJobType2(jobsMenu)
+
       // for insert question form
       const maxJobId = Jobs?.reduce((max, obj) => (obj.job_position_id < max ? obj.job_position_id : max), Infinity)
       setJobSelected(maxJobId)
@@ -422,6 +450,7 @@ function InterestsurveysPage() {
         (max, current) => (current.curriculum_id > max.curriculum_id ? current : max),
         Curriculums[0]
       )
+
       // console.log(findMaxId)
       setCurriculumSelected(findMaxId.curriculum_id)
     }
@@ -432,6 +461,7 @@ function InterestsurveysPage() {
         (max, current) => (current.interest_survey_version > max.interest_survey_version ? current : max),
         InterestSurveys[0]
       )
+
       // console.log(findMaxId)
       setInterestVersionSelected(findMaxId.interest_survey_version)
       setInterestTemp(InterestSurveys)
@@ -655,6 +685,7 @@ function InterestsurveysPage() {
                     <Grid item xs={12}>
                       <Autocomplete
                         size='small'
+                        
                         // key={clearAutoComplete} // if toggle will clear value of autocomplete
                         disablePortal
                         fullWidth
@@ -672,6 +703,7 @@ function InterestsurveysPage() {
                             />
                           ))
                         }
+
                         // options={Jobs?.filter(sj => sj.subject_id !== subject.subject_id)}
                         options={
                           Jobs.filter(
@@ -680,6 +712,7 @@ function InterestsurveysPage() {
                           ) || []
                         }
                         getOptionLabel={option => option?.job_position_name || ''}
+
                         // getOptionSelected={(option, value) => option.job_position_id === value.job_position_id}
                         renderInput={params => <TextField {...params} label='Job Positions ' />}
                         onChange={(e, value) => {
@@ -725,9 +758,11 @@ function InterestsurveysPage() {
                               size='small'
                               fullWidth
                               value={answer[index]?.interest_answer_title || ''}
+
                               onChange={e => {
                                 const answerObject = answer.reduce((acc, a) => {
                                   acc[a.interest_answer_id] = a
+                                  
                                   return acc
                                 }, {})
 
@@ -748,6 +783,7 @@ function InterestsurveysPage() {
                           <Grid item xs={12}>
                             <Autocomplete
                               size='small'
+
                               // key={clearAutoComplete} // if toggle will clear value of autocomplete
                               disablePortal
                               fullWidth
@@ -765,6 +801,7 @@ function InterestsurveysPage() {
                                   />
                                 ))
                               }
+
                               // options={Jobs?.filter(sj => sj.subject_id !== subject.subject_id)}
                               options={
                                 jobsType2.filter(
@@ -782,6 +819,7 @@ function InterestsurveysPage() {
                                 // const tempState = question?.interest_answers.filter(
                                 //   f => f.interest_answer_id !== ans.interest_answer_id
                                 // )
+
                                 const tempState = question?.interest_answers
                                 const updateState = ans
                                 updateState.interest_answers_job = [...value]

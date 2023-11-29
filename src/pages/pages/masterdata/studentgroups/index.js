@@ -1,5 +1,5 @@
 import React from 'react'
-import { useFetch, useSubmit, useUpdate, useDelete } from 'src/hooks'
+import { useFetch as UseFetch, useSubmit as UseSubmit, useUpdate as UseUpdate, useDelete as UseDelete ,useSearchText as UseSearchText} from 'src/hooks'
 import { useMemo, useState } from 'react'
 
 import { Btn, CircleLoading, ConfirmModal, DataGridTable, TextSearch } from 'src/components'
@@ -8,7 +8,6 @@ import Icon from '@mdi/react'
 
 import { mdiPen, mdiAlertRhombus } from '@mdi/js/'
 
-import useSearchText from 'src/hooks/useSearchText'
 import AddStudentGroupsModal from 'src/views/studentgroups/AddStudentGroupsModal'
 import EditStudentGroupModal from 'src/views/studentgroups/EditStudentGroupModal'
 import { url } from 'src/configs/urlConfig'
@@ -62,7 +61,7 @@ const Studentgroups = () => {
     setData: setSTUDENT_GROUPS,
     loading: StudentGroupsLoading,
     reFetch: reFetchSTUDENT_GROUPS
-  } = useFetch(URL_GET_STUDENT_GROUPS)
+  } = UseFetch(URL_GET_STUDENT_GROUPS)
 
   const columnsStudentGroups = [
     'collegian_group_name_th',
@@ -76,7 +75,7 @@ const Studentgroups = () => {
   const [searchText, setSearchText] = useState('')
 
   const handleChangeSearch = text => {
-    useSearchText(text, setSTUDENT_GROUPS, setSearchText, STUDENT_GROUPSTemp, columnsStudentGroups)
+    UseSearchText(text, setSTUDENT_GROUPS, setSearchText, STUDENT_GROUPSTemp, columnsStudentGroups)
   }
 
   useMemo(() => {
@@ -87,15 +86,15 @@ const Studentgroups = () => {
   }, [StudentGroupsLoading])
 
   const handleSubmit = submitState => {
-    useSubmit(URL_INSERT, submitState, () => setOpen(false), reFetchSTUDENT_GROUPS)
+    UseSubmit(URL_INSERT, submitState, () => setOpen(false), reFetchSTUDENT_GROUPS)
   }
 
   const handleUpdate = updateState => {
-    useUpdate(URL_UPDATE, updateState, () => setOpenEdit(false), reFetchSTUDENT_GROUPS)
+    UseUpdate(URL_UPDATE, updateState, () => setOpenEdit(false), reFetchSTUDENT_GROUPS)
   }
 
   const handleDelete = () => {
-    useDelete(
+    UseDelete(
       URL_DELETE,
       () => {
         setOpenConfirmDelete(false)

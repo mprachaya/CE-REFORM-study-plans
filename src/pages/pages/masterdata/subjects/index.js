@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import { Hidden, MenuItem } from '@mui/material'
-import { useFetch, useSubmit, useUpdate, useDelete } from 'src/hooks'
+import { useFetch as UseFetch, useSubmit as UseSubmit, useUpdate as UseUpdate, useDelete as UseDelete,useSearchText as UseSearchText} from 'src/hooks'
 import { useMemo, useState } from 'react'
 
 import { Btn, CircleLoading, ConfirmModal, DataGridTable, Selection, TextSearch } from 'src/components'
@@ -9,7 +9,6 @@ import Icon from '@mdi/react'
 
 import { mdiPen, mdiAlertRhombus, mdiFilter, mdiCircle } from '@mdi/js/'
 
-import useSearchText from 'src/hooks/useSearchText'
 import useFilter from 'src/hooks/useFilter'
 import { useRouter } from 'next/router'
 import AddSubjectModal from '../../../../views/subjects/AddSubjectModal'
@@ -50,10 +49,12 @@ const Subjects = () => {
     setEditState(value)
     setOpenEdit(true)
   }
+
   const handleClickOpenCompetency = subject => {
     setOpenCompetency(true)
     setSubjectSelection(subject)
   }
+
   const handleClickOpenContinueSubjects = subject => {
     setOpenContinueSubject(true)
     setSubjectSelection(subject)
@@ -82,7 +83,7 @@ const Subjects = () => {
     setData: setCurriculums,
     loading: CurriculumLoading,
     reFetch: reFetchCurriculums
-  } = useFetch(URL_GET_CURRICULUM)
+  } = UseFetch(URL_GET_CURRICULUM)
 
   const {
     error: SubjectError,
@@ -90,7 +91,7 @@ const Subjects = () => {
     setData: setSubjects,
     loading: SubjectLoading,
     reFetch: reFetchSubjects
-  } = useFetch(URL_GET_SUBJECTS)
+  } = UseFetch(URL_GET_SUBJECTS)
 
   const columnsSubject = ['subject_code', 'subject_name_th', 'subject_name_en', 'subject_credit', 'subject_group_id']
 
@@ -99,12 +100,12 @@ const Subjects = () => {
   const [searchText, setSearchText] = useState('')
 
   const handleChangeSearch = text => {
-    useSearchText(text, setSubjects, setSearchText, SubjectsTemp, columnsSubject)
+    UseSearchText(text, setSubjects, setSearchText, SubjectsTemp, columnsSubject)
   }
 
   const handleChangeFilter = value => {
     setSubjectGroupSelection(value)
-    useFilter(value, 'subject_group_id', setSubjects, SubjectsTemp)
+    UseFilter(value, 'subject_group_id', setSubjects, SubjectsTemp)
   }
 
   useMemo(() => {
@@ -118,18 +119,18 @@ const Subjects = () => {
     error: SubjectGroupError,
     data: SubjectGroup,
     loading: SubjectGroupLoading
-  } = useFetch(URL_GET_SUBJECT_GROUPS)
+  } = UseFetch(URL_GET_SUBJECT_GROUPS)
 
   const handleSubmit = submitState => {
-    useSubmit(URL_INSERT, submitState, () => setOpen(false), reFetchSubjects)
+    UseSubmit(URL_INSERT, submitState, () => setOpen(false), reFetchSubjects)
   }
 
   const handleUpdate = updateState => {
-    useUpdate(URL_UPDATE, updateState, () => setOpenEdit(false), reFetchSubjects)
+    UseUpdate(URL_UPDATE, updateState, () => setOpenEdit(false), reFetchSubjects)
   }
 
   const handleDelete = () => {
-    useDelete(
+    UseDelete(
       URL_DELETE,
       () => {
         setOpenConfirmDelete(false)
@@ -302,7 +303,10 @@ const Subjects = () => {
           handleClose={() => {
             setOpenCompetency(false)
           }}
+
+          
         // handleSubmit={handleDelete}
+
         />
       </Grid>
       <Grid container>

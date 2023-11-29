@@ -1,5 +1,5 @@
 import React from 'react'
-import { useFetch, useSubmit, useUpdate, useDelete } from 'src/hooks'
+import { useFetch as UseFetch, useSubmit as UseSubmit, useUpdate as UseUpdate, useDelete as UseDelete,useSearchText as UseSearchText} from 'src/hooks'
 import { useMemo, useState } from 'react'
 
 import { Btn, CircleLoading, ConfirmModal, DataGridTable, TextSearch } from 'src/components'
@@ -8,7 +8,6 @@ import Icon from '@mdi/react'
 
 import { mdiPen, mdiAlertRhombus } from '@mdi/js/'
 
-import useSearchText from 'src/hooks/useSearchText'
 import { url } from 'src/configs/urlConfig'
 import EditSubjectCategoriesModal from '../../../../views/subjecttypes/EditSubjectTypesModal'
 import AddSubjectCategoriesGroupsModal from '../../../../views/subjecttypes/AddSubjectTypesModal'
@@ -63,7 +62,7 @@ const Subjecttypes = () => {
     setData: setSUBJECT_TYPES,
     loading: SubjectTypeLoading,
     reFetch: reFetchSUBJECT_TYPES
-  } = useFetch(URL_GET_SUBJECT_TYPES)
+  } = UseFetch(URL_GET_SUBJECT_TYPES)
 
   const {
     error: CategoriesError,
@@ -71,7 +70,7 @@ const Subjecttypes = () => {
     setData: setCategories,
     loading: CategoriesLoading,
     reFetch: reFetchCategories
-  } = useFetch(URL_GET_SUBJECT_CATEGORY)
+  } = UseFetch(URL_GET_SUBJECT_CATEGORY)
 
   const columnsSubjectType = ['subject_type_name', 'subject_category_name']
 
@@ -80,7 +79,7 @@ const Subjecttypes = () => {
   const [searchText, setSearchText] = useState('')
 
   const handleChangeSearch = text => {
-    useSearchText(text, setSUBJECT_TYPES, setSearchText, SUBJECT_TYPESTemp, columnsSubjectType)
+    UseSearchText(text, setSUBJECT_TYPES, setSearchText, SUBJECT_TYPESTemp, columnsSubjectType)
   }
 
   useMemo(() => {
@@ -91,15 +90,15 @@ const Subjecttypes = () => {
   }, [SubjectTypeLoading])
 
   const handleSubmit = submitState => {
-    useSubmit(URL_INSERT, submitState, () => setOpen(false), reFetchSUBJECT_TYPES)
+    UseSubmit(URL_INSERT, submitState, () => setOpen(false), reFetchSUBJECT_TYPES)
   }
 
   const handleUpdate = updateState => {
-    useUpdate(URL_UPDATE, updateState, () => setOpenEdit(false), reFetchSUBJECT_TYPES)
+    UseUpdate(URL_UPDATE, updateState, () => setOpenEdit(false), reFetchSUBJECT_TYPES)
   }
 
   const handleDelete = () => {
-    useDelete(
+    UseDelete(
       URL_DELETE,
       () => {
         setOpenConfirmDelete(false)

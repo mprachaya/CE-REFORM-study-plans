@@ -35,6 +35,7 @@ const Curriculumtree = () => {
   const [expandedNodes, setExpandedNodes] = useState([])
 
   const [anchorEl, setAnchorEl] = useState(null)
+
   const handleMoreInfo = event => {
     setAnchorEl(anchorEl ? null : event.target)
   }
@@ -58,6 +59,7 @@ const Curriculumtree = () => {
             left: { xs: -29, sm: -29, lg: -41 },
             top: 28,
             borderBottom:
+
               // only display if the TreeItem is not root node
               nodes?.level !== 1 ? `1px dashed #000` : 'none'
           },
@@ -102,7 +104,7 @@ const Curriculumtree = () => {
                 {nodes?.subjects?.subject_name_th}
               </Typography>
             </Hidden>
-            <Hidden lgDown sx={{ lineHeight: 1 }}>
+            <Hidden lgDown >
               <Typography variant='body2'>{nodes?.subjects?.subject_name_th}</Typography>
             </Hidden>
           </Typography>
@@ -119,6 +121,7 @@ const Curriculumtree = () => {
         (max, current) => (current.curriculum_id > max.curriculum_id ? current : max),
         Curriculums[0]
       )
+
       // console.log(findMaxId)
       setCurriculumSelected(findMaxId.curriculum_id)
     }
@@ -129,8 +132,11 @@ const Curriculumtree = () => {
       const dummy = []
       const getNodeID = recursionGetNodeID(dummy, ContinueSubjects)
       setExpandedNodes(...getNodeID)
-      console.log(...getNodeID)
+
       // console.log(...getNodeID)
+
+      // console.log(...getNodeID)
+
     }
   }, [ContinueSubjects])
 
@@ -141,9 +147,11 @@ const Curriculumtree = () => {
       if (item.children && item.children.length > 0) {
         recursionGetNodeID(store, item.children)
       }
+      
       return store
     })
   }
+
   // if (ContinueSubjectsLoading) {
   //   return (
   //     <Box sx={{ height: 120, m: 12 }}>
@@ -162,6 +170,7 @@ const Curriculumtree = () => {
           label={'Curriculum'}
           height={40}
           width={{ xs: 300, md: 600 }}
+          
           // firstItemText={'แสดงทั้งหมด'}
           selectionValue={curriculumSelected}
           handleChange={e => setCurriculumSelected(e.target.value)}
@@ -201,6 +210,7 @@ const Curriculumtree = () => {
         open={open}
         anchorEl={anchorEl}
         transition
+
       // transformOrigin={{ vertical: 'right', horizontal: 'right' }}
       // anchorOrigin={{
       //   vertical: 'left',

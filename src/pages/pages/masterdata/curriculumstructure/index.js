@@ -41,7 +41,9 @@ function Curriculumstructure() {
   const [showDefaultCategory, setShowDefaultCategory] = useState([])
 
   // 0 -> insert , 1 -> edit
+
   const [formType, setFormType] = useState(0)
+
   const initialState = {
     curriculum_id: 0,
     subject_category_id: null,
@@ -59,6 +61,7 @@ function Curriculumstructure() {
     loading: CurriculumLoading,
     reFetch: reFetchCurriculums
   } = useFetch(URL_GET_CURRICULUM)
+
   const {
     error: CategoriesError,
     data: Categories,
@@ -66,6 +69,7 @@ function Curriculumstructure() {
     loading: CategoriesLoading,
     reFetch: reFetchCategories
   } = useFetch(URL_GET_CATEGORIES)
+
   const {
     error: TypesError,
     data: Types,
@@ -73,6 +77,7 @@ function Curriculumstructure() {
     loading: TypesLoading,
     reFetch: reFetchTypes
   } = useFetch(URL_GET_TYPES)
+
   const {
     error: GroupsError,
     data: Groups,
@@ -100,6 +105,7 @@ function Curriculumstructure() {
       setGroupSelected(null)
       setTypeSelected(null)
     } else {
+
       // edit
       if (sjCategory) {
         setState({
@@ -109,6 +115,7 @@ function Curriculumstructure() {
           subject_group_id: sjGroup?.subject_group_id || null,
           csv2_credit_total: totalCredit
         })
+
         setFormType(1)
         setOpen(true)
         setCreditTotal(totalCredit)
@@ -121,7 +128,9 @@ function Curriculumstructure() {
   }
 
   const findCategory = () => {
+
     console.log('CurriculumStructures', CurriculumStructures);
+
     const categoryByStructer = Object.values(CurriculumStructures)?.filter(
       categoryDuplicate =>
         categoryDuplicate.subject_category_id !== null &&
@@ -129,6 +138,7 @@ function Curriculumstructure() {
         categoryDuplicate.subject_group_id === null
     )
     console.log('findCategory', findCategory);
+
     if (categoryByStructer?.length > 0) {
       const unDuplicateCagetory = Object.values(UniqueCategories)?.filter(d => d !== categoryByStructer?.find(s => s.subjectCategory?.subject_category_name))
       setShowDefaultCategory(unDuplicateCagetory)
@@ -206,6 +216,7 @@ function Curriculumstructure() {
       alert('Please Select Category')
     }
   }
+
   const handleDelete = id => {
     let result = window.confirm('Confirm to Delete?')
     if (result) {
@@ -223,26 +234,6 @@ function Curriculumstructure() {
     }
   }
 
-  // function groupByKeys(data) {
-  //   return data.reduce((result, item) => {
-  //     const { subject_category_id, subject_type_id, subject_group_id } = item
-
-  //     result[subject_category_id] ??= {
-  //       subject_category_name: item.subjectCategory.subject_category_name,
-  //       grouped: {}
-  //     }
-
-  //     result[subject_category_id].grouped[subject_type_id] ??= {
-  //       subject_type_name: item.subjectType.subject_type_name,
-  //       grouped: {}
-  //     }
-
-  //     result[subject_category_id].grouped[subject_type_id].grouped[subject_group_id] ??= []
-  //     result[subject_category_id].grouped[subject_type_id].grouped[subject_group_id].push(item)
-
-  //     return result
-  //   }, {})
-  // }
   function groupByKeys(data) {
     return data.reduce((result, item) => {
       const { subject_category_id, subject_type_id, subject_group_id } = item
@@ -274,6 +265,7 @@ function Curriculumstructure() {
     const uniqueValuesSet = new Set()
 
     arr.forEach(obj => {
+
       // Use propertyPath to access nested properties
       const nestedProperties = propertyPath.split('.')
       let propertyValue = obj
@@ -282,6 +274,7 @@ function Curriculumstructure() {
         if (propertyValue && propertyValue.hasOwnProperty(prop)) {
           propertyValue = propertyValue[prop]
         } else {
+
           // Handle cases where the nested property doesn't exist
           propertyValue = undefined
           break
@@ -293,9 +286,12 @@ function Curriculumstructure() {
     })
 
     // Convert the Set back to an array and return it
+
     const uniqueValuesArray = Array.from(uniqueValuesSet)
+
     return uniqueValuesArray
   }
+
   const getUniqueMultiValues = (arr, propertyPath1, propertyPath2, outputName1, outputName2) => {
     const uniqueValuesSet = new Set()
 
@@ -332,11 +328,14 @@ function Curriculumstructure() {
     })
 
     const uniqueValuesArray = Array.from(uniqueValuesSet).map(str => JSON.parse(str))
+
     return uniqueValuesArray
   }
 
   const UniqueCategories = getUniqueValues(CurriculumStructures, 'subjectCategory.subject_category_name')
+
   // const UniqueTypes = getUniqueValues(CurriculumStructures, 'subjectType.subject_type_name')
+
   const UniqueTypes = getUniqueMultiValues(
     CurriculumStructures,
     'subjectCategory.subject_category_name',
@@ -354,7 +353,9 @@ function Curriculumstructure() {
         (max, current) => (current.curriculum_id < max.curriculum_id ? current : max),
         Curriculums[0]
       )
+
       // console.log(findMaxId)
+
       setCurriculumSelected(findMaxId.curriculum_id)
     }
   }, [Curriculums])
@@ -370,7 +371,9 @@ function Curriculumstructure() {
     if (CurriculumStructures) {
       const groupedData = groupByKeys(CurriculumStructures)
       console.log('groupedData: ', groupedData)
+
       // console.log(Object(JSON.stringify(groupedData, null, 2)))
+
       setGroupedStructrue(groupedData)
     } else {
       setGroupedStructrue([])
@@ -538,7 +541,9 @@ function Curriculumstructure() {
                 disablePortal
                 fullWidth
                 freeSolo
+
                 // options={Jobs?.filter(sj => sj.subject_id !== subject.subject_id)}
+
                 options={Types || []}
                 getOptionLabel={option => option?.subject_type_name || ''}
                 renderInput={params => <TextField {...params} label='Subject Type' />}
@@ -561,10 +566,13 @@ function Curriculumstructure() {
                 fullWidth
                 freeSolo
                 options={
+
                   // only uniqe subject group name
                   Groups.filter((obj, index, arr) => {
                     const firstIndex = arr.findIndex(item => item.subject_group_name === obj.subject_group_name)
+
                     return index === firstIndex
+
                   }) || []
                 }
                 getOptionLabel={option => option?.subject_group_name || ''}
@@ -617,6 +625,7 @@ function Curriculumstructure() {
           <Grid sx={{ ml: 6, pb: 12 }} container xs={12}>
             <Grid item xs={12}>
               <Box sx={{ width: '100%' }}>
+
                 {/* {Object.values(groupedStructure)?.map(category => (
                   <Typography key={category.subject_category_name}>
                     {category.subject_category_name}
@@ -632,6 +641,7 @@ function Curriculumstructure() {
                 ))} */}
                 {/* <DisplayGroupedData groupedData={groupedStructure} /> */}
                 {/* {Object.values(CurriculumStructures)?.map(data => PreviewStructures(data))} */}
+
                 {UniqueCategories.map(categoryHeader => (
                   <Box key={categoryHeader} maxWidth={600} sx={{ mb: 3 }}>
 
@@ -674,8 +684,10 @@ function Curriculumstructure() {
                     ))} */}
 
                     {/* case 1 */}
+
                     {CurriculumStructures?.filter(
                       case1 =>
+
                         // condition category && type or category && group
                         (case1.subject_category_id !== null &&
                           case1.subject_type_id !== null &&
@@ -700,12 +712,16 @@ function Curriculumstructure() {
                         )}
                       </Box>
                     ))}
+
                     {UniqueTypes.filter(filterType => filterType.subject_category_name === categoryHeader).map(
                       typeHeader => (
                         <Box key={typeHeader.subject_type_name} sx={{ ml: 3 }}>
+
                           {/* {typeHeader.subject_type_name} */}
+
                           {CurriculumStructures?.filter(
                             case1 =>
+                            
                               // condition category && type
                               case1.subject_category_id !== null &&
                               case1.subject_type_id !== null &&
@@ -717,11 +733,14 @@ function Curriculumstructure() {
                               )}
                             </Box>
                           ))}
+
                           {/* <Typography>{typeHeader.subject_type_name}</Typography> */}
 
                           {/* case 2 */}
+
                           {CurriculumStructures?.filter(
                             case2 =>
+
                               // condition category && type && group
                               case2.subject_category_id !== null &&
                               case2.subject_type_id !== null &&

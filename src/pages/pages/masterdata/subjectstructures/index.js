@@ -33,8 +33,10 @@ function Subjectstructures() {
   const [groupSelected, setGroupSelected] = useState(0)
   const [subject, setSubject] = useState([])
   const [open, setOpen] = useState(false)
+
   // 0 -> insert , 1 -> edit
   const [formType, setFormType] = useState(0)
+
   const initialState = {
     subject_category_id: '',
     subject_type_id: '',
@@ -67,6 +69,7 @@ function Subjectstructures() {
     loading: CategoriesLoading,
     reFetch: reFetchCategories
   } = useFetch(URL_GET_CATEGORIES)
+
   const {
     error: TypesError,
     data: Types,
@@ -74,6 +77,7 @@ function Subjectstructures() {
     loading: TypesLoading,
     reFetch: reFetchTypes
   } = useFetch(URL_GET_TYPES)
+
   const {
     error: GroupsError,
     data: Groups,
@@ -143,13 +147,17 @@ function Subjectstructures() {
           }
         })
         .catch(err => console.log('error from check duplicate:', err))
+
     } else {
       alert('Please Select Subject and Category')
     }
   }
+
   const handleUpdate = () => {
+
     if (state.subject_id !== '' && state.subject_category_id !== '') {
       console.log(state)
+
       axios
         .put(URL_GET_SUBJECT_STRUCTURES + subjectStructureId, state)
         .then(res => {
@@ -160,13 +168,17 @@ function Subjectstructures() {
           }
         })
         .catch(err => console.log('error from update subject structure: ', err))
+
     } else {
       alert('Please Select Subject and Category')
     }
   }
+
   const handleDelete = id => {
     let result = window.confirm('Confirm to Delete?')
+
     if (result) {
+
       axios
         .delete(URL_GET_SUBJECT_STRUCTURES + id)
         .then(res => {
@@ -187,6 +199,7 @@ function Subjectstructures() {
         (max, current) => (current.curriculum_id > max.curriculum_id ? current : max),
         Curriculums[0]
       )
+
       // console.log(findMaxId)
       setCurriculumSelected(findMaxId.curriculum_id)
     }
@@ -391,6 +404,7 @@ function Subjectstructures() {
                   disablePortal
                   fullWidth
                   freeSolo
+                  
                   // options={Jobs?.filter(sj => sj.subject_id !== subject.subject_id)}
                   options={Types || []}
                   getOptionLabel={option => option?.subject_type_name || ''}
@@ -414,9 +428,11 @@ function Subjectstructures() {
                   fullWidth
                   freeSolo
                   options={
+
                     // only uniqe subject group name
                     Groups.filter((obj, index, arr) => {
                       const firstIndex = arr.findIndex(item => item.subject_group_name === obj.subject_group_name)
+                     
                       return index === firstIndex
                     }) || []
                   }

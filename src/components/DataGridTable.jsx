@@ -19,9 +19,12 @@ function DataGridTable({
       </Box>
     )
   }
+
+
   // else if (rows?.length < 0) {
   //   return <Typography sx={{ m: 6 }}>{noData}</Typography>
   // }
+  
 
   return !isLoading && rows?.length > 0 ? (
     <Box sx={{ width: '100%' }}>
@@ -41,6 +44,7 @@ function DataGridTable({
       />
     </Box>
   ) : null
+
   // <Typography sx={{ m: 6, ml: 0, color: 'gray' }}>{noData}</Typography>
 }
 
