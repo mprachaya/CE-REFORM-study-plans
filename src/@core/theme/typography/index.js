@@ -3,7 +3,7 @@ const Typography = theme => {
     h1: {
       fontWeight: 500,
       letterSpacing: '-1.5px',
-      color: theme.palette.text.primary
+      color: theme.palette.grey.primary
     },
     h2: {
       fontWeight: 500,

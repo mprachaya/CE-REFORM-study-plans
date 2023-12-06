@@ -1,5 +1,5 @@
 import React from 'react'
-import TextField from '@mui/material/TextField'
+import { TextField, Button, Typography } from '@mui/material'
 import Magnify from 'mdi-material-ui/Magnify'
 import InputAdornment from '@mui/material/InputAdornment'
 
@@ -15,6 +15,14 @@ function TextSearch(props) {
           <InputAdornment position='start'>
             <Magnify fontSize='small' />
           </InputAdornment>
+        ),
+        endAdornment: props.buttonInside && (
+          <>
+            <Typography variant='body2' sx={{ color: 'gray' }}>
+              |
+            </Typography>
+            <Button sx={{ px: 2, fontSize: 12 }}>Search</Button>
+          </>
         )
       }}
     />
