@@ -12,16 +12,13 @@ import {
   MenuItem,
   IconButton
 } from '@mui/material'
+import { mdiClose } from '@mdi/js'
+import Icon from '@mdi/react'
 
 import BlankLayout from 'src/@core/layouts/BlankLayout'
 import { Selection, TextSearch } from 'src/components'
 
 function StudyPlanSimulatorPage() {
-  // const router = useRouter()
-  // useEffect(() => {
-  //   router.push('/pages/masterdata/curriculums')
-  // }, [])
-
   const [tabs, setTabs] = useState(['Term 1'])
 
   const dropdownOptions = [
@@ -31,6 +28,7 @@ function StudyPlanSimulatorPage() {
     // Add more objects as needed
   ]
 
+  // for current tab value
   const [value, setValue] = useState(0)
 
   const handleChange = (event, newValue) => {
@@ -42,6 +40,25 @@ function StudyPlanSimulatorPage() {
     const newTabLabel = `Term ${newTabIndex}`
     setTabs([...tabs, newTabLabel])
     setValue(newTabIndex - 1) // Switch to the newly added tab
+  }
+  const handleRemoveTab = indexToRemove => {
+    // Ensure the index is within the valid range
+    if (indexToRemove < 0 || indexToRemove >= tabs.length) {
+      return
+    }
+
+    // Create a new array without the tab to be removed
+    const updatedTabs = tabs.filter((_, index) => index !== indexToRemove)
+
+    // Rename the remaining tabs based on their new indices
+    const renamedTabs = updatedTabs.map((label, index) => `Term ${index + 1}`)
+
+    // Set the updated tabs and adjust the value if needed
+    setTabs(renamedTabs)
+
+    // If the removed tab was the last one, adjust the value to select the previous tab
+    const newValue = Math.min(value, renamedTabs.length - 1)
+    setValue(newValue)
   }
 
   return (
@@ -171,8 +188,26 @@ function StudyPlanSimulatorPage() {
                     // centered={tabs.length <= 3}
                   >
                     {tabs.map((tabLabel, index) => (
-                      <Tab key={index} label={tabLabel} sx={{ fontSize: 12 }} />
+                      <Tab
+                        key={index}
+                        label={
+                          <span>
+                            {tabLabel}
+                            {value === index &&
+                              tabs.length !== 1 && ( // Only show IconButton for tabs other than the first one
+                                <IconButton
+                                  sx={{ color: 'gray', borderRadius: 1, ml: 2 }}
+                                  onClick={() => handleRemoveTab(index)}
+                                >
+                                  <Icon path={mdiClose} size={0.5} />
+                                </IconButton>
+                              )}
+                          </span>
+                        }
+                        sx={{ fontSize: 12 }}
+                      />
                     ))}
+
                     <IconButton
                       sx={{ color: 'gray', borderRadius: 1, borderTopRightRadius: 24, m: 1, width: 48 }}
                       onClick={handleAddTab}
@@ -180,11 +215,6 @@ function StudyPlanSimulatorPage() {
                       +
                     </IconButton>
                   </Tabs>
-
-                  <Box sx={{ width: '100%', m: 2, mt: 3 }}>
-                    <Button sx={{ fontSize: 12, width: '45%' }}>Subjects</Button>
-                    <Button sx={{ fontSize: 12, width: '45%' }}>Competencies</Button>
-                  </Box>
                 </Box>
                 {tabs.map((tabLabel, index) => (
                   <Box
@@ -197,7 +227,13 @@ function StudyPlanSimulatorPage() {
                   >
                     {/* Content for each tab */}
 
-                    <Box sx={{ m: 2, widht: '100%' }}>{`Content for ${tabLabel}`}</Box>
+                    <Box sx={{ m: 2, widht: '100%' }}>
+                      <Box sx={{ width: '100%', m: 2, mt: 3 }}>
+                        <Button sx={{ fontSize: 12, width: '45%' }}>Subjects</Button>
+                        <Button sx={{ fontSize: 12, width: '45%' }}>Competencies</Button>
+                      </Box>
+                      {`Content for ${tabLabel}`}
+                    </Box>
                   </Box>
                 ))}
               </Box>
