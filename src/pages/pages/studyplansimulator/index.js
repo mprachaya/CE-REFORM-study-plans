@@ -19,14 +19,27 @@ import BlankLayout from 'src/@core/layouts/BlankLayout'
 import { Selection, TextSearch } from 'src/components'
 
 function StudyPlanSimulatorPage() {
-  const [tabs, setTabs] = useState(['Term 1'])
-
   const dropdownOptions = [
     { value: 0, label: 'Option 1' },
     { value: 1, label: 'Option 2' },
     { value: 2, label: 'Option 3' }
     // Add more objects as needed
   ]
+
+  const [displaySubjects, setDisplaySubjects] = useState(true)
+  const [displayCompetencies, setDisplayCompetencies] = useState(false)
+
+  const handleChangeDisplay = () => {
+    if (displaySubjects) {
+      setDisplaySubjects(!displaySubjects)
+      setDisplayCompetencies(true)
+    } else {
+      setDisplayCompetencies(!displayCompetencies)
+      setDisplaySubjects(true)
+    }
+  }
+
+  const [tabs, setTabs] = useState(['Term 1'])
 
   // for current tab value
   const [value, setValue] = useState(0)
@@ -79,6 +92,7 @@ function StudyPlanSimulatorPage() {
                 count={88}
                 rowsPerPage={24}
                 page={0}
+
                 // onPageChange={handleChangePage}
                 // onRowsPerPageChange={handleChangeRowsPerPage}
               />
@@ -185,6 +199,7 @@ function StudyPlanSimulatorPage() {
                     value={value}
                     onChange={handleChange}
                     variant={'scrollable'}
+
                     // centered={tabs.length <= 3}
                   >
                     {tabs.map((tabLabel, index) => (
@@ -228,9 +243,29 @@ function StudyPlanSimulatorPage() {
                     {/* Content for each tab */}
 
                     <Box sx={{ m: 2, widht: '100%' }}>
-                      <Box sx={{ width: '100%', m: 2, mt: 3 }}>
-                        <Button sx={{ fontSize: 12, width: '45%' }}>Subjects</Button>
-                        <Button sx={{ fontSize: 12, width: '45%' }}>Competencies</Button>
+                      <Box sx={{ width: '100%', my: 2 }}>
+                        <Button
+                          sx={{
+                            fontSize: 12,
+                            width: '45%',
+                            background: displaySubjects ? 'lightgray' : null,
+                            color: displaySubjects ? 'white' : null
+                          }}
+                          onClick={handleChangeDisplay}
+                        >
+                          Subjects
+                        </Button>
+                        <Button
+                          sx={{
+                            fontSize: 12,
+                            width: '45%',
+                            background: displayCompetencies ? 'lightgray' : null,
+                            color: displayCompetencies ? 'white' : null
+                          }}
+                          onClick={handleChangeDisplay}
+                        >
+                          Competencies
+                        </Button>
                       </Box>
                       {`Content for ${tabLabel}`}
                     </Box>
