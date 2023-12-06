@@ -22,7 +22,7 @@ function StudyPlanSimulatorPage() {
   //   router.push('/pages/masterdata/curriculums')
   // }, [])
 
-  const [tabs, setTabs] = useState(['Tab 1'])
+  const [tabs, setTabs] = useState(['Term 1'])
 
   const dropdownOptions = [
     { value: 0, label: 'Option 1' },
@@ -39,7 +39,7 @@ function StudyPlanSimulatorPage() {
 
   const handleAddTab = () => {
     const newTabIndex = tabs.length + 1
-    const newTabLabel = `Tab ${newTabIndex}`
+    const newTabLabel = `Term ${newTabIndex}`
     setTabs([...tabs, newTabLabel])
     setValue(newTabIndex - 1) // Switch to the newly added tab
   }
@@ -163,15 +163,28 @@ function StudyPlanSimulatorPage() {
                 </Typography>
               </Box>
               <Box>
-                <Box sx={{ position: 'sticky', top: 0, backgroundColor: 'white', zIndex: 1 }}>
-                  <Tabs value={value} onChange={handleChange} centered variant='fullWidth'>
+                <Box sx={{ overflowX: 'auto' }}>
+                  <Tabs
+                    value={value}
+                    onChange={handleChange}
+                    variant={'scrollable'}
+                    // centered={tabs.length <= 3}
+                  >
                     {tabs.map((tabLabel, index) => (
-                      <Tab key={index} label={tabLabel} />
+                      <Tab key={index} label={tabLabel} sx={{ fontSize: 12 }} />
                     ))}
+                    <IconButton
+                      sx={{ color: 'gray', borderRadius: 1, borderTopRightRadius: 24, m: 1, width: 48 }}
+                      onClick={handleAddTab}
+                    >
+                      +
+                    </IconButton>
                   </Tabs>
-                  <IconButton sx={{ marginLeft: 'auto', borderRadius: 2, m: 2 }} onClick={handleAddTab}>
-                    <Typography variant='body1'>Add Term +</Typography>
-                  </IconButton>
+
+                  <Box sx={{ width: '100%', m: 2, mt: 3 }}>
+                    <Button sx={{ fontSize: 12, width: '45%' }}>Subjects</Button>
+                    <Button sx={{ fontSize: 12, width: '45%' }}>Competencies</Button>
+                  </Box>
                 </Box>
                 {tabs.map((tabLabel, index) => (
                   <Box
@@ -183,7 +196,8 @@ function StudyPlanSimulatorPage() {
                     sx={{ width: '100%', display: value === index ? 'block' : 'none' }}
                   >
                     {/* Content for each tab */}
-                    <div>{`Content for ${tabLabel}`}</div>
+
+                    <Box sx={{ m: 2, widht: '100%' }}>{`Content for ${tabLabel}`}</Box>
                   </Box>
                 ))}
               </Box>
