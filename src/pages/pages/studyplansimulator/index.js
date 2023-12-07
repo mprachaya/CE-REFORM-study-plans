@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import {
   Typography,
   Tabs,
@@ -18,7 +18,7 @@ import Icon from '@mdi/react'
 import BlankLayout from 'src/@core/layouts/BlankLayout'
 import { CircleLoading, Selection, TextSearch } from 'src/components'
 import { url } from 'src/configs/urlConfig'
-import { useFetch } from 'src/hooks'
+import { useFetch, useSearchText } from 'src/hooks'
 
 function StudyPlanSimulatorPage() {
   const URL_GET_SUBJECTS_BY_CURRICURUM = `${url.BASE_URL}/subjects-by-curriculum/`
@@ -30,6 +30,10 @@ function StudyPlanSimulatorPage() {
     loading: SubjectsLoading,
     reFetch: reFetchSubjects
   } = useFetch(URL_GET_SUBJECTS_BY_CURRICURUM + 1) // 1 for ce 60 curriculum
+
+  const [SubjectsTemp, setSubjectsTemp] = useState([])
+
+  const searchSubjectColumns = ['subject_code', 'subject_name_th', 'subject_name_en']
 
   const [page, setPage] = useState(0)
 
@@ -66,6 +70,16 @@ function StudyPlanSimulatorPage() {
     setValue(newValue)
   }
 
+  const [searchText, setSearchText] = useState('')
+
+  const handleSearchChange = text => {
+    setSearchText(text)
+  }
+
+  const handleClickSearch = () => {
+    useSearchText(searchText, setSubjects, setSearchText, SubjectsTemp, searchSubjectColumns)
+  }
+
   const handleAddTab = () => {
     const newTabIndex = tabs.length + 1
     const newTabLabel = `Term ${newTabIndex}`
@@ -92,6 +106,14 @@ function StudyPlanSimulatorPage() {
     setValue(newValue)
   }
 
+  useEffect(() => {
+    if (!SubjectsLoading) {
+      setSubjectsTemp(Subjects)
+      console.log('Subjects', Subjects)
+    } else {
+    }
+  }, [SubjectsLoading, SubjectsTemp])
+
   return (
     <>
       <Hidden smDown>
@@ -99,7 +121,12 @@ function StudyPlanSimulatorPage() {
           <Grid container item sm={6} md={8} lg={8} sx={{ height: '100%' }}>
             {/* Filter */}
             <Grid item sm={12} md={6} lg={8}>
-              <TextSearch buttonInside={true} placeholder='Subject Code, Name' />
+              <TextSearch
+                onChange={e => handleSearchChange(e.target.value)}
+                handleSearchButton={handleClickSearch}
+                buttonInside={true}
+                placeholder='Subject Code, Name'
+              />
             </Grid>
             <Grid item sm={12} md={4} lg={4}>
               {/* Pagination */}

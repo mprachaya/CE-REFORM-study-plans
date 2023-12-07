@@ -21,7 +21,9 @@ function TextSearch(props) {
             <Typography variant='body2' sx={{ color: 'gray' }}>
               |
             </Typography>
-            <Button sx={{ px: 2, fontSize: 12 }}>Search</Button>
+            <Button onClick={props.handleSearchButton} sx={{ px: 2, fontSize: 12 }}>
+              Search
+            </Button>
           </>
         )
       }}
