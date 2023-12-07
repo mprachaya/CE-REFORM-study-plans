@@ -16,9 +16,27 @@ import { mdiClose } from '@mdi/js'
 import Icon from '@mdi/react'
 
 import BlankLayout from 'src/@core/layouts/BlankLayout'
-import { Selection, TextSearch } from 'src/components'
+import { CircleLoading, Selection, TextSearch } from 'src/components'
+import { url } from 'src/configs/urlConfig'
+import { useFetch } from 'src/hooks'
 
 function StudyPlanSimulatorPage() {
+  const URL_GET_SUBJECTS_BY_CURRICURUM = `${url.BASE_URL}/subjects-by-curriculum/`
+
+  const {
+    error: SubjectsError,
+    data: Subjects,
+    setData: setSubjects,
+    loading: SubjectsLoading,
+    reFetch: reFetchSubjects
+  } = useFetch(URL_GET_SUBJECTS_BY_CURRICURUM + 1) // 1 for ce 60 curriculum
+
+  const [page, setPage] = useState(0)
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage)
+  }
+
   const dropdownOptions = [
     { value: 0, label: 'Option 1' },
     { value: 1, label: 'Option 2' },
@@ -89,11 +107,10 @@ function StudyPlanSimulatorPage() {
                 rowsPerPageOptions={[]}
                 component='div'
                 size='small'
-                count={88}
+                count={Subjects.length}
                 rowsPerPage={24}
-                page={0}
-
-                // onPageChange={handleChangePage}
+                page={page}
+                onPageChange={handleChangePage}
                 // onRowsPerPageChange={handleChangeRowsPerPage}
               />
             </Grid>
@@ -144,33 +161,46 @@ function StudyPlanSimulatorPage() {
             <Grid xs={12}>
               <Box sx={{ height: 600, mt: 6 }}>
                 <Grid container spacing={2} sx={{ p: 2 }}>
-                  {Array.from({ length: 24 }, (_, index) => index).map(value => (
-                    <Grid item sm={12} md={6} lg={4} key={value}>
-                      <Card sx={{ height: 65, background: 'white' }}>
-                        <Box
-                          sx={{ height: 30, background: 'lightgray', display: 'flex', justifyContent: 'space-between' }}
-                        >
-                          <Typography variant='body2' sx={{ m: 1, fontWeight: 'bold' }}>
-                            ENGCEXX
-                          </Typography>
-                          <Button sx={{ color: 'white', m: 1 }}>+</Button>
-                        </Box>
-                        <Box
-                          sx={{
-                            height: 35,
-
-                            p: 1,
-                            display: 'flex',
-                            direction: 'column'
-                          }}
-                        >
-                          <Typography variant='body2' noWrap>
-                            Subject ...................................................................
-                          </Typography>
-                        </Box>
-                      </Card>
-                    </Grid>
-                  ))}
+                  {/* {Array.from({ length: 24 }, (_, index) => index).map(value => ( */}
+                  {SubjectsLoading ? (
+                    <Box sx={{ width: '100%', height: 200, m: 12 }}>
+                      <CircleLoading />
+                    </Box>
+                  ) : (
+                    Subjects.slice(page * 24, page * 24 + 24).map(value => (
+                      <Grid item sm={12} md={6} lg={4} key={value.subject_id}>
+                        <Card sx={{ height: 65, background: 'white' }}>
+                          <Box
+                            sx={{
+                              height: 30,
+                              background: 'lightgray',
+                              display: 'flex',
+                              justifyContent: 'space-between'
+                            }}
+                          >
+                            <Typography variant='body2' sx={{ m: 1, ml: 2, fontWeight: 'bold' }}>
+                              {value.subject_code}
+                            </Typography>
+                            <Button sx={{ color: 'white', m: 1, mx: -2 }}>+</Button>
+                          </Box>
+                          <Box
+                            sx={{
+                              height: 35,
+                              ml: 1.5,
+                              p: 1,
+                              display: 'flex',
+                              direction: 'column'
+                            }}
+                          >
+                            <Typography variant='body2' noWrap>
+                              {/* Subject ................................................................... */}
+                              {value.subject_name_en}
+                            </Typography>
+                          </Box>
+                        </Card>
+                      </Grid>
+                    ))
+                  )}
                 </Grid>
               </Box>
             </Grid>
@@ -190,7 +220,7 @@ function StudyPlanSimulatorPage() {
                   Simulator :{' '}
                 </Typography>
                 <Typography variant='h6' sx={{ ml: 2, color: 'gray' }}>
-                  SE 66
+                  CE 60
                 </Typography>
               </Box>
               <Box>
