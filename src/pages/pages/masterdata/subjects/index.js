@@ -1,6 +1,12 @@
 import React, { useEffect } from 'react'
 import { Hidden, MenuItem } from '@mui/material'
-import { useFetch as UseFetch, useSubmit as UseSubmit, useUpdate as UseUpdate, useDelete as UseDelete,useSearchText as UseSearchText} from 'src/hooks'
+import {
+  useFetch as UseFetch,
+  useSubmit as UseSubmit,
+  useUpdate as UseUpdate,
+  useDelete as UseDelete,
+  useSearchText as UseSearchText
+} from 'src/hooks'
 import { useMemo, useState } from 'react'
 
 import { Btn, CircleLoading, ConfirmModal, DataGridTable, Selection, TextSearch } from 'src/components'
@@ -16,6 +22,7 @@ import EditSubjectModal from '../../../../views/subjects/EditSubjectModal'
 import AddSubjectCompetency from 'src/views/competencies/AddSubjectCompetency'
 import curriculums from '../curriculums'
 import AddContinueSubjects from 'src/views/continue-subjects/AddContinueSubjects'
+import { url } from 'src/configs/urlConfig'
 
 const Subjects = () => {
   const [open, setOpen] = useState(false)
@@ -26,13 +33,13 @@ const Subjects = () => {
   const [editState, setEditState] = useState([])
   const router = useRouter()
 
-  const URL_GET_SUBJECTS = `https://my-backend-adonis.onrender.com/api/v1/subjects-by-curriculum/${router.query.curriculum_id}`
-  const URL_GET_SUBJECT_GROUPS = `https://my-backend-adonis.onrender.com/api/v1/subject-groups/`
-  const URL_GET_CURRICULUM = `https://my-backend-adonis.onrender.com/api/v1/curriculums/`
+  const URL_GET_SUBJECTS = `${url.BASE_URL}/subjects-by-curriculum/${router.query.curriculum_id}`
+  const URL_GET_SUBJECT_GROUPS = `${url.BASE_URL}/subject-groups/`
+  const URL_GET_CURRICULUM = `${url.BASE_URL}/curriculums/`
 
-  const URL_INSERT = `https://my-backend-adonis.onrender.com/api/v1/subjects/`
-  const URL_UPDATE = `https://my-backend-adonis.onrender.com/api/v1/subjects/${editState.subject_id}`
-  const URL_DELETE = `https://my-backend-adonis.onrender.com/api/v1/subjects/${editState.subject_id}`
+  const URL_INSERT = `${url.BASE_URL}/subjects/`
+  const URL_UPDATE = `${url.BASE_URL}/subjects/${editState.subject_id}`
+  const URL_DELETE = `${url.BASE_URL}/subjects/${editState.subject_id}`
 
   const handleClickOpen = () => {
     setOpen(true)
@@ -151,7 +158,6 @@ const Subjects = () => {
   useMemo(() => {
     if (Subjects) console.log(Subjects)
   }, [Subjects])
-
 
   const loadingState = SubjectLoading || SubjectGroupLoading || CurriculumLoading
   const errorState = SubjectError || SubjectGroupError || CurriculumError
@@ -304,9 +310,7 @@ const Subjects = () => {
             setOpenCompetency(false)
           }}
 
-          
-        // handleSubmit={handleDelete}
-
+          // handleSubmit={handleDelete}
         />
       </Grid>
       <Grid container>
