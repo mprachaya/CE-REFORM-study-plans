@@ -48,6 +48,29 @@ function StudyPlanSimulatorPage() {
     // Add more objects as needed
   ]
 
+  const [simSubjects, setSimSubjects] = useState([])
+  const [simCompetencies, setCompetencies] = useState([])
+
+  const handleAddSimSubjects = subject => {
+    if (!subject) {
+      return
+    }
+    const newObject = {
+      term: value + 1,
+      subject_id: subject?.subject_id,
+      subject_code: subject?.subject_code,
+      subject_name_th: subject?.subject_name_th,
+      subject_name_en: subject?.subject_name_en,
+      subject_credit: subject?.subject_credit
+    }
+    const results = [...simSubjects, newObject]
+    setSimSubjects(results)
+  }
+
+  useEffect(() => {
+    console.log(simSubjects)
+  }, [simSubjects])
+
   const [displaySubjects, setDisplaySubjects] = useState(true)
   const [displayCompetencies, setDisplayCompetencies] = useState(false)
 
@@ -205,10 +228,41 @@ function StudyPlanSimulatorPage() {
                               justifyContent: 'space-between'
                             }}
                           >
-                            <Typography variant='body2' sx={{ m: 1, ml: 2, fontWeight: 'bold' }}>
+                            <Typography
+                              variant='body2'
+                              sx={{
+                                m: 1,
+                                ml: 2,
+                                fontWeight: 'bold',
+                                color: simSubjects.find(v => v.subject_id === value.subject_id) && 'gray',
+                                display: 'inline' // Ensure inline display
+                              }}
+                            >
                               {value.subject_code}
+                              <Typography
+                                variant='caption'
+                                color={'gray'}
+                                component='span' // Use span as the component to render inline
+                                sx={{
+                                  display: 'inline' // Ensure inline display
+                                }}
+                              >
+                                {simSubjects.find(v => v.subject_id === value.subject_id) &&
+                                  '(TERM ' + simSubjects.find(v => v.subject_id === value.subject_id).term + ')'}
+                              </Typography>
                             </Typography>
-                            <Button sx={{ color: 'white', m: 1, mx: -2 }}>+</Button>
+                            <Button
+                              onClick={() =>
+                                !simSubjects.find(v => v.subject_id === value.subject_id) && handleAddSimSubjects(value)
+                              }
+                              sx={{
+                                color: simSubjects.find(v => v.subject_id === value.subject_id) ? 'lightgray' : 'white',
+                                m: 1,
+                                mx: -2
+                              }}
+                            >
+                              +
+                            </Button>
                           </Box>
                           <Box
                             sx={{
@@ -219,7 +273,11 @@ function StudyPlanSimulatorPage() {
                               direction: 'column'
                             }}
                           >
-                            <Typography variant='body2' noWrap>
+                            <Typography
+                              variant='body2'
+                              color={simSubjects.find(v => v.subject_id === value.subject_id) && 'lightgray'}
+                              noWrap
+                            >
                               {/* Subject ................................................................... */}
                               {value.subject_name_en}
                             </Typography>
