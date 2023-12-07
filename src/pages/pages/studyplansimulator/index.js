@@ -300,7 +300,9 @@ function StudyPlanSimulatorPage() {
                           <Box
                             sx={{
                               height: 30,
-                              background: 'lightgray',
+                              background: simSubjects.find(v => v.subject_id === value.subject_id)
+                                ? 'white'
+                                : 'lightgray',
                               display: 'flex',
                               justifyContent: 'space-between'
                             }}
@@ -328,18 +330,21 @@ function StudyPlanSimulatorPage() {
                                   '(TERM ' + simSubjects.find(v => v.subject_id === value.subject_id).term + ')'}
                               </Typography>
                             </Typography>
-                            <Button
-                              onClick={() =>
-                                !simSubjects.find(v => v.subject_id === value.subject_id) && handleAddSimSubjects(value)
-                              }
-                              sx={{
-                                color: simSubjects.find(v => v.subject_id === value.subject_id) ? 'lightgray' : 'white',
-                                m: 1,
-                                mx: -2
-                              }}
-                            >
-                              +
-                            </Button>
+                            {simSubjects.find(v => v.subject_id === value.subject_id) ? null : (
+                              <Button
+                                onClick={() =>
+                                  !simSubjects.find(v => v.subject_id === value.subject_id) &&
+                                  handleAddSimSubjects(value)
+                                }
+                                sx={{
+                                  color: 'white',
+                                  m: 1,
+                                  mx: -2
+                                }}
+                              >
+                                +
+                              </Button>
+                            )}
                           </Box>
                           <Box
                             sx={{
