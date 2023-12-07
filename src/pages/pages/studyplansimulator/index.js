@@ -12,7 +12,7 @@ import {
   MenuItem,
   IconButton
 } from '@mui/material'
-import { mdiClose } from '@mdi/js'
+import { mdiClose, mdiTrashCan } from '@mdi/js'
 import Icon from '@mdi/react'
 
 import BlankLayout from 'src/@core/layouts/BlankLayout'
@@ -33,6 +33,10 @@ function StudyPlanSimulatorPage() {
 
   const [SubjectsTemp, setSubjectsTemp] = useState([])
 
+  const [categoriesSubject, setCategoriesSubject] = useState([])
+  const [typesSubject, setTypesSubject] = useState([])
+  const [groupsSubject, setGroupsSubject] = useState([])
+
   const searchSubjectColumns = ['subject_code', 'subject_name_th', 'subject_name_en']
 
   const [page, setPage] = useState(0)
@@ -41,15 +45,25 @@ function StudyPlanSimulatorPage() {
     setPage(newPage)
   }
 
-  const dropdownOptions = [
-    { value: 0, label: 'Option 1' },
-    { value: 1, label: 'Option 2' },
-    { value: 2, label: 'Option 3' }
-    // Add more objects as needed
-  ]
-
   const [simSubjects, setSimSubjects] = useState([])
   const [simCompetencies, setCompetencies] = useState([])
+  const [isHovered, setIsHovered] = useState([])
+
+  const handleMouseEnter = index => {
+    setIsHovered(prevStates => {
+      const newStates = [...prevStates]
+      newStates[index] = true
+      return newStates
+    })
+  }
+
+  const handleMouseLeave = index => {
+    setIsHovered(prevStates => {
+      const newStates = [...prevStates]
+      newStates[index] = false
+      return newStates
+    })
+  }
 
   const handleAddSimSubjects = subject => {
     if (!subject) {
@@ -65,6 +79,13 @@ function StudyPlanSimulatorPage() {
     }
     const results = [...simSubjects, newObject]
     setSimSubjects(results)
+  }
+  const handleRemoveSimSubject = subjectId => {
+    // Filter out the subject with the given subject_id
+    const updatedSimSubjects = simSubjects.filter(subject => subject.subject_id !== subjectId)
+
+    // Update the state with the filtered array
+    setSimSubjects(updatedSimSubjects)
   }
 
   useEffect(() => {
@@ -110,30 +131,83 @@ function StudyPlanSimulatorPage() {
     setValue(newTabIndex - 1) // Switch to the newly added tab
   }
   const handleRemoveTab = indexToRemove => {
-    // Ensure the index is within the valid range
     if (indexToRemove < 0 || indexToRemove >= tabs.length) {
+      // Ensure the index is within the valid range
       return
     }
 
-    // Create a new array without the tab to be removed
-    const updatedTabs = tabs.filter((_, index) => index !== indexToRemove)
+    const checkSubjectInterm = simSubjects.filter(s => s.term === indexToRemove + 1)
+    if (checkSubjectInterm.length > 0) {
+      let result = window.confirm(
+        'Still Have Subject In This Term ' + parseInt(indexToRemove + 1) + ' Confirm To Delete?'
+      )
+      if (result) {
+        const updateSimSubject = simSubjects.filter(s => s.term !== indexToRemove + 1)
+        setSimSubjects(updateSimSubject)
 
-    // Rename the remaining tabs based on their new indices
-    const renamedTabs = updatedTabs.map((label, index) => `Term ${index + 1}`)
+        // Create a new array without the tab to be removed
+        const updatedTabs = tabs.filter((_, index) => index !== indexToRemove)
 
-    // Set the updated tabs and adjust the value if needed
-    setTabs(renamedTabs)
+        // Rename the remaining tabs based on their new indices
+        const renamedTabs = updatedTabs.map((label, index) => `Term ${index + 1}`)
 
-    // If the removed tab was the last one, adjust the value to select the previous tab
-    const newValue = Math.min(value, renamedTabs.length - 1)
-    setValue(newValue)
+        // Set the updated tabs and adjust the value if needed
+        setTabs(renamedTabs)
+
+        // If the removed tab was the last one, adjust the value to select the previous tab
+        const newValue = Math.min(value, renamedTabs.length - 1)
+        setValue(newValue)
+      }
+    } else {
+      // Create a new array without the tab to be removed
+      const updatedTabs = tabs.filter((_, index) => index !== indexToRemove)
+
+      // Rename the remaining tabs based on their new indices
+      const renamedTabs = updatedTabs.map((label, index) => `Term ${index + 1}`)
+
+      // Set the updated tabs and adjust the value if needed
+      setTabs(renamedTabs)
+
+      // If the removed tab was the last one, adjust the value to select the previous tab
+      const newValue = Math.min(value, renamedTabs.length - 1)
+      setValue(newValue)
+    }
   }
 
   useEffect(() => {
     if (!SubjectsLoading) {
       setSubjectsTemp(Subjects)
       console.log('Subjects', Subjects)
+
+      // Use Set to store unique values
+      const uniqueCategories = new Set()
+      const uniqueTypes = new Set()
+      const uniqueGroups = new Set()
+
+      const subjectStructure = Subjects?.map(v => v.subject_structures)
+
+      console.log('subjectStructure', subjectStructure)
+      //   // Iterate over the array and populate the sets
+      Object.values(subjectStructure)?.forEach(subject => {
+        uniqueCategories.add(subject[0].subjectCategory.subject_category_name)
+        uniqueTypes.add(subject[0].subjectType.subject_type_name)
+        uniqueGroups.add(subject[0].subjectGroup.subject_group_name)
+      })
+
+      // Convert sets to arrays if needed
+      const uniqueCategoriesArray = Array.from(uniqueCategories)
+      const uniqueTypesArray = Array.from(uniqueTypes)
+      const uniqueGroupsArray = Array.from(uniqueGroups)
+
+      setCategoriesSubject(uniqueCategoriesArray)
+      setTypesSubject(uniqueTypesArray)
+      setGroupsSubject(uniqueGroupsArray)
+
+      // console.log('Unique Subject Categories:', uniqueCategoriesArray)
+      // console.log('Unique Subject Types:', uniqueTypesArray)
+      // console.log('Unique Subject Groups:', uniqueGroupsArray)
     } else {
+      return
     }
   }, [SubjectsLoading, SubjectsTemp])
 
@@ -171,10 +245,11 @@ function StudyPlanSimulatorPage() {
                   height={40}
                   width={'100%'}
                   selectionValue={0}
+                  firstItemText={'แสดงทั้งหมด'}
                   // handleChange={e => setCurriculumSelected(e.target.value)}
-                  Items={Object.values(dropdownOptions).map(menu => (
-                    <MenuItem key={menu.value} value={menu.value}>
-                      {menu.label}
+                  Items={Object.values(categoriesSubject).map(menu => (
+                    <MenuItem key={menu} value={menu}>
+                      {menu}
                     </MenuItem>
                   ))}
                 />
@@ -185,10 +260,11 @@ function StudyPlanSimulatorPage() {
                   height={40}
                   width={'100%'}
                   selectionValue={0}
+                  firstItemText={'แสดงทั้งหมด'}
                   // handleChange={e => setCurriculumSelected(e.target.value)}
-                  Items={Object.values(dropdownOptions).map(menu => (
-                    <MenuItem key={menu.value} value={menu.value}>
-                      {menu.label}
+                  Items={Object.values(typesSubject).map(menu => (
+                    <MenuItem key={menu} value={menu}>
+                      {menu}
                     </MenuItem>
                   ))}
                 />
@@ -199,10 +275,11 @@ function StudyPlanSimulatorPage() {
                   height={40}
                   width={'100%'}
                   selectionValue={0}
+                  firstItemText={'แสดงทั้งหมด'}
                   // handleChange={e => setCurriculumSelected(e.target.value)}
-                  Items={Object.values(dropdownOptions).map(menu => (
-                    <MenuItem key={menu.value} value={menu.value}>
-                      {menu.label}
+                  Items={Object.values(groupsSubject).map(menu => (
+                    <MenuItem key={menu} value={menu}>
+                      {menu}
                     </MenuItem>
                   ))}
                 />
@@ -382,7 +459,56 @@ function StudyPlanSimulatorPage() {
                           Competencies
                         </Button>
                       </Box>
-                      {`Content for ${tabLabel}`}
+                      {displaySubjects &&
+                        simSubjects
+                          .filter(s => s.term === value + 1)
+                          .map((subjectInterm, index) => (
+                            <Box
+                              key={subjectInterm.subject_id}
+                              onMouseEnter={() => handleMouseEnter(index)}
+                              onMouseLeave={() => handleMouseLeave(index)}
+                              sx={{
+                                display: 'flex',
+                                p: 3.5,
+                                m: 2,
+                                borderRadius: 2,
+                                justifyContent: 'space-between',
+                                maxWidth: 375,
+                                background: 'white',
+                                position: 'relative' // Add relative positioning
+                              }}
+                            >
+                              <Typography variant='caption' sx={{ m: 2, maxWidth: 20, color: 'lightgray' }}>
+                                {index + 1}.
+                              </Typography>
+
+                              <Typography variant='caption' sx={{ minWidth: 100, maxWidth: 200 }}>
+                                {subjectInterm.subject_code} {subjectInterm.subject_name_en}
+                              </Typography>
+                              <Typography sx={{ m: 2, mr: 7 }} variant='caption'>
+                                {subjectInterm.subject_credit}
+                              </Typography>
+
+                              <IconButton
+                                size='small'
+                                color='error'
+                                sx={{
+                                  position: 'absolute',
+                                  top: 8,
+                                  right: 8,
+                                  zIndex: 1,
+                                  opacity: isHovered[index] ? 0.9 : 0, // Show or hide based on hover state
+                                  transition: 'opacity 0.3s ease'
+                                }}
+                                onClick={() => {
+                                  // Add your remove logic here
+                                  handleRemoveSimSubject(subjectInterm.subject_id)
+                                }}
+                              >
+                                <Icon path={mdiTrashCan} size={0.7} />
+                              </IconButton>
+                            </Box>
+                          ))}
                     </Box>
                   </Box>
                 ))}
