@@ -37,6 +37,22 @@ function StudyPlanSimulatorPage() {
   const [typesSubject, setTypesSubject] = useState([])
   const [groupsSubject, setGroupsSubject] = useState([])
 
+  const [categoriesSelected, setCategoriesSelected] = useState(0)
+  const [typesSelected, setTypesSelected] = useState(0)
+  const [groupsSelected, setGroupsSelected] = useState(0)
+
+  useEffect(() => {
+    console.log('categoriesSelected', categoriesSelected)
+  }, [categoriesSelected])
+
+  useEffect(() => {
+    console.log('typesSelected', typesSelected)
+  }, [typesSelected])
+
+  useEffect(() => {
+    console.log('groupsSelected', groupsSelected)
+  }, [groupsSelected])
+
   const searchSubjectColumns = ['subject_code', 'subject_name_th', 'subject_name_en']
 
   const [page, setPage] = useState(0)
@@ -244,9 +260,11 @@ function StudyPlanSimulatorPage() {
                   label={'Category'}
                   height={40}
                   width={'100%'}
-                  selectionValue={0}
+                  selectionValue={categoriesSelected}
                   firstItemText={'แสดงทั้งหมด'}
-                  // handleChange={e => setCurriculumSelected(e.target.value)}
+                  handleChange={e => {
+                    setCategoriesSelected(e.target.value)
+                  }}
                   Items={Object.values(categoriesSubject).map(menu => (
                     <MenuItem key={menu} value={menu}>
                       {menu}
@@ -259,9 +277,9 @@ function StudyPlanSimulatorPage() {
                   label={'Type'}
                   height={40}
                   width={'100%'}
-                  selectionValue={0}
+                  selectionValue={typesSelected}
                   firstItemText={'แสดงทั้งหมด'}
-                  // handleChange={e => setCurriculumSelected(e.target.value)}
+                  handleChange={e => setTypesSelected(e.target.value)}
                   Items={Object.values(typesSubject).map(menu => (
                     <MenuItem key={menu} value={menu}>
                       {menu}
@@ -274,9 +292,9 @@ function StudyPlanSimulatorPage() {
                   label={'Group'}
                   height={40}
                   width={'100%'}
-                  selectionValue={0}
+                  selectionValue={groupsSelected}
                   firstItemText={'แสดงทั้งหมด'}
-                  // handleChange={e => setCurriculumSelected(e.target.value)}
+                  handleChange={e => setGroupsSelected(e.target.value)}
                   Items={Object.values(groupsSubject).map(menu => (
                     <MenuItem key={menu} value={menu}>
                       {menu}
@@ -294,79 +312,116 @@ function StudyPlanSimulatorPage() {
                       <CircleLoading />
                     </Box>
                   ) : (
-                    Subjects.slice(page * 24, page * 24 + 24).map(value => (
-                      <Grid item sm={12} md={6} lg={4} key={value.subject_id}>
-                        <Card sx={{ height: 65, background: 'white' }}>
-                          <Box
-                            sx={{
-                              height: 30,
-                              background: simSubjects.find(v => v.subject_id === value.subject_id)
-                                ? 'white'
-                                : 'lightgray',
-                              display: 'flex',
-                              justifyContent: 'space-between'
-                            }}
-                          >
-                            <Typography
-                              variant='body2'
+                    // Subjects.slice(page * 24, page * 24 + 24).map(value => (
+                    Subjects.filter(
+                      f =>
+                        // case 1 select all filters
+                        (f.subject_structures[0]?.subjectCategory.subject_category_name === categoriesSelected &&
+                          f.subject_structures[0]?.subjectType.subject_type_name === typesSelected &&
+                          f.subject_structures[0]?.subjectGroup.subject_group_name === groupsSelected) ||
+                        // case 2 select two of three
+                        // category and type
+                        (f.subject_structures[0]?.subjectCategory.subject_category_name === categoriesSelected &&
+                          f.subject_structures[0]?.subjectType.subject_type_name === typesSelected &&
+                          !groupsSelected) ||
+                        // category and group
+                        (f.subject_structures[0]?.subjectCategory.subject_category_name === categoriesSelected &&
+                          f.subject_structures[0]?.subjectGroup.subject_group_name === groupsSelected &&
+                          !typesSelected) ||
+                        // type and group
+                        (f.subject_structures[0]?.subjectType.subject_type_name === typesSelected &&
+                          f.subject_structures[0]?.subjectGroup.subject_group_name === groupsSelected &&
+                          !categoriesSelected) ||
+                        // case 3 select only one of three
+                        // only category
+                        (f.subject_structures[0]?.subjectCategory.subject_category_name === categoriesSelected &&
+                          !typesSelected &&
+                          !groupsSelected) ||
+                        // only type
+                        (f.subject_structures[0]?.subjectType.subject_type_name === typesSelected &&
+                          !categoriesSelected &&
+                          !groupsSelected) ||
+                        // only group
+                        (f.subject_structures[0]?.subjectGroup.subject_group_name === groupsSelected &&
+                          !categoriesSelected &&
+                          !typesSelected) ||
+                        (!categoriesSelected && !typesSelected && !groupsSelected)
+                    )
+                      .slice(page * 24, page * 24 + 24)
+
+                      .map(value => (
+                        <Grid item sm={12} md={6} lg={4} key={value.subject_id}>
+                          <Card sx={{ height: 65, background: 'white' }}>
+                            <Box
                               sx={{
-                                m: 1,
-                                ml: 2,
-                                fontWeight: 'bold',
-                                color: simSubjects.find(v => v.subject_id === value.subject_id) && 'gray',
-                                display: 'inline' // Ensure inline display
+                                height: 30,
+                                background: simSubjects.find(v => v.subject_id === value.subject_id)
+                                  ? 'white'
+                                  : 'lightgray',
+                                display: 'flex',
+                                justifyContent: 'space-between'
                               }}
                             >
-                              {value.subject_code}
                               <Typography
-                                variant='caption'
-                                color={'gray'}
-                                component='span' // Use span as the component to render inline
+                                variant='body2'
                                 sx={{
+                                  m: 1,
+                                  ml: 2,
+                                  fontWeight: 'bold',
+                                  color: simSubjects.find(v => v.subject_id === value.subject_id) && 'gray',
                                   display: 'inline' // Ensure inline display
                                 }}
                               >
-                                {simSubjects.find(v => v.subject_id === value.subject_id) &&
-                                  '(TERM ' + simSubjects.find(v => v.subject_id === value.subject_id).term + ')'}
+                                {value.subject_code}
+                                <Typography
+                                  variant='caption'
+                                  color={'gray'}
+                                  component='span' // Use span as the component to render inline
+                                  sx={{
+                                    display: 'inline' // Ensure inline display
+                                  }}
+                                >
+                                  {simSubjects.find(v => v.subject_id === value.subject_id) &&
+                                    '(TERM ' + simSubjects.find(v => v.subject_id === value.subject_id).term + ')'}
+                                </Typography>
                               </Typography>
-                            </Typography>
-                            {simSubjects.find(v => v.subject_id === value.subject_id) ? null : (
-                              <Button
-                                onClick={() =>
-                                  !simSubjects.find(v => v.subject_id === value.subject_id) &&
-                                  handleAddSimSubjects(value)
-                                }
-                                sx={{
-                                  color: 'white',
-                                  m: 1,
-                                  mx: -2
-                                }}
-                              >
-                                +
-                              </Button>
-                            )}
-                          </Box>
-                          <Box
-                            sx={{
-                              height: 35,
-                              ml: 1.5,
-                              p: 1,
-                              display: 'flex',
-                              direction: 'column'
-                            }}
-                          >
-                            <Typography
-                              variant='body2'
-                              color={simSubjects.find(v => v.subject_id === value.subject_id) && 'lightgray'}
-                              noWrap
+                              {simSubjects.find(v => v.subject_id === value.subject_id) ? null : (
+                                <Button
+                                  onClick={() =>
+                                    !simSubjects.find(v => v.subject_id === value.subject_id) &&
+                                    handleAddSimSubjects(value)
+                                  }
+                                  sx={{
+                                    color: 'white',
+                                    m: 1,
+                                    mx: -2
+                                  }}
+                                >
+                                  +
+                                </Button>
+                              )}
+                            </Box>
+                            <Box
+                              sx={{
+                                height: 35,
+                                ml: 1.5,
+                                p: 1,
+                                display: 'flex',
+                                direction: 'column'
+                              }}
                             >
-                              {/* Subject ................................................................... */}
-                              {value.subject_name_en}
-                            </Typography>
-                          </Box>
-                        </Card>
-                      </Grid>
-                    ))
+                              <Typography
+                                variant='body2'
+                                color={simSubjects.find(v => v.subject_id === value.subject_id) && 'lightgray'}
+                                noWrap
+                              >
+                                {/* Subject ................................................................... */}
+                                {value.subject_name_en}
+                              </Typography>
+                            </Box>
+                          </Card>
+                        </Grid>
+                      ))
                   )}
                 </Grid>
               </Box>
