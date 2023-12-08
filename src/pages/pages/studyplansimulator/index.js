@@ -10,8 +10,12 @@ import {
   Button,
   TablePagination,
   MenuItem,
-  IconButton
+  IconButton,
+  Dialog,
+  DialogTitle,
+  DialogContent
 } from '@mui/material'
+import { grey } from '@mui/material/colors'
 import { mdiClose, mdiTrashCan } from '@mdi/js'
 import Icon from '@mdi/react'
 
@@ -21,16 +25,6 @@ import { url } from 'src/configs/urlConfig'
 import { useFetch, useSearchText } from 'src/hooks'
 
 function StudyPlanSimulatorPage() {
-  const URL_GET_SUBJECTS_BY_CURRICURUM = `${url.BASE_URL}/subjects-by-curriculum/`
-
-  const {
-    error: SubjectsError,
-    data: Subjects,
-    setData: setSubjects,
-    loading: SubjectsLoading,
-    reFetch: reFetchSubjects
-  } = useFetch(URL_GET_SUBJECTS_BY_CURRICURUM + 1) // 1 for ce 60 curriculum
-
   const [SubjectsTemp, setSubjectsTemp] = useState([])
 
   const [categoriesSubject, setCategoriesSubject] = useState([])
@@ -40,6 +34,55 @@ function StudyPlanSimulatorPage() {
   const [categoriesSelected, setCategoriesSelected] = useState(0)
   const [typesSelected, setTypesSelected] = useState(0)
   const [groupsSelected, setGroupsSelected] = useState(0)
+
+  const [subjectSelected, setSubjectSelected] = useState([])
+  const [openDetails, setOpenDetails] = useState(false)
+
+  const [dialogStatus, setDialogStatus] = useState(0) // if 0 show Details, 1 show alert when subject has parent
+
+  const URL_GET_SUBJECTS_BY_CURRICURUM = `${url.BASE_URL}/subjects-by-curriculum/`
+  const URL_GET_SUBJECTS_RELATIONS = `${url.BASE_URL}/continue-subjects-subject/`
+
+  const {
+    error: SubjectsError,
+    data: Subjects,
+    setData: setSubjects,
+    loading: SubjectsLoading,
+    reFetch: reFetchSubjects
+  } = useFetch(URL_GET_SUBJECTS_BY_CURRICURUM + 1) // 1 for ce 60 curriculum
+
+  const {
+    error: SubjectsRelationsError,
+    data: SubjectsRelations,
+    setData: setSubjectsRelations,
+    loading: SubjectsRelationsLoading,
+    reFetch: reFetchSubjectsRelations
+  } = useFetch(URL_GET_SUBJECTS_RELATIONS + subjectSelected.subject_id) // 1 for ce 60 curriculum
+
+  const handleOpenDetails = subject => {
+    if (!subject) return
+
+    setSubjectSelected(subject)
+    setOpenDetails(true)
+  }
+  const handleCheckPreviousSubject = subject => {
+    if (!subject) return
+    if (subject?.continue_subjects[0]?.parent_id !== null) {
+      console.log('simSubjects', simSubjects)
+      // console.log(subject?.continue_subjects[0]?.subject_id)
+      if (
+        simSubjects.length > 0 &&
+        !simSubjects?.find(s => s.subject_id === subject?.continue_subjects[0]?.parent_id && value + 1 > s.term)
+      ) {
+        setDialogStatus(1)
+        setOpenDetails(true)
+        setSubjectSelected(subject)
+        return 1
+      }
+    } else {
+      return 0
+    }
+  }
 
   useEffect(() => {
     console.log('categoriesSelected', categoriesSelected)
@@ -85,16 +128,31 @@ function StudyPlanSimulatorPage() {
     if (!subject) {
       return
     }
-    const newObject = {
-      term: value + 1,
-      subject_id: subject?.subject_id,
-      subject_code: subject?.subject_code,
-      subject_name_th: subject?.subject_name_th,
-      subject_name_en: subject?.subject_name_en,
-      subject_credit: subject?.subject_credit
+    // if (subject.continue_subjects.length === 0) {
+    const hasParent = handleCheckPreviousSubject(subject)
+    if (!hasParent) {
+      const newObject = {
+        term: value + 1,
+        subject_id: subject?.subject_id,
+        subject_code: subject?.subject_code,
+        subject_name_th: subject?.subject_name_th,
+        subject_name_en: subject?.subject_name_en,
+        subject_credit: subject?.subject_credit
+      }
+      const results = [...simSubjects, newObject]
+      setSimSubjects(results)
     }
-    const results = [...simSubjects, newObject]
-    setSimSubjects(results)
+
+    // }
+    // else {
+    //   alert(
+    //     'Please add ' +
+    //       subject.continue_subjects[0].parent?.subject_code +
+    //       ' ' +
+    //       subject.continue_subjects[0].parent?.subject_name_en +
+    //       ' Before.'
+    //   )
+    // }
   }
   const handleRemoveSimSubject = subjectId => {
     // Filter out the subject with the given subject_id
@@ -120,6 +178,8 @@ function StudyPlanSimulatorPage() {
       setDisplaySubjects(true)
     }
   }
+
+  console.log('SubjectsRelations', SubjectsRelations)
 
   const [tabs, setTabs] = useState(['Term 1'])
 
@@ -402,12 +462,14 @@ function StudyPlanSimulatorPage() {
                               )}
                             </Box>
                             <Box
+                              onClick={() => handleOpenDetails(value)}
                               sx={{
                                 height: 35,
                                 ml: 1.5,
                                 p: 1,
                                 display: 'flex',
-                                direction: 'column'
+                                direction: 'column',
+                                cursor: 'pointer'
                               }}
                             >
                               <Typography
@@ -581,6 +643,195 @@ function StudyPlanSimulatorPage() {
         <Box sx={{ height: '100vh', width: '100%', background: 'gray' }}>
           <Typography>Not Support Too Small Screen</Typography>
         </Box>
+      </Hidden>
+      <Hidden smDown>
+        <Dialog
+          open={openDetails}
+          onClose={() => {
+            setOpenDetails(false)
+            setSubjectSelected([])
+            setDialogStatus(0)
+          }}
+          fullWidth
+          maxWidth={'md'}
+        >
+          {dialogStatus === 0 ? (
+            <>
+              <DialogTitle
+                sx={{
+                  background: 'lightgray',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  pr: 6,
+                  borderBottom: 1,
+                  borderColor: grey[500]
+                }}
+              >
+                <Typography variant='h6'>Subject Details</Typography>
+                <Typography variant='h5'>{subjectSelected.subject_code}</Typography>
+              </DialogTitle>
+              <DialogContent sx={{ minHeight: 600, background: grey[200], p: 10 }}>
+                <Box sx={{ display: 'flex', flexDirection: 'row', mt: 6 }}>
+                  <Typography variant='h3'>{subjectSelected.subject_credit}</Typography>
+                  <Box sx={{ display: 'flex', flexDirection: 'column', ml: 4, mt: 1.5 }}>
+                    <Typography variant='body2' sx={{ color: 'gray' }}>
+                      {subjectSelected.subject_name_en}
+                    </Typography>
+                    <Typography variant='body2' sx={{ color: grey[800] }}>
+                      {subjectSelected.subject_name_th}
+                    </Typography>
+                  </Box>
+                </Box>
+                <Grid container sx={{ display: 'flex', flexDirection: 'row', mt: 10 }} spacing={2}>
+                  <Grid item xs={6}>
+                    <Typography variant='body2' sx={{ color: 'gray' }}>
+                      Previous Subject
+                    </Typography>
+                    {SubjectsRelationsLoading && 'Loading...'}
+                    <Typography variant='body2' sx={{ fontWeight: 'bold' }} noWrap>
+                      {SubjectsRelations[0]?.parent
+                        ? SubjectsRelations[0]?.parent?.subject_code +
+                          ' ' +
+                          SubjectsRelations[0]?.parent?.subject_name_en
+                        : !SubjectsRelationsLoading && 'No Previous Subject'}
+                    </Typography>
+                  </Grid>
+                  <Grid item xs={5}>
+                    <Typography variant='body2' sx={{ color: 'gray' }}>
+                      Continue Subject
+                    </Typography>
+                    {SubjectsRelationsLoading && 'Loading...'}
+                    {SubjectsRelations[0]?.children.length > 0
+                      ? SubjectsRelations[0]?.children.map(ch => (
+                          <div
+                            key={ch.subject_id}
+                            style={{
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              '&:hover': {
+                                backgroundColor: '#e0e0e0' // Add your desired background color on hover
+                              }
+                            }}
+                          >
+                            <div style={{ marginRight: '8px' }}>•</div> {/* Bullet-like character */}
+                            <Typography
+                              variant='body2'
+                              sx={{ color: grey[700], fontWeight: 'bold', display: 'inline' }}
+                              noWrap
+                            >
+                              {ch.subjects.subject_code + ' ' + ch.subjects.subject_name_en}
+                            </Typography>
+                          </div>
+                          // </li>
+                        ))
+                      : !SubjectsRelationsLoading && (
+                          <Typography variant='body2' sx={{ color: grey[700], fontWeight: 'bold', display: 'inline' }}>
+                            No Continue Subject
+                          </Typography>
+                        )}
+                  </Grid>
+                  <Grid item xs={12}>
+                    <Typography variant='body2' sx={{ color: 'gray', mt: 8 }}>
+                      Subject Description
+                    </Typography>
+                    <Typography variant='body2' sx={{ color: grey[700] }} textAlign='justify'>
+                      {subjectSelected.subject_description}
+                    </Typography>
+                  </Grid>
+                  <Grid container item xs={12} spacing={2}>
+                    <Grid item xs={12} sx={{ mb: 2 }}>
+                      <Typography variant='body2' sx={{ color: 'gray', mt: 8 }}>
+                        Project Related
+                      </Typography>
+                    </Grid>
+                    {[1, 2, 3, 4].map((item, index) => (
+                      <Grid item sm={12} md={6} lg={4}>
+                        <Card sx={{ height: 65, background: 'white' }}>
+                          <Box
+                            sx={{
+                              height: 30,
+                              background: 'lightgray',
+                              display: 'flex',
+                              justifyContent: 'end'
+                            }}
+                          >
+                            <Button
+                              sx={{
+                                color: 'white',
+                                m: 1,
+                                mx: -2
+                              }}
+                            >
+                              ...
+                            </Button>
+                          </Box>
+                          <Box
+                            sx={{
+                              height: 35,
+                              ml: 1.5,
+                              p: 1,
+                              display: 'flex',
+                              direction: 'column'
+                            }}
+                          >
+                            <Typography variant='body2' noWrap>
+                              Application something
+                            </Typography>
+                          </Box>
+                        </Card>
+                      </Grid>
+                    ))}
+                  </Grid>
+                </Grid>
+              </DialogContent>
+            </>
+          ) : (
+            <>
+              <DialogTitle
+                sx={{
+                  background: 'lightgray',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  pr: 6,
+                  borderBottom: 1,
+                  borderColor: grey[500]
+                }}
+              >
+                <Typography variant='h6'>Subject Details</Typography>
+                <Typography variant='h5'>{subjectSelected.subject_code}</Typography>
+              </DialogTitle>
+              <DialogContent sx={{ minHeight: 600, background: grey[200], p: 10 }}>
+                <Box sx={{ mt: 6 }}>
+                  <Typography variant='body2'>
+                    this subject has parent please add this subject before, or you add this subject in a wrong term{' '}
+                  </Typography>
+                </Box>
+                {SubjectsRelationsLoading ? (
+                  <Box sx={{ m: 6 }}>Loading...</Box>
+                ) : (
+                  <Box sx={{ display: 'flex', flexDirection: 'row', mt: 6 }}>
+                    <Typography variant='h3'>{SubjectsRelations[0]?.parent?.subject_credit}</Typography>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', ml: 4, mt: 1.5 }}>
+                      <Typography variant='body2' sx={{ color: 'gray' }}>
+                        {SubjectsRelations[0]?.parent?.subject_name_en}
+                      </Typography>
+                      <Typography variant='body2' sx={{ color: grey[800] }}>
+                        {SubjectsRelations[0]?.parent?.subject_name_th}
+                      </Typography>
+                    </Box>
+                    <IconButton
+                      sx={{ color: grey[400], borderRadius: 1, m: 1, width: 48, ml: 6 }}
+                      // onClick={handleAddTab}
+                    >
+                      +
+                    </IconButton>
+                  </Box>
+                )}
+              </DialogContent>
+            </>
+          )}
+        </Dialog>
       </Hidden>
     </>
   )
