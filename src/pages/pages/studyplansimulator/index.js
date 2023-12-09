@@ -68,12 +68,15 @@ function StudyPlanSimulatorPage() {
   const handleCheckPreviousSubject = subject => {
     if (!subject) return
     if (subject?.continue_subjects[0]?.parent_id !== null) {
+      console.log('check parent', subject?.continue_subjects[0]?.parent_id)
       console.log('simSubjects', simSubjects)
       // console.log(subject?.continue_subjects[0]?.subject_id)
-      if (
-        simSubjects.length > 0 &&
-        !simSubjects?.find(s => s.subject_id === subject?.continue_subjects[0]?.parent_id && value + 1 > s.term)
-      ) {
+      if (!simSubjects?.find(s => s.subject_id === subject?.continue_subjects[0]?.parent_id && value + 1 > s.term)) {
+        setDialogStatus(1)
+        setOpenDetails(true)
+        setSubjectSelected(subject)
+        return 1
+      } else if (simSubjects.length === 0) {
         setDialogStatus(1)
         setOpenDetails(true)
         setSubjectSelected(subject)
