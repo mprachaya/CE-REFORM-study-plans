@@ -127,13 +127,26 @@ function StudyPlanSimulatorPage() {
     })
   }
 
-  const handleAddSimSubjects = subject => {
+  const handleAddSimSubjects = (subject, checkParent = true) => {
     if (!subject) {
       return
     }
     // if (subject.continue_subjects.length === 0) {
-    const hasParent = handleCheckPreviousSubject(subject)
-    if (!hasParent) {
+    if (checkParent) {
+      const hasParent = handleCheckPreviousSubject(subject)
+      if (!hasParent) {
+        const newObject = {
+          term: value + 1,
+          subject_id: subject?.subject_id,
+          subject_code: subject?.subject_code,
+          subject_name_th: subject?.subject_name_th,
+          subject_name_en: subject?.subject_name_en,
+          subject_credit: subject?.subject_credit
+        }
+        const results = [...simSubjects, newObject]
+        setSimSubjects(results)
+      }
+    } else {
       const newObject = {
         term: value + 1,
         subject_id: subject?.subject_id,
@@ -182,7 +195,7 @@ function StudyPlanSimulatorPage() {
     }
   }
 
-  console.log('SubjectsRelations', SubjectsRelations)
+  // console.log('SubjectsRelations', SubjectsRelations)
 
   const [tabs, setTabs] = useState(['Term 1'])
 
@@ -825,7 +838,10 @@ function StudyPlanSimulatorPage() {
                     </Box>
                     <IconButton
                       sx={{ color: grey[400], borderRadius: 1, m: 1, width: 48, ml: 6 }}
-                      // onClick={handleAddTab}
+                      onClick={() => {
+                        handleAddSimSubjects(SubjectsRelations[0]?.parent, false)
+                        setOpenDetails(false)
+                      }}
                     >
                       +
                     </IconButton>
