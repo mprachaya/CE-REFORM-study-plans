@@ -38,6 +38,8 @@ function StudyPlanSimulatorPage() {
   const [subjectSelected, setSubjectSelected] = useState([])
   const [openDetails, setOpenDetails] = useState(false)
 
+  const [totalCredit, setTotalCredit] = useState(0)
+
   const [dialogStatus, setDialogStatus] = useState(0) // if 0 show Details, 1 show alert when subject has parent
 
   const URL_GET_SUBJECTS_BY_CURRICURUM = `${url.BASE_URL}/subjects-by-curriculum/`
@@ -65,26 +67,44 @@ function StudyPlanSimulatorPage() {
     setSubjectSelected(subject)
     setOpenDetails(true)
   }
+
+  const handleCheckLimitCredit = term => {
+    const currentTerm = term
+    console.log('currentTerm', currentTerm)
+    const simInterm = simSubjects?.filter(s => s.term === currentTerm)
+    const creditTotal = simInterm.reduce((accumulator, currentValue) => {
+      // Adding the 'value' property of each object to the accumulator
+      return accumulator + currentValue.subject_credit
+    }, 0)
+    setTotalCredit(creditTotal)
+    console.log('term ' + currentTerm + ' total credit is :', creditTotal)
+  }
+
   const handleCheckPreviousSubject = subject => {
     if (!subject) return
-    if (subject?.continue_subjects[0]?.parent_id !== null) {
+    if (subject?.continue_subjects[0]?.parent_id !== undefined || subject?.continue_subjects[0]?.parent_id !== null) {
+      const checkParentInSim = simSubjects?.find(
+        s => s.subject_id === subject?.continue_subjects[0]?.parent_id && value + 1 > s.term
+      )
+      console.log('checkParentInSim', checkParentInSim)
       console.log('check parent', subject?.continue_subjects[0]?.parent_id)
-      console.log('simSubjects', simSubjects)
+      console.log(
+        'check 2',
+        !simSubjects?.find(s => s.subject_id === subject?.continue_subjects[0]?.parent_id && value + 1 > s.term)
+      )
       // console.log(subject?.continue_subjects[0]?.subject_id)
-      if (!simSubjects?.find(s => s.subject_id === subject?.continue_subjects[0]?.parent_id && value + 1 > s.term)) {
-        setDialogStatus(1)
-        setOpenDetails(true)
-        setSubjectSelected(subject)
-        return 1
-      } else if (simSubjects.length === 0) {
+      if (checkParentInSim !== undefined || subject?.continue_subjects[0]?.parent_id) {
         setDialogStatus(1)
         setOpenDetails(true)
         setSubjectSelected(subject)
         return 1
       }
-    } else {
       return 0
+      // has parent
     }
+    setDialogStatus(0)
+    setOpenDetails(false)
+    return 0 // is not has parent
   }
 
   useEffect(() => {
@@ -134,7 +154,30 @@ function StudyPlanSimulatorPage() {
     // if (subject.continue_subjects.length === 0) {
     if (checkParent) {
       const hasParent = handleCheckPreviousSubject(subject)
+      // console.log('hasParent', hasParent)
       if (!hasParent) {
+        if (
+          !simSubjects.find(s => s.subject_id === subject?.subject_id) &&
+          subject?.subject_credit + totalCredit <= 21
+        ) {
+          const newObject = {
+            term: value + 1,
+            subject_id: subject?.subject_id,
+            subject_code: subject?.subject_code,
+            subject_name_th: subject?.subject_name_th,
+            subject_name_en: subject?.subject_name_en,
+            subject_credit: subject?.subject_credit
+          }
+          const results = [...simSubjects, newObject]
+          setSimSubjects(results)
+        } else if (simSubjects.find(s => s.subject_id === subject?.subject_id)) {
+          alert('this subject already in simulator')
+        } else if (subject?.subject_credit + totalCredit >= 21) {
+          alert('this total credit is overflow (total credit must lest than 21 or equal)')
+        }
+      }
+    } else {
+      if (!simSubjects.find(s => s.subject_id === subject?.subject_id) && subject?.subject_credit + totalCredit <= 21) {
         const newObject = {
           term: value + 1,
           subject_id: subject?.subject_id,
@@ -145,18 +188,11 @@ function StudyPlanSimulatorPage() {
         }
         const results = [...simSubjects, newObject]
         setSimSubjects(results)
+      } else if (subject?.subject_credit + totalCredit >= 21) {
+        alert('this total credit is overflow (total credit must lest than 21 or equal)')
+      } else if (simSubjects.find(s => s.subject_id === subject?.subject_id)) {
+        alert('this subject already in simulator')
       }
-    } else {
-      const newObject = {
-        term: value + 1,
-        subject_id: subject?.subject_id,
-        subject_code: subject?.subject_code,
-        subject_name_th: subject?.subject_name_th,
-        subject_name_en: subject?.subject_name_en,
-        subject_credit: subject?.subject_credit
-      }
-      const results = [...simSubjects, newObject]
-      setSimSubjects(results)
     }
 
     // }
@@ -170,6 +206,9 @@ function StudyPlanSimulatorPage() {
     //   )
     // }
   }
+  useEffect(() => {
+    handleCheckLimitCredit(value + 1)
+  }, [simSubjects])
   const handleRemoveSimSubject = subjectId => {
     // Filter out the subject with the given subject_id
     const updatedSimSubjects = simSubjects.filter(subject => subject.subject_id !== subjectId)
@@ -203,6 +242,8 @@ function StudyPlanSimulatorPage() {
   const [value, setValue] = useState(0)
 
   const handleChange = (event, newValue) => {
+    handleCheckLimitCredit(value)
+    console.log('Term :', value)
     setValue(newValue)
   }
 
@@ -219,6 +260,8 @@ function StudyPlanSimulatorPage() {
   const handleAddTab = () => {
     const newTabIndex = tabs.length + 1
     const newTabLabel = `Term ${newTabIndex}`
+    console.log('newTabIndex :', newTabIndex)
+    handleCheckLimitCredit(newTabIndex)
     setTabs([...tabs, newTabLabel])
     setValue(newTabIndex - 1) // Switch to the newly added tab
   }
@@ -597,6 +640,11 @@ function StudyPlanSimulatorPage() {
                           Competencies
                         </Button>
                       </Box>
+                      <div style={{ textAlign: 'right' }}>
+                        <Typography variant='body2' sx={{ mr: 4 }}>
+                          {'Total Credit : ' + totalCredit}
+                        </Typography>
+                      </div>
                       {displaySubjects &&
                         simSubjects
                           .filter(s => s.term === value + 1)
