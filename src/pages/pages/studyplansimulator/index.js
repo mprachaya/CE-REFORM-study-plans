@@ -46,6 +46,7 @@ function StudyPlanSimulatorPage() {
 
   const URL_GET_SUBJECTS_BY_CURRICURUM = `${url.BASE_URL}/subjects-by-curriculum/`
   const URL_GET_SUBJECTS_RELATIONS = `${url.BASE_URL}/continue-subjects-subject/`
+  const URL_GET_CURRICULUM_STRUCTURES = `${url.BASE_URL}/curriculum-structures-v2/`
 
   const {
     error: SubjectsError,
@@ -62,6 +63,14 @@ function StudyPlanSimulatorPage() {
     loading: SubjectsRelationsLoading,
     reFetch: reFetchSubjectsRelations
   } = useFetch(URL_GET_SUBJECTS_RELATIONS + subjectSelected.subject_id) // 1 for ce 60 curriculum
+
+  const {
+    error: CurriculumStructuresError,
+    data: CurriculumStructures,
+    setData: setCurriculumStructures,
+    loading: CurriculumStructuresLoading,
+    reFetch: reFetchCurriculumStructures
+  } = useFetch(URL_GET_CURRICULUM_STRUCTURES + 2)
 
   const handleOpenDetails = subject => {
     if (!subject) return
@@ -89,26 +98,18 @@ function StudyPlanSimulatorPage() {
 
   const handleCheckPreviousSubject = subject => {
     if (!subject) return
-    if (subject?.continue_subjects[0]?.parent_id !== undefined || subject?.continue_subjects[0]?.parent_id !== null) {
+    if (subject?.continue_subjects[0]?.parent_id !== undefined && subject?.continue_subjects[0]?.parent_id !== null) {
       const checkParentInSim = simSubjects?.find(
         s => s.subject_id === subject?.continue_subjects[0]?.parent_id && value + 1 > s.term
       )
-      // console.log('checkParentInSim', checkParentInSim)
-      // console.log('check parent', subject?.continue_subjects[0]?.parent_id)
-      // console.log(
-      //   'check 2',
-      //   !simSubjects?.find(s => s.subject_id === subject?.continue_subjects[0]?.parent_id && value + 1 > s.term)
-      // )
-
-      // console.log(subject?.continue_subjects[0]?.subject_id)
       if (checkParentInSim === undefined) {
+        console.log('checkParentInSim', checkParentInSim)
         setDialogStatus(1)
         setOpenDetails(true)
         setSubjectSelected(subject)
 
         return 1
       }
-
       return 0
 
       // has parent
@@ -118,6 +119,87 @@ function StudyPlanSimulatorPage() {
 
     return 0 // is not has parent
   }
+
+  function getUniqueValues(arr, propertyPath) {
+    const uniqueValuesSet = new Set()
+
+    arr.forEach(obj => {
+      // Use propertyPath to access nested properties
+      const nestedProperties = propertyPath.split('.')
+      let propertyValue = obj
+
+      for (let prop of nestedProperties) {
+        if (propertyValue && propertyValue.hasOwnProperty(prop)) {
+          propertyValue = propertyValue[prop]
+        } else {
+          // Handle cases where the nested property doesn't exist
+          propertyValue = undefined
+          break
+        }
+      }
+
+      // Add the value to the Set
+      uniqueValuesSet.add(propertyValue)
+    })
+
+    // Convert the Set back to an array and return it
+
+    const uniqueValuesArray = Array.from(uniqueValuesSet)
+
+    return uniqueValuesArray
+  }
+
+  const getUniqueMultiValues = (arr, propertyPath1, propertyPath2, outputName1, outputName2) => {
+    const uniqueValuesSet = new Set()
+
+    arr.forEach(obj => {
+      const nestedProperties1 = propertyPath1.split('.')
+      const nestedProperties2 = propertyPath2.split('.')
+      let propertyValue1 = obj
+      let propertyValue2 = obj
+
+      for (let prop of nestedProperties1) {
+        if (propertyValue1 && propertyValue1.hasOwnProperty(prop)) {
+          propertyValue1 = propertyValue1[prop]
+        } else {
+          propertyValue1 = undefined
+          break
+        }
+      }
+
+      for (let prop of nestedProperties2) {
+        if (propertyValue2 && propertyValue2.hasOwnProperty(prop)) {
+          propertyValue2 = propertyValue2[prop]
+        } else {
+          propertyValue2 = undefined
+          break
+        }
+      }
+
+      const uniqueObject = {
+        [outputName1]: propertyValue1,
+        [outputName2]: propertyValue2
+      }
+
+      uniqueValuesSet.add(JSON.stringify(uniqueObject))
+    })
+
+    const uniqueValuesArray = Array.from(uniqueValuesSet).map(str => JSON.parse(str))
+
+    return uniqueValuesArray
+  }
+
+  const UniqueCategories = getUniqueValues(CurriculumStructures, 'subjectCategory.subject_category_name')
+
+  // const UniqueTypes = getUniqueValues(CurriculumStructures, 'subjectType.subject_type_name')
+
+  const UniqueTypes = getUniqueMultiValues(
+    CurriculumStructures,
+    'subjectCategory.subject_category_name',
+    'subjectType.subject_type_name',
+    'subject_category_name',
+    'subject_type_name'
+  )
 
   useEffect(() => {
     console.log('categoriesSelected', categoriesSelected)
@@ -182,10 +264,13 @@ function StudyPlanSimulatorPage() {
             subject_code: subject?.subject_code,
             subject_name_th: subject?.subject_name_th,
             subject_name_en: subject?.subject_name_en,
-            subject_credit: subject?.subject_credit
+            subject_credit: subject?.subject_credit,
+            subject_group_id: subject?.subjectGroup?.subject_group_id,
+            subject_group_name: subject?.subjectGroup?.subject_group_name
           }
           const results = [...simSubjects, newObject]
           setSimSubjects(results)
+          console.log('added sim subject', results)
         } else if (simSubjects.find(s => s.subject_id === subject?.subject_id)) {
           alert('this subject already in simulator')
         } else if (subject?.subject_credit + totalCredit >= 25) {
@@ -200,10 +285,13 @@ function StudyPlanSimulatorPage() {
           subject_code: subject?.subject_code,
           subject_name_th: subject?.subject_name_th,
           subject_name_en: subject?.subject_name_en,
-          subject_credit: subject?.subject_credit
+          subject_credit: subject?.subject_credit,
+          subject_group_id: subject?.subjectGroup?.subject_group_id,
+          subject_group_name: subject?.subjectGroup?.subject_group_name
         }
         const results = [...simSubjects, newObject]
         setSimSubjects(results)
+        console.log('added sim subject', results)
       } else if (subject?.subject_credit + totalCredit >= 25) {
         alert('this total credit is overflow (total credit must lest than 21 or equal)')
       } else if (simSubjects.find(s => s.subject_id === subject?.subject_id)) {
@@ -357,9 +445,9 @@ function StudyPlanSimulatorPage() {
       setTypesSubject(uniqueTypesArray)
       setGroupsSubject(uniqueGroupsArray)
 
-      // console.log('Unique Subject Categories:', uniqueCategoriesArray)
-      // console.log('Unique Subject Types:', uniqueTypesArray)
-      // console.log('Unique Subject Groups:', uniqueGroupsArray)
+      console.log('Unique Subject Categories:', uniqueCategoriesArray)
+      console.log('Unique Subject Types:', uniqueTypesArray)
+      console.log('Unique Subject Groups:', uniqueGroupsArray)
     } else {
       return
     }
@@ -396,7 +484,7 @@ function StudyPlanSimulatorPage() {
             <Grid container item sm={12} lg={8} spacing={2}>
               <Grid item sm={12} md={6} lg={4}>
                 <Selection
-                  disabled={categoriesSubject.length > 0}
+                  disabled={categoriesSubject[0] === undefined}
                   label={'Category'}
                   height={40}
                   width={'100%'}
@@ -414,7 +502,7 @@ function StudyPlanSimulatorPage() {
               </Grid>
               <Grid item sm={12} md={4} lg={4}>
                 <Selection
-                  disabled={typesSubject.length > 0}
+                  disabled={typesSubject[0] === undefined}
                   label={'Type'}
                   height={40}
                   width={'100%'}
@@ -430,7 +518,7 @@ function StudyPlanSimulatorPage() {
               </Grid>
               <Grid item sm={12} md={4} lg={4}>
                 <Selection
-                  disabled={groupsSubject.length > 0}
+                  disabled={groupsSubject[0] === undefined}
                   label={'Group'}
                   height={40}
                   width={'100%'}
@@ -586,7 +674,7 @@ function StudyPlanSimulatorPage() {
                   Simulator :{' '}
                 </Typography>
                 <Typography variant='h6' sx={{ ml: 2, color: 'gray' }}>
-                  Software Engineering 2566
+                  SE 2566
                 </Typography>
               </Box>
               <Box>
@@ -728,31 +816,128 @@ function StudyPlanSimulatorPage() {
                               </IconButton>
                             </Box>
                           ))}
-                      {
-                        displayScope && (
-                          // simSubjects
-                          //   .filter(s => s.term === value + 1)
-                          //   .map((subjectInterm, index) => (
-                          <Box
-                            // key={subjectInterm.subject_id}
-                            onMouseEnter={() => handleMouseEnter(index)}
-                            onMouseLeave={() => handleMouseLeave(index)}
-                            sx={{
-                              width: '100%',
-                              display: 'flex',
-                              p: 3.5,
-                              mt: 2,
-                              mr: 3.5,
-                              borderRadius: 2,
-                              justifyContent: 'space-between',
-                              background: 'white',
-                              position: 'relative' // Add relative positioning
-                            }}
-                          ></Box>
-                        )
+                      {displayScope && (
+                        <Grid item xs={12}>
+                          <Box sx={{ width: '100%' }}>
+                            {UniqueCategories.map(categoryHeader => (
+                              <Box key={categoryHeader} maxWidth={600} sx={{ mb: 3 }}>
+                                {CurriculumStructures?.filter(
+                                  categoryHasCredit =>
+                                    categoryHasCredit.subject_category_id !== null &&
+                                    categoryHasCredit.subject_type_id === null &&
+                                    categoryHasCredit.subject_group_id === null &&
+                                    categoryHasCredit.subjectCategory?.subject_category_name === categoryHeader
+                                ).length > 0 ? (
+                                  CurriculumStructures?.filter(
+                                    categoryHasCredit =>
+                                      categoryHasCredit.subject_category_id !== null &&
+                                      categoryHasCredit.subject_type_id === null &&
+                                      categoryHasCredit.subject_group_id === null &&
+                                      categoryHasCredit.subjectCategory?.subject_category_name === categoryHeader
+                                  ).map(categoryHasCreditResult => (
+                                    <Box
+                                      key={categoryHasCreditResult.curriculum_structures_v2_id}
+                                      sx={{ display: 'flex', justifyContent: 'space-between', mr: 2 }}
+                                    >
+                                      <Typography variant='body1'>
+                                        {categoryHasCreditResult?.subjectCategory?.subject_category_name}
+                                      </Typography>
+                                      <Typography>{' ' + categoryHasCreditResult?.credit_total + ' credit'}</Typography>
+                                    </Box>
+                                  ))
+                                ) : (
+                                  <Typography variant='body1' key={categoryHeader}>
+                                    {categoryHeader}
+                                  </Typography>
+                                )}
 
-                        // ))
-                      }
+                                {CurriculumStructures?.filter(
+                                  case1 =>
+                                    // condition category && type or category && group
+                                    (case1.subject_category_id !== null &&
+                                      case1.subject_type_id !== null &&
+                                      case1.subjectCategory?.subject_category_name === categoryHeader &&
+                                      case1.subject_group_id === null) ||
+                                    (case1.subject_category_id !== null &&
+                                      case1.subject_group_id !== null &&
+                                      case1.subjectCategory?.subject_category_name === categoryHeader &&
+                                      case1.subject_type_id === null)
+                                ).map(case1Result => (
+                                  <Box key={case1Result.curriculum_structures_v2_id}>
+                                    {case1Result.subject_type_id !== null ? (
+                                      <Box sx={{ display: 'flex', justifyContent: 'space-between', mx: 2 }}>
+                                        <Typography variant='body2'>
+                                          {case1Result.subjectType?.subject_type_name}
+                                        </Typography>
+                                        <Typography variant='body2'>
+                                          {' ' + case1Result.credit_total + ' credit'}
+                                        </Typography>
+                                      </Box>
+                                    ) : (
+                                      <Box sx={{ display: 'flex', justifyContent: 'space-between', mx: 2 }}>
+                                        <Typography variant='body2'>
+                                          {case1Result.subjectGroup?.subject_group_name}
+                                        </Typography>
+                                        <Typography variant='body2'>
+                                          {' ' + case1Result.credit_total + ' credit'}{' '}
+                                        </Typography>
+                                      </Box>
+                                    )}
+                                  </Box>
+                                ))}
+
+                                {UniqueTypes.filter(
+                                  filterType => filterType.subject_category_name === categoryHeader
+                                ).map(typeHeader => (
+                                  <Box key={typeHeader.subject_type_name} sx={{ ml: 3 }}>
+                                    {/* {typeHeader.subject_type_name} */}
+
+                                    {CurriculumStructures?.filter(
+                                      case1 =>
+                                        // condition category && type
+                                        case1.subject_category_id !== null &&
+                                        case1.subject_type_id !== null &&
+                                        case1.subject_group_id === null
+                                    ).map(case1Duplicate => (
+                                      <Box key={case1Duplicate.curriculum_structures_v2_id}>
+                                        {case1Duplicate.subjectType.subject_type_name !==
+                                          typeHeader.subject_type_name && (
+                                          <Typography>{typeHeader.subject_type_name}</Typography>
+                                        )}
+                                      </Box>
+                                    ))}
+
+                                    {/* <Typography>{typeHeader.subject_type_name}</Typography> */}
+
+                                    {/* case 2 */}
+
+                                    {CurriculumStructures?.filter(
+                                      case2 =>
+                                        // condition category && type && group
+                                        case2.subject_category_id !== null &&
+                                        case2.subject_type_id !== null &&
+                                        case2.subject_group_id !== null &&
+                                        case2.subjectCategory?.subject_category_name === categoryHeader &&
+                                        case2.subjectType?.subject_type_name === typeHeader.subject_type_name
+                                    ).map(case2Result => (
+                                      <Box key={case2Result.curriculum_structures_v2_id} sx={{ ml: 3 }}>
+                                        <Box sx={{ display: 'flex', justifyContent: 'space-between', mx: 2 }}>
+                                          <Typography variant='body2'>
+                                            {case2Result.subjectGroup?.subject_group_name}
+                                          </Typography>
+                                          <Typography variant='body1'>
+                                            {' ' + case2Result.credit_total + ' credit'}
+                                          </Typography>
+                                        </Box>
+                                      </Box>
+                                    ))}
+                                  </Box>
+                                ))}
+                              </Box>
+                            ))}
+                          </Box>
+                        </Grid>
+                      )}
                     </Box>
                   </Box>
                 ))}
