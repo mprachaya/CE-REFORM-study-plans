@@ -38,11 +38,13 @@ function StudyPlanSimulatorPage() {
   const [subjectSelected, setSubjectSelected] = useState([])
   const [openDetails, setOpenDetails] = useState(false)
 
-  const [openResult, setOpenResult] = useState(true)
+  const [openResult, setOpenResult] = useState(false)
 
   const [totalCredit, setTotalCredit] = useState(0)
 
   const [dialogStatus, setDialogStatus] = useState(0) // if 0 show Details, 1 show alert when subject has parent
+
+  const [countScope, setCountScope] = useState([])
 
   const URL_GET_SUBJECTS_BY_CURRICURUM = `${url.BASE_URL}/subjects-by-curriculum/`
   const URL_GET_SUBJECTS_RELATIONS = `${url.BASE_URL}/continue-subjects-subject/`
@@ -102,6 +104,7 @@ function StudyPlanSimulatorPage() {
       const checkParentInSim = simSubjects?.find(
         s => s.subject_id === subject?.continue_subjects[0]?.parent_id && value + 1 > s.term
       )
+      // has parent and parent not in simulator
       if (checkParentInSim === undefined) {
         console.log('checkParentInSim', checkParentInSim)
         setDialogStatus(1)
@@ -111,8 +114,6 @@ function StudyPlanSimulatorPage() {
         return 1
       }
       return 0
-
-      // has parent
     }
     setDialogStatus(0)
     setOpenDetails(false)
@@ -201,6 +202,27 @@ function StudyPlanSimulatorPage() {
     'subject_type_name'
   )
 
+  // const handleUpdateScope = () => {
+  //   // console.log('CurriculumStructures', CurriculumStructures)
+  //   // console.log('simSubjects', simSubjects)
+  //   CurriculumStructures.map(scope => {
+  //     let findToUpdate = simSubjects?.find(
+  //       obj => obj.subject_structures[0]?.subjectGroup?.subject_group_id === scope.subjectGroup?.subject_group_id
+  //     )
+  //     if (findToUpdate) {
+  //       console.log('found!', findToUpdate)
+  //       scope.countCredit = scope.countCredit
+  //         ? scope.countCredit + findToUpdate.subject_credit
+  //         : findToUpdate.subject_credit
+  //       console.log('scopeUpdated', scope)
+  //     }
+  //   })
+
+  //   // const addCountScope = Object.values(CurriculumStructures)?.map(pre => ({ ...pre, countCredit: 1 }))
+  //   // console.log('addCountScope', addCountScope)
+  //   // setCountScope(CurriculumStructures)
+  // }
+
   useEffect(() => {
     console.log('categoriesSelected', categoriesSelected)
   }, [categoriesSelected])
@@ -247,7 +269,7 @@ function StudyPlanSimulatorPage() {
     if (!subject) {
       return
     }
-
+    console.log('Subject', subject)
     // if (subject.continue_subjects.length === 0) {
     if (checkParent) {
       const hasParent = handleCheckPreviousSubject(subject)
@@ -265,12 +287,32 @@ function StudyPlanSimulatorPage() {
             subject_name_th: subject?.subject_name_th,
             subject_name_en: subject?.subject_name_en,
             subject_credit: subject?.subject_credit,
-            subject_group_id: subject?.subjectGroup?.subject_group_id,
-            subject_group_name: subject?.subjectGroup?.subject_group_name
+            subject_structures: subject?.subject_structures
           }
           const results = [...simSubjects, newObject]
           setSimSubjects(results)
           console.log('added sim subject', results)
+
+          // update count scope
+          const fintoUpdateScope = CurriculumStructures.filter(
+            scope =>
+              scope.subjectGroup?.subject_group_id === subject?.subject_structures[0]?.subjectGroup?.subject_group_id
+          ).map(pre => ({
+            ...pre,
+            countScope:
+              pre.countScope !== undefined && !isNaN(pre.countScope)
+                ? pre.countScope + subject?.subject_credit
+                : subject?.subject_credit
+          }))
+          if (fintoUpdateScope) {
+            const tempStructure = CurriculumStructures.filter(
+              old =>
+                old.subjectGroup?.subject_group_id !== subject?.subject_structures[0]?.subjectGroup?.subject_group_id
+            )
+            const newUpdate = [...tempStructure, fintoUpdateScope[0]]
+            console.log('newUpdate', newUpdate)
+            setCurriculumStructures(newUpdate)
+          }
         } else if (simSubjects.find(s => s.subject_id === subject?.subject_id)) {
           alert('this subject already in simulator')
         } else if (subject?.subject_credit + totalCredit >= 25) {
@@ -286,37 +328,68 @@ function StudyPlanSimulatorPage() {
           subject_name_th: subject?.subject_name_th,
           subject_name_en: subject?.subject_name_en,
           subject_credit: subject?.subject_credit,
-          subject_group_id: subject?.subjectGroup?.subject_group_id,
-          subject_group_name: subject?.subjectGroup?.subject_group_name
+          subject_structures: subject?.subject_structures
         }
         const results = [...simSubjects, newObject]
         setSimSubjects(results)
         console.log('added sim subject', results)
+
+        // update count scope with parent
+        const fintoUpdateScope = CurriculumStructures.filter(
+          scope =>
+            scope.subjectGroup?.subject_group_id === subject?.subject_structures[0]?.subjectGroup?.subject_group_id
+        ).map(pre => ({
+          ...pre,
+          countScope:
+            pre.countScope !== undefined && !isNaN(pre.countScope)
+              ? pre.countScope + subject?.subject_credit
+              : subject?.subject_credit
+        }))
+        if (fintoUpdateScope) {
+          const tempStructure = CurriculumStructures.filter(
+            old => old.subjectGroup?.subject_group_id !== subject?.subject_structures[0]?.subjectGroup?.subject_group_id
+          )
+          const newUpdate = [...tempStructure, fintoUpdateScope[0]]
+          console.log('newUpdate', newUpdate)
+          setCurriculumStructures(newUpdate)
+        }
       } else if (subject?.subject_credit + totalCredit >= 25) {
         alert('this total credit is overflow (total credit must lest than 21 or equal)')
       } else if (simSubjects.find(s => s.subject_id === subject?.subject_id)) {
         alert('this subject already in simulator')
       }
     }
-
-    // }
-    // else {
-    //   alert(
-    //     'Please add ' +
-    //       subject.continue_subjects[0].parent?.subject_code +
-    //       ' ' +
-    //       subject.continue_subjects[0].parent?.subject_name_en +
-    //       ' Before.'
-    //   )
-    // }
   }
+
+  useEffect(() => {
+    console.log('CurriculumStructures', CurriculumStructures)
+  }, [CurriculumStructures])
+
   useEffect(() => {
     handleCheckLimitCredit(value + 1)
   }, [simSubjects])
 
-  const handleRemoveSimSubject = subjectId => {
+  const handleRemoveSimSubject = subject => {
     // Filter out the subject with the given subject_id
-    const updatedSimSubjects = simSubjects.filter(subject => subject.subject_id !== subjectId)
+    const updatedSimSubjects = simSubjects.filter(s => s.subject_id !== subject?.subject_id)
+    // update count scope
+    const fintoUpdateScope = CurriculumStructures.filter(
+      scope => scope.subjectGroup?.subject_group_id === subject?.subject_structures[0]?.subjectGroup?.subject_group_id
+    ).map(pre => ({
+      ...pre,
+      countScope:
+        pre.countScope !== undefined && !isNaN(pre.countScope)
+          ? pre.countScope - subject?.subject_credit
+          : subject?.subject_credit
+    }))
+    if (fintoUpdateScope) {
+      const tempStructure = CurriculumStructures.filter(
+        old => old.subjectGroup?.subject_group_id !== subject?.subject_structures[0]?.subjectGroup?.subject_group_id
+      )
+      const newUpdate = [...tempStructure, fintoUpdateScope[0]]
+      console.log('newUpdate', newUpdate)
+      setCurriculumStructures(newUpdate)
+    }
 
     // Update the state with the filtered array
     setSimSubjects(updatedSimSubjects)
@@ -324,6 +397,7 @@ function StudyPlanSimulatorPage() {
 
   useEffect(() => {
     console.log(simSubjects)
+    // handleUpdateScope()
   }, [simSubjects])
 
   const [displaySubjects, setDisplaySubjects] = useState(true)
@@ -456,8 +530,8 @@ function StudyPlanSimulatorPage() {
   return (
     <>
       <Hidden smDown>
-        <Grid container sx={{ m: 2 }}>
-          <Grid container item sm={6} md={8} lg={8} sx={{ height: '100%' }}>
+        <Grid container sx={{ m: 2 }} spacing={2}>
+          <Grid container item sm={6} md={8} lg={8} sx={{ height: '100%' }} spacing={6}>
             {/* Filter */}
             <Grid item sm={12} md={6} lg={8}>
               <TextSearch
@@ -467,7 +541,7 @@ function StudyPlanSimulatorPage() {
                 placeholder='Subject Code, Name'
               />
             </Grid>
-            <Grid item sm={12} md={4} lg={4}>
+            <Grid item sm={12} md={6} lg={4}>
               {/* Pagination */}
               <TablePagination
                 rowsPerPageOptions={[]}
@@ -500,7 +574,7 @@ function StudyPlanSimulatorPage() {
                   ))}
                 />
               </Grid>
-              <Grid item sm={12} md={4} lg={4}>
+              <Grid item sm={12} md={6} lg={4}>
                 <Selection
                   disabled={typesSubject[0] === undefined}
                   label={'Type'}
@@ -516,7 +590,7 @@ function StudyPlanSimulatorPage() {
                   ))}
                 />
               </Grid>
-              <Grid item sm={12} md={4} lg={4}>
+              <Grid item sm={12} md={6} lg={4}>
                 <Selection
                   disabled={groupsSubject[0] === undefined}
                   label={'Group'}
@@ -792,7 +866,7 @@ function StudyPlanSimulatorPage() {
                                 <Typography variant='caption' sx={{ minWidth: 100, maxWidth: 300, m: 2 }}>
                                   {subjectInterm.subject_code} {subjectInterm.subject_name_en}
                                 </Typography>
-                                <Typography sx={{ m: 2, mr: 7 }} variant='caption'>
+                                <Typography sx={{ m: 2, mr: 7, fontWeight: 'bold' }} variant='caption'>
                                   {subjectInterm.subject_credit}
                                 </Typography>
                               </Box>
@@ -809,7 +883,7 @@ function StudyPlanSimulatorPage() {
                                 }}
                                 onClick={() => {
                                   // Add your remove logic here
-                                  handleRemoveSimSubject(subjectInterm.subject_id)
+                                  handleRemoveSimSubject(subjectInterm)
                                 }}
                               >
                                 <Icon path={mdiTrashCan} size={0.7} />
@@ -818,7 +892,12 @@ function StudyPlanSimulatorPage() {
                           ))}
                       {displayScope && (
                         <Grid item xs={12}>
-                          <Box sx={{ width: '100%' }}>
+                          <Box sx={{ width: '100%', textAlign: 'end' }}>
+                            <Typography sx={{ mr: 2 }} variant='body2'>
+                              Credit
+                            </Typography>
+                          </Box>
+                          <Box sx={{ width: '100%', px: 4 }}>
                             {UniqueCategories.map(categoryHeader => (
                               <Box key={categoryHeader} maxWidth={600} sx={{ mb: 3 }}>
                                 {CurriculumStructures?.filter(
@@ -842,7 +921,13 @@ function StudyPlanSimulatorPage() {
                                       <Typography variant='body1'>
                                         {categoryHasCreditResult?.subjectCategory?.subject_category_name}
                                       </Typography>
-                                      <Typography>{' ' + categoryHasCreditResult?.credit_total + ' credit'}</Typography>
+                                      <Typography>
+                                        {categoryHasCreditResult.countScope
+                                          ? categoryHasCreditResult.countScope +
+                                            ' of ' +
+                                            categoryHasCreditResult?.credit_total
+                                          : '0 of ' + categoryHasCreditResult?.credit_total}
+                                      </Typography>
                                     </Box>
                                   ))
                                 ) : (
@@ -870,7 +955,10 @@ function StudyPlanSimulatorPage() {
                                           {case1Result.subjectType?.subject_type_name}
                                         </Typography>
                                         <Typography variant='body2'>
-                                          {' ' + case1Result.credit_total + ' credit'}
+                                          {/* {'0' + ' of ' + case1Result.credit_total} */}
+                                          {case1Result.countScope
+                                            ? case1Result.countScope + ' of ' + case1Result?.credit_total
+                                            : '0 of ' + case1Result?.credit_total}
                                         </Typography>
                                       </Box>
                                     ) : (
@@ -879,7 +967,10 @@ function StudyPlanSimulatorPage() {
                                           {case1Result.subjectGroup?.subject_group_name}
                                         </Typography>
                                         <Typography variant='body2'>
-                                          {' ' + case1Result.credit_total + ' credit'}{' '}
+                                          {/* {'0' + ' of ' + case1Result.credit_total} */}
+                                          {case1Result.countScope
+                                            ? case1Result.countScope + ' of ' + case1Result?.credit_total
+                                            : '0 of ' + case1Result?.credit_total}
                                         </Typography>
                                       </Box>
                                     )}
