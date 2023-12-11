@@ -49,7 +49,7 @@ function Curriculumstructure() {
     subject_category_id: null,
     subject_type_id: null,
     subject_group_id: null,
-    csv2_credit_total: 1
+    credit_total: 1
   }
   const [state, setState] = useState(initialState)
   const [curriculumStructuresId, setCurriculumStructuresId] = useState(0)
@@ -105,7 +105,6 @@ function Curriculumstructure() {
       setGroupSelected(null)
       setTypeSelected(null)
     } else {
-
       // edit
       if (sjCategory) {
         setState({
@@ -113,7 +112,7 @@ function Curriculumstructure() {
           subject_category_id: sjCategory?.subject_category_id,
           subject_type_id: sjType?.subject_type_id || null,
           subject_group_id: sjGroup?.subject_group_id || null,
-          csv2_credit_total: totalCredit
+          credit_total: totalCredit
         })
 
         setFormType(1)
@@ -128,8 +127,7 @@ function Curriculumstructure() {
   }
 
   const findCategory = () => {
-
-    console.log('CurriculumStructures', CurriculumStructures);
+    console.log('CurriculumStructures', CurriculumStructures)
 
     const categoryByStructer = Object.values(CurriculumStructures)?.filter(
       categoryDuplicate =>
@@ -137,23 +135,18 @@ function Curriculumstructure() {
         categoryDuplicate.subject_type_id === null &&
         categoryDuplicate.subject_group_id === null
     )
-    console.log('findCategory', findCategory);
+    console.log('findCategory', findCategory)
 
     if (categoryByStructer?.length > 0) {
-      const unDuplicateCagetory = Object.values(UniqueCategories)?.filter(d => d !== categoryByStructer?.find(s => s.subjectCategory?.subject_category_name))
+      const unDuplicateCagetory = Object.values(UniqueCategories)?.filter(
+        d => d !== categoryByStructer?.find(s => s.subjectCategory?.subject_category_name)
+      )
       setShowDefaultCategory(unDuplicateCagetory)
     }
-
-
-
   }
 
   const handleSubmit = () => {
-    if (
-      state.csv2_credit_total !== undefined &&
-      state.subject_category_id !== 0 &&
-      state.subject_category_id !== null
-    ) {
+    if (state.credit_total !== undefined && state.subject_category_id !== 0 && state.subject_category_id !== null) {
       console.log(state)
       axios
         .get(URL_GET_CURRICULUM_STRUCTURES + curriculumSelected)
@@ -185,11 +178,7 @@ function Curriculumstructure() {
   }
 
   const handleUpdate = () => {
-    if (
-      state.csv2_credit_total !== undefined &&
-      state.subject_category_id !== 0 &&
-      state.subject_category_id !== null
-    ) {
+    if (state.credit_total !== undefined && state.subject_category_id !== 0 && state.subject_category_id !== null) {
       console.log(state)
       axios.get(URL_GET_CURRICULUM_STRUCTURES + curriculumSelected).then(res => {
         if (res.data) {
@@ -265,7 +254,6 @@ function Curriculumstructure() {
     const uniqueValuesSet = new Set()
 
     arr.forEach(obj => {
-
       // Use propertyPath to access nested properties
       const nestedProperties = propertyPath.split('.')
       let propertyValue = obj
@@ -274,7 +262,6 @@ function Curriculumstructure() {
         if (propertyValue && propertyValue.hasOwnProperty(prop)) {
           propertyValue = propertyValue[prop]
         } else {
-
           // Handle cases where the nested property doesn't exist
           propertyValue = undefined
           break
@@ -350,7 +337,7 @@ function Curriculumstructure() {
   useEffect(() => {
     if (Curriculums.length > 0) {
       const findMaxId = Curriculums?.reduce(
-        (max, current) => (current.curriculum_id < max.curriculum_id ? current : max),
+        (max, current) => (current.curriculum_id > max.curriculum_id ? current : max),
         Curriculums[0]
       )
 
@@ -385,7 +372,7 @@ function Curriculumstructure() {
       field: 'credit_total',
       headerName: 'Credit Total',
       width: 180,
-      valueGetter: params => params?.row?.csv2_credit_total,
+      valueGetter: params => params?.row?.credit_total,
       align: 'center',
       headerAlign: 'center'
     },
@@ -428,7 +415,7 @@ function Curriculumstructure() {
                     params.row?.subjectCategory,
                     params.row?.subjectType,
                     params.row?.subjectGroup,
-                    params.row?.csv2_credit_total
+                    params.row?.credit_total
                   )
                 }
               >
@@ -541,7 +528,6 @@ function Curriculumstructure() {
                 disablePortal
                 fullWidth
                 freeSolo
-
                 // options={Jobs?.filter(sj => sj.subject_id !== subject.subject_id)}
 
                 options={Types || []}
@@ -566,13 +552,11 @@ function Curriculumstructure() {
                 fullWidth
                 freeSolo
                 options={
-
                   // only uniqe subject group name
                   Groups.filter((obj, index, arr) => {
                     const firstIndex = arr.findIndex(item => item.subject_group_name === obj.subject_group_name)
 
                     return index === firstIndex
-
                   }) || []
                 }
                 getOptionLabel={option => option?.subject_group_name || ''}
@@ -590,9 +574,9 @@ function Curriculumstructure() {
             </Grid>
             <Grid item xs={12}>
               <TextField
-                name='csv2_credit_total'
+                name='credit_total'
                 type='number'
-                value={state?.csv2_credit_total || 1}
+                value={state?.credit_total || 1}
                 onChange={e => {
                   handleChangeNumber(e, setState)
                 }}
@@ -625,7 +609,6 @@ function Curriculumstructure() {
           <Grid sx={{ ml: 6, pb: 12 }} container xs={12}>
             <Grid item xs={12}>
               <Box sx={{ width: '100%' }}>
-
                 {/* {Object.values(groupedStructure)?.map(category => (
                   <Typography key={category.subject_category_name}>
                     {category.subject_category_name}
@@ -644,7 +627,6 @@ function Curriculumstructure() {
 
                 {UniqueCategories.map(categoryHeader => (
                   <Box key={categoryHeader} maxWidth={600} sx={{ mb: 3 }}>
-
                     {CurriculumStructures?.filter(
                       categoryHasCredit =>
                         categoryHasCredit.subject_category_id !== null &&
@@ -659,15 +641,21 @@ function Curriculumstructure() {
                           categoryHasCredit.subject_group_id === null &&
                           categoryHasCredit.subjectCategory?.subject_category_name === categoryHeader
                       ).map(categoryHasCreditResult => (
-                        <Box key={categoryHasCreditResult.curriculum_structures_v2_id} sx={{ display: 'flex', justifyContent: 'space-between', mr: 2 }}>
-                          <Typography variant='h6'>{categoryHasCreditResult?.subjectCategory?.subject_category_name}</Typography>
-                          <Typography> {' ' + categoryHasCreditResult?.csv2_credit_total + ' credit'}</Typography>
+                        <Box
+                          key={categoryHasCreditResult.curriculum_structures_v2_id}
+                          sx={{ display: 'flex', justifyContent: 'space-between', mr: 2 }}
+                        >
+                          <Typography variant='h6'>
+                            {categoryHasCreditResult?.subjectCategory?.subject_category_name}
+                          </Typography>
+                          <Typography> {' ' + categoryHasCreditResult?.credit_total + ' credit'}</Typography>
                         </Box>
                       ))
                     ) : (
-                      <Typography key={categoryHeader} variant='h6'>{categoryHeader}</Typography>
+                      <Typography key={categoryHeader} variant='h6'>
+                        {categoryHeader}
+                      </Typography>
                     )}
-
 
                     {/* {CurriculumStructures?.filter(
                       categoryDuplicate =>
@@ -687,7 +675,6 @@ function Curriculumstructure() {
 
                     {CurriculumStructures?.filter(
                       case1 =>
-
                         // condition category && type or category && group
                         (case1.subject_category_id !== null &&
                           case1.subject_type_id !== null &&
@@ -702,12 +689,12 @@ function Curriculumstructure() {
                         {case1Result.subject_type_id !== null ? (
                           <Box sx={{ display: 'flex', justifyContent: 'space-between', mx: 2 }}>
                             <Typography>{case1Result.subjectType?.subject_type_name}</Typography>
-                            <Typography> {' ' + case1Result.csv2_credit_total + ' credit'}</Typography>
+                            <Typography> {' ' + case1Result.credit_total + ' credit'}</Typography>
                           </Box>
                         ) : (
                           <Box sx={{ display: 'flex', justifyContent: 'space-between', mx: 2 }}>
                             <Typography>{case1Result.subjectGroup?.subject_group_name}</Typography>
-                            <Typography> {' ' + case1Result.csv2_credit_total + ' credit'} </Typography>
+                            <Typography> {' ' + case1Result.credit_total + ' credit'} </Typography>
                           </Box>
                         )}
                       </Box>
@@ -716,12 +703,10 @@ function Curriculumstructure() {
                     {UniqueTypes.filter(filterType => filterType.subject_category_name === categoryHeader).map(
                       typeHeader => (
                         <Box key={typeHeader.subject_type_name} sx={{ ml: 3 }}>
-
                           {/* {typeHeader.subject_type_name} */}
 
                           {CurriculumStructures?.filter(
                             case1 =>
-                            
                               // condition category && type
                               case1.subject_category_id !== null &&
                               case1.subject_type_id !== null &&
@@ -740,7 +725,6 @@ function Curriculumstructure() {
 
                           {CurriculumStructures?.filter(
                             case2 =>
-
                               // condition category && type && group
                               case2.subject_category_id !== null &&
                               case2.subject_type_id !== null &&
@@ -751,9 +735,7 @@ function Curriculumstructure() {
                             <Box key={case2Result.curriculum_structures_v2_id} sx={{ ml: 3 }}>
                               <Box sx={{ display: 'flex', justifyContent: 'space-between', mx: 2 }}>
                                 <Typography variant='body2'>{case2Result.subjectGroup?.subject_group_name}</Typography>
-                                <Typography variant='body1'>
-                                  {' ' + case2Result.csv2_credit_total + ' credit'}
-                                </Typography>
+                                <Typography variant='body1'>{' ' + case2Result.credit_total + ' credit'}</Typography>
                               </Box>
                             </Box>
                           ))}

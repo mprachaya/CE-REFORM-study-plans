@@ -16,13 +16,13 @@ import {
   DialogContent
 } from '@mui/material'
 import { grey } from '@mui/material/colors'
-import { mdiClose, mdiTrashCan } from '@mdi/js'
+import { mdiClose, mdiTrashCan, mdiBookEducation, mdiAccount } from '@mdi/js'
 import Icon from '@mdi/react'
 
 import BlankLayout from 'src/@core/layouts/BlankLayout'
 import { CircleLoading, Selection, TextSearch } from 'src/components'
 import { url } from 'src/configs/urlConfig'
-import { useFetch, useSearchText } from 'src/hooks'
+import { useFetch, useSearchText as UseSearchText } from 'src/hooks'
 
 function StudyPlanSimulatorPage() {
   const [SubjectsTemp, setSubjectsTemp] = useState([])
@@ -38,6 +38,8 @@ function StudyPlanSimulatorPage() {
   const [subjectSelected, setSubjectSelected] = useState([])
   const [openDetails, setOpenDetails] = useState(false)
 
+  const [openResult, setOpenResult] = useState(true)
+
   const [totalCredit, setTotalCredit] = useState(0)
 
   const [dialogStatus, setDialogStatus] = useState(0) // if 0 show Details, 1 show alert when subject has parent
@@ -51,7 +53,7 @@ function StudyPlanSimulatorPage() {
     setData: setSubjects,
     loading: SubjectsLoading,
     reFetch: reFetchSubjects
-  } = useFetch(URL_GET_SUBJECTS_BY_CURRICURUM + 1) // 1 for ce 60 curriculum
+  } = useFetch(URL_GET_SUBJECTS_BY_CURRICURUM + 2) // 1 for ce 60 curriculum, 2 for se 66
 
   const {
     error: SubjectsRelationsError,
@@ -68,10 +70,15 @@ function StudyPlanSimulatorPage() {
     setOpenDetails(true)
   }
 
+  const handleOpenResult = () => {
+    setOpenResult(true)
+  }
+
   const handleCheckLimitCredit = term => {
     const currentTerm = term
     console.log('currentTerm', currentTerm)
     const simInterm = simSubjects?.filter(s => s.term === currentTerm)
+
     const creditTotal = simInterm.reduce((accumulator, currentValue) => {
       // Adding the 'value' property of each object to the accumulator
       return accumulator + currentValue.subject_credit
@@ -86,24 +93,29 @@ function StudyPlanSimulatorPage() {
       const checkParentInSim = simSubjects?.find(
         s => s.subject_id === subject?.continue_subjects[0]?.parent_id && value + 1 > s.term
       )
-      console.log('checkParentInSim', checkParentInSim)
-      console.log('check parent', subject?.continue_subjects[0]?.parent_id)
-      console.log(
-        'check 2',
-        !simSubjects?.find(s => s.subject_id === subject?.continue_subjects[0]?.parent_id && value + 1 > s.term)
-      )
+      // console.log('checkParentInSim', checkParentInSim)
+      // console.log('check parent', subject?.continue_subjects[0]?.parent_id)
+      // console.log(
+      //   'check 2',
+      //   !simSubjects?.find(s => s.subject_id === subject?.continue_subjects[0]?.parent_id && value + 1 > s.term)
+      // )
+
       // console.log(subject?.continue_subjects[0]?.subject_id)
-      if (checkParentInSim !== undefined || subject?.continue_subjects[0]?.parent_id) {
+      if (checkParentInSim === undefined) {
         setDialogStatus(1)
         setOpenDetails(true)
         setSubjectSelected(subject)
+
         return 1
       }
+
       return 0
+
       // has parent
     }
     setDialogStatus(0)
     setOpenDetails(false)
+
     return 0 // is not has parent
   }
 
@@ -128,13 +140,14 @@ function StudyPlanSimulatorPage() {
   }
 
   const [simSubjects, setSimSubjects] = useState([])
-  const [simCompetencies, setCompetencies] = useState([])
+  const [curriculumScope, setCurriculumScope] = useState([])
   const [isHovered, setIsHovered] = useState([])
 
   const handleMouseEnter = index => {
     setIsHovered(prevStates => {
       const newStates = [...prevStates]
       newStates[index] = true
+
       return newStates
     })
   }
@@ -143,6 +156,7 @@ function StudyPlanSimulatorPage() {
     setIsHovered(prevStates => {
       const newStates = [...prevStates]
       newStates[index] = false
+
       return newStates
     })
   }
@@ -151,14 +165,16 @@ function StudyPlanSimulatorPage() {
     if (!subject) {
       return
     }
+
     // if (subject.continue_subjects.length === 0) {
     if (checkParent) {
       const hasParent = handleCheckPreviousSubject(subject)
+
       // console.log('hasParent', hasParent)
       if (!hasParent) {
         if (
           !simSubjects.find(s => s.subject_id === subject?.subject_id) &&
-          subject?.subject_credit + totalCredit <= 21
+          subject?.subject_credit + totalCredit <= 25
         ) {
           const newObject = {
             term: value + 1,
@@ -172,12 +188,12 @@ function StudyPlanSimulatorPage() {
           setSimSubjects(results)
         } else if (simSubjects.find(s => s.subject_id === subject?.subject_id)) {
           alert('this subject already in simulator')
-        } else if (subject?.subject_credit + totalCredit >= 21) {
-          alert('this total credit is overflow (total credit must lest than 21 or equal)')
+        } else if (subject?.subject_credit + totalCredit >= 25) {
+          alert('this total credit is overflow (total credit must lest than 25 or equal)')
         }
       }
     } else {
-      if (!simSubjects.find(s => s.subject_id === subject?.subject_id) && subject?.subject_credit + totalCredit <= 21) {
+      if (!simSubjects.find(s => s.subject_id === subject?.subject_id) && subject?.subject_credit + totalCredit <= 25) {
         const newObject = {
           term: value + 1,
           subject_id: subject?.subject_id,
@@ -188,7 +204,7 @@ function StudyPlanSimulatorPage() {
         }
         const results = [...simSubjects, newObject]
         setSimSubjects(results)
-      } else if (subject?.subject_credit + totalCredit >= 21) {
+      } else if (subject?.subject_credit + totalCredit >= 25) {
         alert('this total credit is overflow (total credit must lest than 21 or equal)')
       } else if (simSubjects.find(s => s.subject_id === subject?.subject_id)) {
         alert('this subject already in simulator')
@@ -209,6 +225,7 @@ function StudyPlanSimulatorPage() {
   useEffect(() => {
     handleCheckLimitCredit(value + 1)
   }, [simSubjects])
+
   const handleRemoveSimSubject = subjectId => {
     // Filter out the subject with the given subject_id
     const updatedSimSubjects = simSubjects.filter(subject => subject.subject_id !== subjectId)
@@ -222,14 +239,14 @@ function StudyPlanSimulatorPage() {
   }, [simSubjects])
 
   const [displaySubjects, setDisplaySubjects] = useState(true)
-  const [displayCompetencies, setDisplayCompetencies] = useState(false)
+  const [displayScope, setDisplayCompetencies] = useState(false)
 
   const handleChangeDisplay = () => {
     if (displaySubjects) {
       setDisplaySubjects(!displaySubjects)
       setDisplayCompetencies(true)
     } else {
-      setDisplayCompetencies(!displayCompetencies)
+      setDisplayCompetencies(!displayScope)
       setDisplaySubjects(true)
     }
   }
@@ -254,7 +271,7 @@ function StudyPlanSimulatorPage() {
   }
 
   const handleClickSearch = () => {
-    useSearchText(searchText, setSubjects, setSearchText, SubjectsTemp, searchSubjectColumns)
+    UseSearchText(searchText, setSubjects, setSearchText, SubjectsTemp, searchSubjectColumns)
   }
 
   const handleAddTab = () => {
@@ -265,6 +282,7 @@ function StudyPlanSimulatorPage() {
     setTabs([...tabs, newTabLabel])
     setValue(newTabIndex - 1) // Switch to the newly added tab
   }
+
   const handleRemoveTab = indexToRemove => {
     if (indexToRemove < 0 || indexToRemove >= tabs.length) {
       // Ensure the index is within the valid range
@@ -322,11 +340,12 @@ function StudyPlanSimulatorPage() {
       const subjectStructure = Subjects?.map(v => v.subject_structures)
 
       console.log('subjectStructure', subjectStructure)
+
       //   // Iterate over the array and populate the sets
       Object.values(subjectStructure)?.forEach(subject => {
-        uniqueCategories.add(subject[0].subjectCategory.subject_category_name)
-        uniqueTypes.add(subject[0].subjectType.subject_type_name)
-        uniqueGroups.add(subject[0].subjectGroup.subject_group_name)
+        uniqueCategories.add(subject[0]?.subjectCategory?.subject_category_name)
+        uniqueTypes.add(subject[0]?.subjectType?.subject_type_name)
+        uniqueGroups.add(subject[0]?.subjectGroup?.subject_group_name)
       })
 
       // Convert sets to arrays if needed
@@ -355,8 +374,8 @@ function StudyPlanSimulatorPage() {
             <Grid item sm={12} md={6} lg={8}>
               <TextSearch
                 onChange={e => handleSearchChange(e.target.value)}
-                handleSearchButton={handleClickSearch}
-                buttonInside={true}
+                onClick={() => handleClickSearch()}
+                buttoninside={1}
                 placeholder='Subject Code, Name'
               />
             </Grid>
@@ -370,12 +389,14 @@ function StudyPlanSimulatorPage() {
                 rowsPerPage={24}
                 page={page}
                 onPageChange={handleChangePage}
+
                 // onRowsPerPageChange={handleChangeRowsPerPage}
               />
             </Grid>
             <Grid container item sm={12} lg={8} spacing={2}>
               <Grid item sm={12} md={6} lg={4}>
                 <Selection
+                  disabled={categoriesSubject.length > 0}
                   label={'Category'}
                   height={40}
                   width={'100%'}
@@ -393,6 +414,7 @@ function StudyPlanSimulatorPage() {
               </Grid>
               <Grid item sm={12} md={4} lg={4}>
                 <Selection
+                  disabled={typesSubject.length > 0}
                   label={'Type'}
                   height={40}
                   width={'100%'}
@@ -408,6 +430,7 @@ function StudyPlanSimulatorPage() {
               </Grid>
               <Grid item sm={12} md={4} lg={4}>
                 <Selection
+                  disabled={groupsSubject.length > 0}
                   label={'Group'}
                   height={40}
                   width={'100%'}
@@ -422,7 +445,7 @@ function StudyPlanSimulatorPage() {
                 />
               </Grid>
             </Grid>
-            <Grid xs={12}>
+            <Grid item xs={12}>
               <Box sx={{ height: 600, mt: 6 }}>
                 <Grid container spacing={2} sx={{ p: 2 }}>
                   {/* {Array.from({ length: 24 }, (_, index) => index).map(value => ( */}
@@ -435,33 +458,33 @@ function StudyPlanSimulatorPage() {
                     Subjects.filter(
                       f =>
                         // case 1 select all filters
-                        (f.subject_structures[0]?.subjectCategory.subject_category_name === categoriesSelected &&
-                          f.subject_structures[0]?.subjectType.subject_type_name === typesSelected &&
-                          f.subject_structures[0]?.subjectGroup.subject_group_name === groupsSelected) ||
+                        (f.subject_structures[0]?.subjectCategory?.subject_category_name === categoriesSelected &&
+                          f.subject_structures[0]?.subjectType?.subject_type_name === typesSelected &&
+                          f.subject_structures[0]?.subjectGroup?.subject_group_name === groupsSelected) ||
                         // case 2 select two of three
                         // category and type
-                        (f.subject_structures[0]?.subjectCategory.subject_category_name === categoriesSelected &&
-                          f.subject_structures[0]?.subjectType.subject_type_name === typesSelected &&
+                        (f.subject_structures[0]?.subjectCategory?.subject_category_name === categoriesSelected &&
+                          f.subject_structures[0]?.subjectType?.subject_type_name === typesSelected &&
                           !groupsSelected) ||
                         // category and group
-                        (f.subject_structures[0]?.subjectCategory.subject_category_name === categoriesSelected &&
-                          f.subject_structures[0]?.subjectGroup.subject_group_name === groupsSelected &&
+                        (f.subject_structures[0]?.subjectCategory?.subject_category_name === categoriesSelected &&
+                          f.subject_structures[0]?.subjectGroup?.subject_group_name === groupsSelected &&
                           !typesSelected) ||
                         // type and group
-                        (f.subject_structures[0]?.subjectType.subject_type_name === typesSelected &&
-                          f.subject_structures[0]?.subjectGroup.subject_group_name === groupsSelected &&
+                        (f.subject_structures[0]?.subjectType?.subject_type_name === typesSelected &&
+                          f.subject_structures[0]?.subjectGroup?.subject_group_name === groupsSelected &&
                           !categoriesSelected) ||
                         // case 3 select only one of three
                         // only category
-                        (f.subject_structures[0]?.subjectCategory.subject_category_name === categoriesSelected &&
+                        (f.subject_structures[0]?.subjectCategory?.subject_category_name === categoriesSelected &&
                           !typesSelected &&
                           !groupsSelected) ||
                         // only type
-                        (f.subject_structures[0]?.subjectType.subject_type_name === typesSelected &&
+                        (f.subject_structures[0]?.subjectType?.subject_type_name === typesSelected &&
                           !categoriesSelected &&
                           !groupsSelected) ||
                         // only group
-                        (f.subject_structures[0]?.subjectGroup.subject_group_name === groupsSelected &&
+                        (f.subject_structures[0]?.subjectGroup?.subject_group_name === groupsSelected &&
                           !categoriesSelected &&
                           !typesSelected) ||
                         (!categoriesSelected && !typesSelected && !groupsSelected)
@@ -563,7 +586,7 @@ function StudyPlanSimulatorPage() {
                   Simulator :{' '}
                 </Typography>
                 <Typography variant='h6' sx={{ ml: 2, color: 'gray' }}>
-                  CE 60
+                  Software Engineering 2566
                 </Typography>
               </Box>
               <Box>
@@ -595,13 +618,14 @@ function StudyPlanSimulatorPage() {
                         sx={{ fontSize: 12 }}
                       />
                     ))}
-
-                    <IconButton
-                      sx={{ color: 'gray', borderRadius: 1, borderTopRightRadius: 24, m: 1, width: 48 }}
-                      onClick={handleAddTab}
-                    >
-                      +
-                    </IconButton>
+                    {tabs.length >= 12 ? null : (
+                      <IconButton
+                        sx={{ color: 'gray', borderRadius: 1, borderTopRightRadius: 24, m: 1, width: 48 }}
+                        onClick={handleAddTab}
+                      >
+                        +
+                      </IconButton>
+                    )}
                   </Tabs>
                 </Box>
                 {tabs.map((tabLabel, index) => (
@@ -615,14 +639,16 @@ function StudyPlanSimulatorPage() {
                   >
                     {/* Content for each tab */}
 
-                    <Box sx={{ m: 2, widht: '100%' }}>
+                    <Box sx={{ m: 2, width: '100%', minHeight: 600 }}>
                       <Box sx={{ width: '100%', my: 2 }}>
                         <Button
                           sx={{
                             fontSize: 12,
-                            width: '45%',
+                            width: '49%',
                             background: displaySubjects ? 'lightgray' : null,
-                            color: displaySubjects ? 'white' : null
+                            color: displaySubjects ? 'white' : null,
+                            border: 2,
+                            borderColor: grey[300]
                           }}
                           onClick={handleChangeDisplay}
                         >
@@ -630,21 +656,27 @@ function StudyPlanSimulatorPage() {
                         </Button>
                         <Button
                           sx={{
+                            ml: '1%',
                             fontSize: 12,
-                            width: '45%',
-                            background: displayCompetencies ? 'lightgray' : null,
-                            color: displayCompetencies ? 'white' : null
+                            width: '49%',
+                            background: displayScope ? 'lightgray' : null,
+                            color: displayScope ? 'white' : null,
+                            border: 2,
+                            borderColor: grey[300]
                           }}
                           onClick={handleChangeDisplay}
                         >
-                          Competencies
+                          Scope
                         </Button>
                       </Box>
-                      <div style={{ textAlign: 'right' }}>
-                        <Typography variant='body2' sx={{ mr: 4 }}>
-                          {'Total Credit : ' + totalCredit}
-                        </Typography>
-                      </div>
+                      {displaySubjects && (
+                        <div style={{ textAlign: 'right' }}>
+                          <Typography variant='body2' sx={{ mr: 4 }}>
+                            {'Total Credit : ' + totalCredit}
+                          </Typography>
+                        </div>
+                      )}
+
                       {displaySubjects &&
                         simSubjects
                           .filter(s => s.term === value + 1)
@@ -654,27 +686,28 @@ function StudyPlanSimulatorPage() {
                               onMouseEnter={() => handleMouseEnter(index)}
                               onMouseLeave={() => handleMouseLeave(index)}
                               sx={{
+                                width: '100%',
                                 display: 'flex',
                                 p: 3.5,
-                                m: 2,
+                                mt: 2,
+                                mr: 3.5,
                                 borderRadius: 2,
-                                justifyContent: 'space-between',
-                                maxWidth: 375,
+
                                 background: 'white',
                                 position: 'relative' // Add relative positioning
                               }}
                             >
-                              <Typography variant='caption' sx={{ m: 2, maxWidth: 20, color: 'lightgray' }}>
+                              <Typography variant='caption' sx={{ m: 2, maxWidth: 30, color: 'lightgray' }}>
                                 {index + 1}.
                               </Typography>
-
-                              <Typography variant='caption' sx={{ minWidth: 100, maxWidth: 200 }}>
-                                {subjectInterm.subject_code} {subjectInterm.subject_name_en}
-                              </Typography>
-                              <Typography sx={{ m: 2, mr: 7 }} variant='caption'>
-                                {subjectInterm.subject_credit}
-                              </Typography>
-
+                              <Box sx={{ justifyContent: 'space-between', display: 'flex', width: '100%' }}>
+                                <Typography variant='caption' sx={{ minWidth: 100, maxWidth: 300, m: 2 }}>
+                                  {subjectInterm.subject_code} {subjectInterm.subject_name_en}
+                                </Typography>
+                                <Typography sx={{ m: 2, mr: 7 }} variant='caption'>
+                                  {subjectInterm.subject_credit}
+                                </Typography>
+                              </Box>
                               <IconButton
                                 size='small'
                                 color='error'
@@ -695,10 +728,38 @@ function StudyPlanSimulatorPage() {
                               </IconButton>
                             </Box>
                           ))}
+                      {
+                        displayScope && (
+                          // simSubjects
+                          //   .filter(s => s.term === value + 1)
+                          //   .map((subjectInterm, index) => (
+                          <Box
+                            // key={subjectInterm.subject_id}
+                            onMouseEnter={() => handleMouseEnter(index)}
+                            onMouseLeave={() => handleMouseLeave(index)}
+                            sx={{
+                              width: '100%',
+                              display: 'flex',
+                              p: 3.5,
+                              mt: 2,
+                              mr: 3.5,
+                              borderRadius: 2,
+                              justifyContent: 'space-between',
+                              background: 'white',
+                              position: 'relative' // Add relative positioning
+                            }}
+                          ></Box>
+                        )
+
+                        // ))
+                      }
                     </Box>
                   </Box>
                 ))}
               </Box>
+              <Button variant='contained' sx={{ width: '100%' }} onClick={handleOpenResult}>
+                Simulation Results
+              </Button>
             </Box>
           </Grid>
         </Grid>
@@ -787,6 +848,7 @@ function StudyPlanSimulatorPage() {
                               {ch.subjects.subject_code + ' ' + ch.subjects.subject_name_en}
                             </Typography>
                           </div>
+
                           // </li>
                         ))
                       : !SubjectsRelationsLoading && (
@@ -810,7 +872,7 @@ function StudyPlanSimulatorPage() {
                       </Typography>
                     </Grid>
                     {[1, 2, 3, 4].map((item, index) => (
-                      <Grid item sm={12} md={6} lg={4}>
+                      <Grid key={item} item sm={12} md={6} lg={4}>
                         <Card sx={{ height: 65, background: 'white' }}>
                           <Box
                             sx={{
@@ -898,6 +960,95 @@ function StudyPlanSimulatorPage() {
               </DialogContent>
             </>
           )}
+        </Dialog>
+        <Dialog
+          open={openResult}
+          onClose={() => {
+            setOpenResult(false)
+            // setOpenDetails(false)
+            // setSubjectSelected([])
+            // setDialogStatus(0)
+          }}
+          fullWidth
+          maxWidth={'md'}
+        >
+          <DialogTitle
+            sx={{
+              background: 'lightgray',
+              display: 'flex',
+              justifyContent: 'space-between',
+              pr: 6,
+              borderBottom: 1,
+              borderColor: grey[500]
+            }}
+          >
+            <Typography variant='h6'>Interested In</Typography>
+            <IconButton
+              sx={{ p: 0, color: grey[700], borderRadius: 1, m: 1, ml: 6 }}
+              onClick={() => setOpenResult(false)}
+            >
+              <Icon path={mdiClose} size={1} />
+            </IconButton>
+          </DialogTitle>
+          <DialogContent sx={{ minHeight: 400, background: grey[200], p: 10 }}>
+            <Grid container sx={{ mt: 4 }} spacing={0}>
+              <Grid item xs={6} sx={{ pl: 12, pr: 6 }}>
+                <Card
+                  sx={{
+                    mt: 3,
+                    height: 220,
+                    borderRadius: 4,
+                    borderBottomRightRadius: 0,
+                    transition: 'background-color 0.3s',
+                    backgroundColor: grey[100],
+                    '&:hover': {
+                      backgroundColor: 'white', // Change the background color on hover
+                      boxShadow: 6
+                    },
+                    cursor: 'pointer'
+                  }}
+                >
+                  <Box sx={{ p: 8, textAlign: 'center' }}>
+                    <Box sx={{ p: 2 }}>
+                      <Icon path={mdiBookEducation} size={3} />
+                    </Box>
+                    <Typography variant='h6' color={grey[600]} sx={{ mt: 2 }}>
+                      Subject
+                    </Typography>
+                  </Box>
+                </Card>
+              </Grid>
+              <Grid item xs={6} sx={{ pl: 6, pr: 12 }}>
+                <Card
+                  sx={{
+                    mt: 3,
+                    height: 220,
+                    borderRadius: 4,
+                    borderBottomRightRadius: 0,
+                    transition: 'background-color 0.3s',
+                    backgroundColor: grey[100],
+                    '&:hover': {
+                      backgroundColor: 'white', // Change the background color on hover
+                      boxShadow: 6
+                    },
+                    cursor: 'pointer'
+                  }}
+                >
+                  <Box sx={{ p: 8, textAlign: 'center' }}>
+                    <Box sx={{ p: 2 }}>
+                      <Icon path={mdiAccount} size={3} />
+                    </Box>
+                    <Typography variant='h6' color={grey[600]} sx={{ mt: 2 }}>
+                      Job
+                    </Typography>
+                  </Box>
+                </Card>
+              </Grid>
+              <Grid item xs={12} textAlign={'center'} sx={{ mt: 12 }}>
+                <Typography color={grey[500]}>**Please Select One**</Typography>
+              </Grid>
+            </Grid>
+          </DialogContent>
         </Dialog>
       </Hidden>
     </>

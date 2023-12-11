@@ -16,12 +16,12 @@ function TextSearch(props) {
             <Magnify fontSize='small' />
           </InputAdornment>
         ),
-        endAdornment: props.buttonInside && (
+        endAdornment: props.buttoninside && (
           <>
             <Typography variant='body2' sx={{ color: 'gray' }}>
               |
             </Typography>
-            <Button onClick={props.handleSearchButton} sx={{ px: 2, fontSize: 12 }}>
+            <Button onClick={props.onClick} sx={{ px: 2, fontSize: 12 }}>
               Search
             </Button>
           </>
