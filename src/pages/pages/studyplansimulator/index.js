@@ -504,8 +504,7 @@ function StudyPlanSimulatorPage() {
               scope => scope.subjectGroup?.subject_group_id === s?.subject_structures[0]?.subjectGroup?.subject_group_id
             ).map(pre => ({
               ...pre,
-              countScope: pre.countScope ? pre.countScope - s?.subject_credit : s?.subject_credit,
-              subject_credit: s?.subject_credit
+              countScope: pre.countScope !== s?.subject_credit ? pre.countScope - s?.subject_credit : s?.subject_credit
             }))
             if (finetoUpdateScope) {
               const newUpdate = finetoUpdateScope[0]
@@ -517,8 +516,7 @@ function StudyPlanSimulatorPage() {
               scope => scope.subjectGroup?.subject_group_id === s?.subject_structures[0]?.subject_group_id
             ).map(pre => ({
               ...pre,
-              countScope: pre.countScope ? pre.countScope - s?.subject_credit : s?.subject_credit,
-              subject_credit: s?.subject_credit
+              countScope: pre.countScope !== s?.subject_credit ? pre.countScope - s?.subject_credit : s?.subject_credit
             }))
             if (finetoUpdateScope) {
               const newUpdate = finetoUpdateScope[0]
@@ -932,7 +930,8 @@ function StudyPlanSimulatorPage() {
                           <span>
                             {tabLabel}
                             {value === index &&
-                              tabs.length !== 1 && ( // Only show IconButton for tabs other than the first one
+                              index === tabs.length - 1 &&
+                              index !== 0 && ( // Only show IconButton for tabs other than the first one
                                 <IconButton
                                   sx={{ color: 'gray', borderRadius: 1, ml: 2 }}
                                   onClick={() => handleRemoveTab(index)}
