@@ -44,7 +44,7 @@ function StudyPlanSimulatorPage() {
 
   const [dialogStatus, setDialogStatus] = useState(0) // if 0 show Details, 1 show alert when subject has parent
 
-  const [countScope, setCountScope] = useState([])
+  const [resultSelected, setResultSelected] = useState(99) // 1 Subject, 2 Job , 99  Default
 
   const URL_GET_SUBJECTS_BY_CURRICURUM = `${url.BASE_URL}/subjects-by-curriculum/`
   const URL_GET_SUBJECTS_RELATIONS = `${url.BASE_URL}/continue-subjects-subject/`
@@ -244,6 +244,9 @@ function StudyPlanSimulatorPage() {
   }
 
   const [simSubjects, setSimSubjects] = useState([])
+
+  const [simSubjectsForSearch, setSimSubjectsForSearch] = useState([])
+
   const [isHovered, setIsHovered] = useState([])
 
   const handleMouseEnter = index => {
@@ -478,8 +481,22 @@ function StudyPlanSimulatorPage() {
     setSearchText(text)
   }
 
-  const handleClickSearch = () => {
-    UseSearchText(searchText, setSubjects, setSearchText, SubjectsTemp, searchSubjectColumns)
+  const handleClickSearch = reset => {
+    if (reset === 99) {
+      setSearchText('')
+      UseSearchText('', setSubjects, setSearchText, SubjectsTemp, searchSubjectColumns)
+    } else {
+      UseSearchText(searchText, setSubjects, setSearchText, SubjectsTemp, searchSubjectColumns)
+    }
+  }
+  const handleClickSearchResult = reset => {
+    console.log(simSubjectsForSearch)
+    if (reset === 99) {
+      setSearchText('')
+      UseSearchText('', setSimSubjectsForSearch, setSearchText, simSubjects, searchSubjectColumns)
+    } else {
+      UseSearchText(searchText, setSimSubjectsForSearch, setSearchText, simSubjects, searchSubjectColumns)
+    }
   }
 
   const handleAddTab = () => {
@@ -593,7 +610,42 @@ function StudyPlanSimulatorPage() {
                 rowsPerPageOptions={[]}
                 component='div'
                 size='small'
-                count={Subjects.length}
+                count={
+                  Subjects.filter(
+                    f =>
+                      // case 1 select all filters
+                      (f.subject_structures[0]?.subjectCategory?.subject_category_name === categoriesSelected &&
+                        f.subject_structures[0]?.subjectType?.subject_type_name === typesSelected &&
+                        f.subject_structures[0]?.subjectGroup?.subject_group_name === groupsSelected) ||
+                      // case 2 select two of three
+                      // category and type
+                      (f.subject_structures[0]?.subjectCategory?.subject_category_name === categoriesSelected &&
+                        f.subject_structures[0]?.subjectType?.subject_type_name === typesSelected &&
+                        !groupsSelected) ||
+                      // category and group
+                      (f.subject_structures[0]?.subjectCategory?.subject_category_name === categoriesSelected &&
+                        f.subject_structures[0]?.subjectGroup?.subject_group_name === groupsSelected &&
+                        !typesSelected) ||
+                      // type and group
+                      (f.subject_structures[0]?.subjectType?.subject_type_name === typesSelected &&
+                        f.subject_structures[0]?.subjectGroup?.subject_group_name === groupsSelected &&
+                        !categoriesSelected) ||
+                      // case 3 select only one of three
+                      // only category
+                      (f.subject_structures[0]?.subjectCategory?.subject_category_name === categoriesSelected &&
+                        !typesSelected &&
+                        !groupsSelected) ||
+                      // only type
+                      (f.subject_structures[0]?.subjectType?.subject_type_name === typesSelected &&
+                        !categoriesSelected &&
+                        !groupsSelected) ||
+                      // only group
+                      (f.subject_structures[0]?.subjectGroup?.subject_group_name === groupsSelected &&
+                        !categoriesSelected &&
+                        !typesSelected) ||
+                      (!categoriesSelected && !typesSelected && !groupsSelected)
+                  ).length
+                }
                 rowsPerPage={24}
                 page={page}
                 onPageChange={handleChangePage}
@@ -1320,12 +1372,18 @@ function StudyPlanSimulatorPage() {
           open={openResult}
           onClose={() => {
             setOpenResult(false)
+            handleClickSearch(99)
+            setTimeout(() => {
+              setResultSelected(99)
+            }, 300)
+
             // setOpenDetails(false)
             // setSubjectSelected([])
             // setDialogStatus(0)
           }}
           fullWidth
-          maxWidth={'md'}
+          fullScreen
+          maxWidth={resultSelected === 99 ? 'md' : resultSelected === 0 ? 'lg' : 'lg'}
         >
           <DialogTitle
             sx={{
@@ -1337,72 +1395,169 @@ function StudyPlanSimulatorPage() {
               borderColor: grey[500]
             }}
           >
-            <Typography variant='h6'>Interested In</Typography>
+            <Typography variant='h6'>
+              {resultSelected === 99
+                ? 'What Do You Pay Attention To? '
+                : resultSelected === 0
+                ? 'Select Subjects You Pay Attention'
+                : 'Select Job You Pay Attention'}
+            </Typography>
             <IconButton
               sx={{ p: 0, color: grey[700], borderRadius: 1, m: 1, ml: 6 }}
-              onClick={() => setOpenResult(false)}
+              onClick={() => {
+                setOpenResult(false)
+                handleClickSearch(99)
+                setTimeout(() => {
+                  setResultSelected(99)
+                }, 300)
+              }}
             >
               <Icon path={mdiClose} size={1} />
             </IconButton>
           </DialogTitle>
           <DialogContent sx={{ minHeight: 400, background: grey[200], p: 10 }}>
-            <Grid container sx={{ mt: 4 }} spacing={0}>
-              <Grid item xs={6} sx={{ pl: 12, pr: 6 }}>
-                <Card
-                  sx={{
-                    mt: 3,
-                    height: 220,
-                    borderRadius: 4,
-                    borderBottomRightRadius: 0,
-                    transition: 'background-color 0.3s',
-                    backgroundColor: grey[100],
-                    '&:hover': {
-                      backgroundColor: 'white', // Change the background color on hover
-                      boxShadow: 6
-                    },
-                    cursor: 'pointer'
-                  }}
-                >
-                  <Box sx={{ p: 8, textAlign: 'center' }}>
-                    <Box sx={{ p: 2 }}>
-                      <Icon path={mdiBookEducation} size={3} />
+            {resultSelected === 99 && (
+              <Grid container sx={{ mt: 4 }} spacing={0}>
+                <Grid item xs={6} sx={{ pl: 12, pr: 6, display: 'flex', justifyContent: 'flex-end' }}>
+                  <Card
+                    onClick={() => {
+                      handleClickSearch(99)
+                      setResultSelected(0)
+                      setSimSubjectsForSearch(simSubjects)
+                    }}
+                    sx={{
+                      mt: 3,
+                      height: 220,
+                      width: 400,
+                      borderRadius: 4,
+                      borderBottomRightRadius: 0,
+                      transition: 'background-color 0.3s',
+                      backgroundColor: grey[100],
+                      '&:hover': {
+                        backgroundColor: 'white', // Change the background color on hover
+                        boxShadow: 6
+                      },
+                      cursor: 'pointer'
+                    }}
+                  >
+                    <Box sx={{ p: 8, textAlign: 'center' }}>
+                      <Box sx={{ p: 2 }}>
+                        <Icon path={mdiBookEducation} size={3} />
+                      </Box>
+                      <Typography color={grey[600]} sx={{ mt: 2 }}>
+                        Subject
+                      </Typography>
                     </Box>
-                    <Typography variant='h6' color={grey[600]} sx={{ mt: 2 }}>
-                      Subject
-                    </Typography>
-                  </Box>
-                </Card>
-              </Grid>
-              <Grid item xs={6} sx={{ pl: 6, pr: 12 }}>
-                <Card
-                  sx={{
-                    mt: 3,
-                    height: 220,
-                    borderRadius: 4,
-                    borderBottomRightRadius: 0,
-                    transition: 'background-color 0.3s',
-                    backgroundColor: grey[100],
-                    '&:hover': {
-                      backgroundColor: 'white', // Change the background color on hover
-                      boxShadow: 6
-                    },
-                    cursor: 'pointer'
-                  }}
-                >
-                  <Box sx={{ p: 8, textAlign: 'center' }}>
-                    <Box sx={{ p: 2 }}>
-                      <Icon path={mdiAccount} size={3} />
+                  </Card>
+                </Grid>
+                <Grid item xs={6} sx={{ pl: 6, pr: 12, display: 'flex', justifyContent: 'flex-start' }}>
+                  <Card
+                    onClick={() => setResultSelected(1)}
+                    sx={{
+                      mt: 3,
+                      height: 220,
+                      width: 400,
+                      borderRadius: 4,
+                      borderBottomRightRadius: 0,
+                      transition: 'background-color 0.3s',
+                      backgroundColor: grey[100],
+                      '&:hover': {
+                        backgroundColor: 'white', // Change the background color on hover
+                        boxShadow: 6
+                      },
+                      cursor: 'pointer'
+                    }}
+                  >
+                    <Box sx={{ p: 8, textAlign: 'center' }}>
+                      <Box sx={{ p: 2 }}>
+                        <Icon path={mdiAccount} size={3} />
+                      </Box>
+                      <Typography color={grey[600]} sx={{ mt: 2 }}>
+                        Job
+                      </Typography>
                     </Box>
-                    <Typography variant='h6' color={grey[600]} sx={{ mt: 2 }}>
-                      Job
-                    </Typography>
-                  </Box>
-                </Card>
+                  </Card>
+                </Grid>
+
+                <Grid item xs={12} textAlign={'center'} sx={{ mt: 12 }}>
+                  <Typography color={grey[500]}>**Please Select One**</Typography>
+                </Grid>
               </Grid>
-              <Grid item xs={12} textAlign={'center'} sx={{ mt: 12 }}>
-                <Typography color={grey[500]}>**Please Select One**</Typography>
+            )}
+            {/* choose subject */}
+            {resultSelected === 0 && (
+              <>
+                <Grid container sx={{ mt: 4 }} spacing={0}>
+                  <Grid item xs={6} sx={{ paddingTop: 0, paddingRight: 6, paddingLeft: { sm: 0, md: 0, lg: 32 } }}>
+                    {/* subject list and search bar */}
+                    <Box sx={{ maxHeight: 600, overflow: 'auto' }}>
+                      <Box sx={{ mb: 2 }}>
+                        <TextSearch
+                          onChange={e => handleSearchChange(e.target.value)}
+                          onClick={() => handleClickSearchResult()}
+                          buttoninside={1}
+                          placeholder='Subject Code, Name'
+                        />
+                      </Box>
+                      {simSubjectsForSearch?.map(s => (
+                        <Card
+                          key={s.subject_id}
+                          sx={{
+                            m: 1,
+                            p: 2,
+                            height: 40,
+                            cursor: 'pointer',
+                            '&:hover': {
+                              backgroundColor: grey[100] // Add your desired background color on hover
+                            }
+                          }}
+                        >
+                          <Box sx={{ display: 'flex' }}>
+                            <Typography variant='body2' sx={{ fontWeight: 'bold', mr: 2 }}>
+                              {s.subject_code}
+                            </Typography>
+                            <Typography variant='body2' noWrap>
+                              {s.subject_name_en}
+                            </Typography>
+                          </Box>
+                        </Card>
+                      ))}
+                    </Box>
+                  </Grid>
+                  <Grid item xs={6} sx={{ paddingRight: { sm: 0, md: 0, lg: 32 } }}>
+                    {/* subject is selected */}
+                    <Box sx={{ width: '100%', minHeight: 600, backgroundColor: grey[50], position: 'relative' }}>
+                      <Typography
+                        variant='body2'
+                        sx={{
+                          width: '100%',
+                          textAlign: 'center',
+                          p: 2,
+                          fontWeight: 'bold',
+                          backgroundColor: 'lightgray'
+                        }}
+                      >
+                        Subject List
+                      </Typography>
+                      <Button variant='contained' sx={{ width: '100%', bottom: 0, position: 'absolute' }}>
+                        Recommendation Result
+                      </Button>
+                    </Box>
+                  </Grid>
+                </Grid>
+                <Grid item xs={12} textAlign={'center'} sx={{ mt: 12 }}>
+                  <Typography color={grey[500]}>**Please Select 3 Subjects**</Typography>
+                </Grid>
+              </>
+            )}
+            {/* choose job */}
+            {resultSelected === 1 && (
+              <Grid container sx={{ mt: 4 }} spacing={0}>
+                <Grid item xs={6} sx={{ pl: 12, pr: 6 }}>
+                  test job
+                </Grid>
               </Grid>
-            </Grid>
+            )}
           </DialogContent>
         </Dialog>
       </Hidden>

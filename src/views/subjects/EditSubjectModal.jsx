@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { Dialog, Typography, DialogContent, Grid, TextField, DialogActions, Button, MenuItem, Box } from '@mui/material'
 
 import Icon from '@mdi/react'
-import { mdiSitemapOutline, mdiPen, mdiDelete } from '@mdi/js'
+import { mdiDelete } from '@mdi/js'
 import Selection from 'src/components/Selection'
 import { handleChangeEN, handleChangeNumber, handleChangeTH } from 'src/hooks/useValidation'
 

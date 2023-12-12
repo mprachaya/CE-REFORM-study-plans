@@ -81,7 +81,7 @@ function CurriculumEditModal({ state, open, handleClose, faculty, studentGroups,
               <Typography variant='h6'>Edit Curriculum</Typography>
             </Grid>
             <Grid container item xs={8} spacing={2} justifyContent={{ sx: 'center', md: 'end' }}>
-              <Grid item xs={12} sm={11} md={4} lg={3}>
+              {/* <Grid item xs={12} sm={11} md={4} lg={3}>
                 <Button
                   fullWidth
                   color='secondary'
@@ -96,7 +96,7 @@ function CurriculumEditModal({ state, open, handleClose, faculty, studentGroups,
                 >
                   Structure
                 </Button>
-              </Grid>
+              </Grid> */}
               <Grid item xs={12} sm={11} md={4} lg={3}>
                 <Button
                   fullWidth
