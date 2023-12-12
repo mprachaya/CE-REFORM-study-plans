@@ -192,8 +192,6 @@ function StudyPlanSimulatorPage() {
 
   const UniqueCategories = getUniqueValues(CurriculumStructures, 'subjectCategory.subject_category_name')
 
-  // const UniqueTypes = getUniqueValues(CurriculumStructures, 'subjectType.subject_type_name')
-
   const UniqueTypes = getUniqueMultiValues(
     CurriculumStructures,
     'subjectCategory.subject_category_name',
@@ -201,27 +199,6 @@ function StudyPlanSimulatorPage() {
     'subject_category_name',
     'subject_type_name'
   )
-
-  // const handleUpdateScope = () => {
-  //   // console.log('CurriculumStructures', CurriculumStructures)
-  //   // console.log('simSubjects', simSubjects)
-  //   CurriculumStructures.map(scope => {
-  //     let findToUpdate = simSubjects?.find(
-  //       obj => obj.subject_structures[0]?.subjectGroup?.subject_group_id === scope.subjectGroup?.subject_group_id
-  //     )
-  //     if (findToUpdate) {
-  //       console.log('found!', findToUpdate)
-  //       scope.countCredit = scope.countCredit
-  //         ? scope.countCredit + findToUpdate.subject_credit
-  //         : findToUpdate.subject_credit
-  //       console.log('scopeUpdated', scope)
-  //     }
-  //   })
-
-  //   // const addCountScope = Object.values(CurriculumStructures)?.map(pre => ({ ...pre, countCredit: 1 }))
-  //   // console.log('addCountScope', addCountScope)
-  //   // setCountScope(CurriculumStructures)
-  // }
 
   useEffect(() => {
     console.log('categoriesSelected', categoriesSelected)
@@ -388,7 +365,7 @@ function StudyPlanSimulatorPage() {
     // update count scope
     console.log('subject', subject)
     if (subject?.subject_structures[0]?.subjectGroup !== undefined) {
-      const fintoUpdateScope = CurriculumStructures.filter(
+      const finetoUpdateScope = CurriculumStructures.filter(
         scope => scope.subjectGroup?.subject_group_id === subject?.subject_structures[0]?.subjectGroup?.subject_group_id
       ).map(pre => ({
         ...pre,
@@ -397,11 +374,11 @@ function StudyPlanSimulatorPage() {
             ? pre.countScope - subject?.subject_credit
             : subject?.subject_credit
       }))
-      if (fintoUpdateScope) {
+      if (finetoUpdateScope) {
         const tempStructure = CurriculumStructures.filter(
           old => old.subjectGroup?.subject_group_id !== subject?.subject_structures[0]?.subjectGroup?.subject_group_id
         )
-        const newUpdate = [fintoUpdateScope[0], ...tempStructure]
+        const newUpdate = [finetoUpdateScope[0], ...tempStructure]
         console.log('newUpdate', newUpdate)
         setCurriculumStructures(
           newUpdate.sort(
@@ -415,7 +392,7 @@ function StudyPlanSimulatorPage() {
       // Update the state with the filtered array
       setSimSubjects(updatedSimSubjects)
     } else {
-      const fintoUpdateScope = CurriculumStructures.filter(
+      const finetoUpdateScope = CurriculumStructures.filter(
         scope => scope.subjectGroup?.subject_group_id === subject?.subject_structures[0]?.subject_group_id
       ).map(pre => ({
         ...pre,
@@ -424,11 +401,11 @@ function StudyPlanSimulatorPage() {
             ? pre.countScope - subject?.subject_credit
             : subject?.subject_credit
       }))
-      if (fintoUpdateScope) {
+      if (finetoUpdateScope) {
         const tempStructure = CurriculumStructures.filter(
           old => old.subjectGroup?.subject_group_id !== subject?.subject_structures[0]?.subject_group_id
         )
-        const newUpdate = [fintoUpdateScope[0], ...tempStructure]
+        const newUpdate = [finetoUpdateScope[0], ...tempStructure]
         console.log('newUpdate', newUpdate)
         setCurriculumStructures(
           newUpdate.sort(
@@ -461,8 +438,6 @@ function StudyPlanSimulatorPage() {
       setDisplaySubjects(true)
     }
   }
-
-  // console.log('SubjectsRelations', SubjectsRelations)
 
   const [tabs, setTabs] = useState(['Term 1'])
 
@@ -520,6 +495,100 @@ function StudyPlanSimulatorPage() {
         'Still Have Subject In This Term ' + parseInt(indexToRemove + 1) + ' Confirm To Delete?'
       )
       if (result) {
+        // update all scope in remove tab
+        const subjectsInterm = simSubjects.filter(s => s.term === indexToRemove + 1)
+        const newUpdates = []
+        subjectsInterm?.map(s => {
+          if (s?.subject_structures[0]?.subjectGroup !== undefined) {
+            const finetoUpdateScope = CurriculumStructures.filter(
+              scope => scope.subjectGroup?.subject_group_id === s?.subject_structures[0]?.subjectGroup?.subject_group_id
+            ).map(pre => ({
+              ...pre,
+              countScope: pre.countScope ? pre.countScope - s?.subject_credit : s?.subject_credit,
+              subject_credit: s?.subject_credit
+            }))
+            if (finetoUpdateScope) {
+              const newUpdate = finetoUpdateScope[0]
+              console.log('newUpdate1', newUpdate)
+              newUpdates.push(newUpdate)
+            }
+          } else {
+            const finetoUpdateScope = CurriculumStructures.filter(
+              scope => scope.subjectGroup?.subject_group_id === s?.subject_structures[0]?.subject_group_id
+            ).map(pre => ({
+              ...pre,
+              countScope: pre.countScope ? pre.countScope - s?.subject_credit : s?.subject_credit,
+              subject_credit: s?.subject_credit
+            }))
+            if (finetoUpdateScope) {
+              const newUpdate = finetoUpdateScope[0]
+              console.log('newUpdate2', newUpdate)
+              newUpdates.push(newUpdate)
+            }
+          }
+        })
+        console.log('All newUpdate', newUpdates)
+        // Create a map to store the sum of countScope for each curriculum_structures_v2_id in newUpdates
+        const sumMap = {}
+
+        // Count occurrences of each curriculum_structures_v2_id in newUpdates
+        const occurrencesMap = {}
+
+        // Sum countScope for each curriculum_structures_v2_id in newUpdates
+        newUpdates.forEach(update => {
+          const curriculumStructuresV2Id = parseInt(update.curriculum_structures_v2_id)
+          // console.log('update.countScope', update.countScope)
+          // Accumulate countScope for each unique curriculum_structures_v2_id
+          sumMap[curriculumStructuresV2Id] = (sumMap[curriculumStructuresV2Id] || 0) + update.countScope
+
+          // Count occurrences of each curriculum_structures_v2_id
+          occurrencesMap[curriculumStructuresV2Id] = (occurrencesMap[curriculumStructuresV2Id] || 0) + 1
+        })
+
+        // Create an array with unique curriculum_structures_v2_id and set countScope to corresponding sums or keep original countScope
+        const uniqueNewUpdates = Object.keys(sumMap).map(curriculumStructuresV2Id => {
+          const matchingCurriculumStructure = newUpdates.find(
+            structure => structure.curriculum_structures_v2_id === parseInt(curriculumStructuresV2Id)
+          )
+
+          if (matchingCurriculumStructure) {
+            return {
+              ...matchingCurriculumStructure,
+              countScope: sumMap[curriculumStructuresV2Id]
+            }
+          } else {
+            // Handle the case where there is no matching structure (optional)
+            console.warn(
+              `No matching CurriculumStructure found for curriculum_structures_v2_id ${curriculumStructuresV2Id}`
+            )
+            return null // or provide default values
+          }
+        })
+
+        // Log the updated newUpdates array
+        console.log('Updated newUpdates array with unique curriculum_structures_v2_id:', uniqueNewUpdates)
+
+        // Update curriculumStructures state based on uniqueNewUpdates
+        const updatedCurriculumStructures = CurriculumStructures.map(item => {
+          const curriculumStructuresV2Id = item.curriculum_structures_v2_id
+          // console.log('curriculumStructuresV2Id', curriculumStructuresV2Id)
+
+          // Find the corresponding entry in uniqueNewUpdates
+          const uniqueUpdate = uniqueNewUpdates.find(
+            update => update.curriculum_structures_v2_id === curriculumStructuresV2Id
+          )
+          // console.log('uniqueUpdate :', uniqueUpdate)
+          // Update countScope based on the difference
+          return {
+            ...item,
+            countScope: uniqueUpdate ? item.countScope - uniqueUpdate.countScope : item.countScope
+          }
+        })
+
+        // Log the updated curriculumStructures array
+        console.log('Updated curriculumStructures array:', updatedCurriculumStructures)
+        setCurriculumStructures(updatedCurriculumStructures)
+
         const updateSimSubject = simSubjects.filter(s => s.term !== indexToRemove + 1)
         setSimSubjects(updateSimSubject)
 
@@ -649,8 +718,6 @@ function StudyPlanSimulatorPage() {
                 rowsPerPage={24}
                 page={page}
                 onPageChange={handleChangePage}
-
-                // onRowsPerPageChange={handleChangeRowsPerPage}
               />
             </Grid>
             <Grid container item sm={12} lg={8} spacing={2}>
