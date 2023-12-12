@@ -470,8 +470,8 @@ function StudyPlanSimulatorPage() {
   const [value, setValue] = useState(0)
 
   const handleChange = (event, newValue) => {
-    handleCheckLimitCredit(value)
-    console.log('Term :', value)
+    handleCheckLimitCredit(newValue + 1)
+    console.log('Term :', newValue + 1)
     setValue(newValue)
   }
 
