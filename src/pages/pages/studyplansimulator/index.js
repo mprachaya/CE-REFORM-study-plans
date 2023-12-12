@@ -244,7 +244,6 @@ function StudyPlanSimulatorPage() {
   }
 
   const [simSubjects, setSimSubjects] = useState([])
-  const [curriculumScope, setCurriculumScope] = useState([])
   const [isHovered, setIsHovered] = useState([])
 
   const handleMouseEnter = index => {
@@ -309,9 +308,15 @@ function StudyPlanSimulatorPage() {
               old =>
                 old.subjectGroup?.subject_group_id !== subject?.subject_structures[0]?.subjectGroup?.subject_group_id
             )
-            const newUpdate = [...tempStructure, fintoUpdateScope[0]]
+            const newUpdate = [fintoUpdateScope[0], ...tempStructure]
             console.log('newUpdate', newUpdate)
-            setCurriculumStructures(newUpdate)
+            setCurriculumStructures(
+              newUpdate.sort(
+                (a, b) =>
+                  a.countScope - b.countScope &&
+                  a.subjectCategory?.subject_category_id - b.subjectCategory?.subject_category_id
+              )
+            )
           }
         } else if (simSubjects.find(s => s.subject_id === subject?.subject_id)) {
           alert('this subject already in simulator')
@@ -348,9 +353,15 @@ function StudyPlanSimulatorPage() {
           const tempStructure = CurriculumStructures.filter(
             old => old.subjectGroup?.subject_group_id !== subject?.subject_structures[0]?.subject_group_id
           )
-          const newUpdate = [...tempStructure, fintoUpdateScope[0]]
+          const newUpdate = [fintoUpdateScope[0], ...tempStructure]
           console.log('newUpdate', newUpdate)
-          setCurriculumStructures(newUpdate)
+          setCurriculumStructures(
+            newUpdate.sort(
+              (a, b) =>
+                a.countScope - b.countScope &&
+                a.subjectCategory?.subject_category_id - b.subjectCategory?.subject_category_id
+            )
+          )
         }
       } else if (subject?.subject_credit + totalCredit >= 25) {
         alert('this total credit is overflow (total credit must lest than 21 or equal)')
@@ -387,9 +398,15 @@ function StudyPlanSimulatorPage() {
         const tempStructure = CurriculumStructures.filter(
           old => old.subjectGroup?.subject_group_id !== subject?.subject_structures[0]?.subjectGroup?.subject_group_id
         )
-        const newUpdate = [...tempStructure, fintoUpdateScope[0]]
+        const newUpdate = [fintoUpdateScope[0], ...tempStructure]
         console.log('newUpdate', newUpdate)
-        setCurriculumStructures(newUpdate)
+        setCurriculumStructures(
+          newUpdate.sort(
+            (a, b) =>
+              a.countScope - b.countScope &&
+              a.subjectCategory?.subject_category_id - b.subjectCategory?.subject_category_id
+          )
+        )
       }
 
       // Update the state with the filtered array
@@ -408,9 +425,15 @@ function StudyPlanSimulatorPage() {
         const tempStructure = CurriculumStructures.filter(
           old => old.subjectGroup?.subject_group_id !== subject?.subject_structures[0]?.subject_group_id
         )
-        const newUpdate = [...tempStructure, fintoUpdateScope[0]]
+        const newUpdate = [fintoUpdateScope[0], ...tempStructure]
         console.log('newUpdate', newUpdate)
-        setCurriculumStructures(newUpdate)
+        setCurriculumStructures(
+          newUpdate.sort(
+            (a, b) =>
+              a.countScope - b.countScope &&
+              a.subjectCategory?.subject_category_id - b.subjectCategory?.subject_category_id
+          )
+        )
       }
 
       // Update the state with the filtered array
@@ -944,7 +967,12 @@ function StudyPlanSimulatorPage() {
                                       <Typography variant='body1'>
                                         {categoryHasCreditResult?.subjectCategory?.subject_category_name}
                                       </Typography>
-                                      <Typography>
+                                      <Typography variant='body2' sx={{ display: 'inline' }}>
+                                        {categoryHasCreditResult.countScope > categoryHasCreditResult?.credit_total && (
+                                          <Typography variant='body2' color={'error'} sx={{ display: 'inline', mr: 2 }}>
+                                            (overflow)
+                                          </Typography>
+                                        )}
                                         {categoryHasCreditResult.countScope
                                           ? categoryHasCreditResult.countScope +
                                             ' of ' +
@@ -977,7 +1005,16 @@ function StudyPlanSimulatorPage() {
                                         <Typography variant='body2'>
                                           {case1Result.subjectType?.subject_type_name}
                                         </Typography>
-                                        <Typography variant='body2'>
+                                        <Typography variant='body2' display='inline'>
+                                          {case1Result.countScope > case1Result.credit_total && (
+                                            <Typography
+                                              variant='body2'
+                                              color={'error'}
+                                              sx={{ display: 'inline', mr: 2 }}
+                                            >
+                                              (overflow)
+                                            </Typography>
+                                          )}
                                           {/* {'0' + ' of ' + case1Result.credit_total} */}
                                           {case1Result.countScope
                                             ? case1Result.countScope + ' of ' + case1Result?.credit_total
@@ -989,8 +1026,17 @@ function StudyPlanSimulatorPage() {
                                         <Typography variant='body2'>
                                           {case1Result.subjectGroup?.subject_group_name}
                                         </Typography>
-                                        <Typography variant='body2'>
-                                          {/* {'0' + ' of ' + case1Result.credit_total} */}
+                                        <Typography variant='body2' display='inline'>
+                                          {case1Result.countScope > case1Result.credit_total && (
+                                            <Typography
+                                              variant='body2'
+                                              color={'error'}
+                                              sx={{ display: 'inline', mr: 2 }}
+                                            >
+                                              (overflow)
+                                            </Typography>
+                                          )}
+
                                           {case1Result.countScope
                                             ? case1Result.countScope + ' of ' + case1Result?.credit_total
                                             : '0 of ' + case1Result?.credit_total}
@@ -1039,7 +1085,17 @@ function StudyPlanSimulatorPage() {
                                           <Typography variant='body2'>
                                             {case2Result.subjectGroup?.subject_group_name}
                                           </Typography>
-                                          <Typography variant='body1'>
+                                          <Typography variant='body1' display='inline'>
+                                            {case2Result.countScope > case2Result.credit_total && (
+                                              <Typography
+                                                variant='body2'
+                                                color={'error'}
+                                                sx={{ display: 'inline', mr: 2 }}
+                                              >
+                                                (overflow)
+                                              </Typography>
+                                            )}
+
                                             {' ' + case2Result.credit_total + ' credit'}
                                           </Typography>
                                         </Box>
