@@ -336,8 +336,7 @@ function StudyPlanSimulatorPage() {
 
         // update count scope with parent
         const fintoUpdateScope = CurriculumStructures.filter(
-          scope =>
-            scope.subjectGroup?.subject_group_id === subject?.subject_structures[0]?.subjectGroup?.subject_group_id
+          scope => scope.subjectGroup?.subject_group_id === subject?.subject_structures[0]?.subject_group_id
         ).map(pre => ({
           ...pre,
           countScope:
@@ -347,7 +346,7 @@ function StudyPlanSimulatorPage() {
         }))
         if (fintoUpdateScope) {
           const tempStructure = CurriculumStructures.filter(
-            old => old.subjectGroup?.subject_group_id !== subject?.subject_structures[0]?.subjectGroup?.subject_group_id
+            old => old.subjectGroup?.subject_group_id !== subject?.subject_structures[0]?.subject_group_id
           )
           const newUpdate = [...tempStructure, fintoUpdateScope[0]]
           console.log('newUpdate', newUpdate)
@@ -373,26 +372,50 @@ function StudyPlanSimulatorPage() {
     // Filter out the subject with the given subject_id
     const updatedSimSubjects = simSubjects.filter(s => s.subject_id !== subject?.subject_id)
     // update count scope
-    const fintoUpdateScope = CurriculumStructures.filter(
-      scope => scope.subjectGroup?.subject_group_id === subject?.subject_structures[0]?.subjectGroup?.subject_group_id
-    ).map(pre => ({
-      ...pre,
-      countScope:
-        pre.countScope !== undefined && !isNaN(pre.countScope)
-          ? pre.countScope - subject?.subject_credit
-          : subject?.subject_credit
-    }))
-    if (fintoUpdateScope) {
-      const tempStructure = CurriculumStructures.filter(
-        old => old.subjectGroup?.subject_group_id !== subject?.subject_structures[0]?.subjectGroup?.subject_group_id
-      )
-      const newUpdate = [...tempStructure, fintoUpdateScope[0]]
-      console.log('newUpdate', newUpdate)
-      setCurriculumStructures(newUpdate)
-    }
+    console.log('subject', subject)
+    if (subject?.subject_structures[0]?.subjectGroup !== undefined) {
+      const fintoUpdateScope = CurriculumStructures.filter(
+        scope => scope.subjectGroup?.subject_group_id === subject?.subject_structures[0]?.subjectGroup?.subject_group_id
+      ).map(pre => ({
+        ...pre,
+        countScope:
+          pre.countScope !== undefined && !isNaN(pre.countScope)
+            ? pre.countScope - subject?.subject_credit
+            : subject?.subject_credit
+      }))
+      if (fintoUpdateScope) {
+        const tempStructure = CurriculumStructures.filter(
+          old => old.subjectGroup?.subject_group_id !== subject?.subject_structures[0]?.subjectGroup?.subject_group_id
+        )
+        const newUpdate = [...tempStructure, fintoUpdateScope[0]]
+        console.log('newUpdate', newUpdate)
+        setCurriculumStructures(newUpdate)
+      }
 
-    // Update the state with the filtered array
-    setSimSubjects(updatedSimSubjects)
+      // Update the state with the filtered array
+      setSimSubjects(updatedSimSubjects)
+    } else {
+      const fintoUpdateScope = CurriculumStructures.filter(
+        scope => scope.subjectGroup?.subject_group_id === subject?.subject_structures[0]?.subject_group_id
+      ).map(pre => ({
+        ...pre,
+        countScope:
+          pre.countScope !== undefined && !isNaN(pre.countScope)
+            ? pre.countScope - subject?.subject_credit
+            : subject?.subject_credit
+      }))
+      if (fintoUpdateScope) {
+        const tempStructure = CurriculumStructures.filter(
+          old => old.subjectGroup?.subject_group_id !== subject?.subject_structures[0]?.subject_group_id
+        )
+        const newUpdate = [...tempStructure, fintoUpdateScope[0]]
+        console.log('newUpdate', newUpdate)
+        setCurriculumStructures(newUpdate)
+      }
+
+      // Update the state with the filtered array
+      setSimSubjects(updatedSimSubjects)
+    }
   }
 
   useEffect(() => {
