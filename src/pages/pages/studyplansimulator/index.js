@@ -13,10 +13,11 @@ import {
   IconButton,
   Dialog,
   DialogTitle,
-  DialogContent
+  DialogContent,
+  Divider
 } from '@mui/material'
 import { grey } from '@mui/material/colors'
-import { mdiClose, mdiTrashCan, mdiBookEducation, mdiAccount } from '@mdi/js'
+import { mdiClose, mdiTrashCan, mdiBookEducation, mdiAccount, mdiChevronLeft } from '@mdi/js'
 import Icon from '@mdi/react'
 
 import BlankLayout from 'src/@core/layouts/BlankLayout'
@@ -44,7 +45,7 @@ function StudyPlanSimulatorPage() {
 
   const [dialogStatus, setDialogStatus] = useState(0) // if 0 show Details, 1 show alert when subject has parent
 
-  const [resultSelected, setResultSelected] = useState(99) // 1 Subject, 2 Job , 99  Default
+  const [resultSelected, setResultSelected] = useState(2) // 99  Default, 0 Subject, 1 Job ,2 Final Result
 
   const [resultSubjectList, setResultSubjectList] = useState([])
   const [resultJobSelected, setresultJobSelected] = useState([])
@@ -682,6 +683,331 @@ function StudyPlanSimulatorPage() {
     }
   }
 
+  const SelectResultTypeDisplay = (
+    <Grid container sx={{ mt: 4 }} spacing={0}>
+      <Grid item xs={6} sx={{ pl: 12, pr: 6, display: 'flex', justifyContent: 'flex-end' }}>
+        <Card
+          onClick={() => {
+            handleClickSearch(99)
+            setResultSelected(0)
+            setSimSubjectsForSearch(simSubjects)
+          }}
+          sx={{
+            mt: 3,
+            height: 220,
+            width: 400,
+            borderRadius: 4,
+            borderBottomRightRadius: 0,
+            transition: 'background-color 0.3s',
+            backgroundColor: grey[100],
+            '&:hover': {
+              backgroundColor: 'white', // Change the background color on hover
+              boxShadow: 6
+            },
+            cursor: 'pointer'
+          }}
+        >
+          <Box sx={{ p: 8, textAlign: 'center' }}>
+            <Box sx={{ p: 2 }}>
+              <Icon path={mdiBookEducation} size={3} />
+            </Box>
+            <Typography color={grey[600]} sx={{ mt: 2 }}>
+              Subject
+            </Typography>
+          </Box>
+        </Card>
+      </Grid>
+      <Grid item xs={6} sx={{ pl: 6, pr: 12, display: 'flex', justifyContent: 'flex-start' }}>
+        <Card
+          onClick={() => setResultSelected(1)}
+          sx={{
+            mt: 3,
+            height: 220,
+            width: 400,
+            borderRadius: 4,
+            borderBottomRightRadius: 0,
+            transition: 'background-color 0.3s',
+            backgroundColor: grey[100],
+            '&:hover': {
+              backgroundColor: 'white', // Change the background color on hover
+              boxShadow: 6
+            },
+            cursor: 'pointer'
+          }}
+        >
+          <Box sx={{ p: 8, textAlign: 'center' }}>
+            <Box sx={{ p: 2 }}>
+              <Icon path={mdiAccount} size={3} />
+            </Box>
+            <Typography color={grey[600]} sx={{ mt: 2 }}>
+              Job
+            </Typography>
+          </Box>
+        </Card>
+      </Grid>
+
+      <Grid item xs={12} textAlign={'center'} sx={{ mt: 12 }}>
+        <Typography color={grey[500]}>**Please Select One**</Typography>
+      </Grid>
+    </Grid>
+  )
+
+  const ResultSubjectDisplay = (
+    <>
+      <Grid container sx={{ mt: 4 }} spacing={0}>
+        <Grid item xs={6} sx={{ paddingTop: 0, paddingRight: 6, paddingLeft: { sm: 0, md: 0, lg: 32 } }}>
+          {/* subject list and search bar */}
+          <Box sx={{ maxHeight: 600, overflow: 'auto' }}>
+            <Box sx={{ mb: 2 }}>
+              <TextSearch
+                onChange={e => handleSearchChange(e.target.value)}
+                onClick={() => handleClickSearchResult()}
+                buttoninside={1}
+                placeholder='Subject Code, Name'
+              />
+            </Box>
+            {simSubjectsForSearch?.map(s => (
+              <Card
+                key={s.subject_id}
+                sx={{
+                  m: 1,
+                  p: 2,
+                  height: 60
+                }}
+              >
+                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      my: 2.5,
+                      ml: 2,
+                      minWidth: { sm: 100, md: 250, lg: 350 },
+                      maxWidth: { sm: 200, md: 250, lg: 650 }
+                    }}
+                    noWrap
+                  >
+                    <Typography variant='body2' sx={{ fontWeight: 'bold', mr: 2 }}>
+                      {s.subject_code}
+                    </Typography>
+                    <Typography variant='body2' noWrap>
+                      {s.subject_name_en}
+                    </Typography>
+                  </Box>
+                  <IconButton
+                    sx={{
+                      cursor: resultSubjectList?.length <= 2 ? 'pointer' : 'default',
+                      borderRadius: 2,
+                      width: 60,
+                      opacity: resultSubjectList?.length <= 2 ? 1 : 0.2
+                    }}
+                    onClick={() => (resultSubjectList?.length <= 2 ? handleAddResultSubjectList(s) : null)}
+                  >
+                    +
+                  </IconButton>
+                </Box>
+              </Card>
+            ))}
+          </Box>
+        </Grid>
+        <Grid item xs={6} sx={{ paddingRight: { sm: 0, md: 0, lg: 32 } }}>
+          {/* subject is selected */}
+          <Box sx={{ width: '100%', minHeight: 600, backgroundColor: grey[50], position: 'relative' }}>
+            <Typography
+              variant='body2'
+              sx={{
+                width: '100%',
+                textAlign: 'center',
+                p: 2,
+                fontWeight: 'bold',
+                backgroundColor: 'lightgray'
+              }}
+            >
+              Subject List ({resultSubjectList?.length}/3)
+            </Typography>
+            <Grid container spacing={3} sx={{ mt: 2 }}>
+              {resultSubjectList.length > 0 &&
+                resultSubjectList?.map((resultSubject, index) => (
+                  <Grid item xs={12} key={resultSubject.subject_id}>
+                    <Card sx={{ p: 2, display: 'flex', mx: 2, position: 'relative' }}>
+                      <Typography variant='h6' sx={{ p: 4.5, color: grey[500] }}>
+                        {index + 1}.
+                      </Typography>
+                      <Box sx={{ p: 3.5, pr: 12 }}>
+                        <Typography variant='body1' sx={{ fontWeight: 'bold' }}>
+                          {resultSubject.subject_code}
+                        </Typography>
+                        <Typography variant='body2' noWrap>
+                          {resultSubject.subject_name_en}
+                        </Typography>
+                        <IconButton
+                          size='large'
+                          color='error'
+                          sx={{
+                            position: 'absolute',
+                            top: { sm: 8, lg: 22.5 },
+                            right: { sm: 15, lg: 25 },
+                            zIndex: 1,
+                            background: 'white',
+                            borderRadius: 2
+                          }}
+                          onClick={() => {
+                            handleRemoveResultSubjectList(resultSubject)
+                          }}
+                        >
+                          <Icon path={mdiTrashCan} size={0.8} />
+                          <Typography variant='body2' color={grey[500]} sx={{ ml: 2 }}>
+                            Remove
+                          </Typography>
+                        </IconButton>
+                      </Box>
+                    </Card>
+                  </Grid>
+                ))}
+            </Grid>
+
+            <Button
+              disabled={resultSubjectList?.length <= 2}
+              variant='contained'
+              sx={{ width: '100%', bottom: 0, position: 'absolute' }}
+            >
+              Recommendation Result
+            </Button>
+          </Box>
+        </Grid>
+      </Grid>
+      <Grid item xs={12} textAlign={'center'} sx={{ mt: 12 }}>
+        <Typography color={grey[500]}>**Please Select 3 Subjects**</Typography>
+      </Grid>
+    </>
+  )
+
+  const FinalResultDisplay = (
+    <>
+      <Grid container sx={{ mt: 4 }} spacing={0}>
+        <Grid
+          item
+          sm={6}
+          md={6}
+          lg={3}
+          sx={{
+            display: 'flex',
+            justifyContent: 'flex-start',
+            flexDirection: 'column'
+          }}
+        >
+          <Box sx={{ pt: 6, display: 'flex', flexDirection: 'row', mb: 8 }}>
+            <Typography variant='h6' sx={{ fontWeight: 'bold', fontSize: { sm: 16, lg: 22 } }}>
+              Simulator :
+            </Typography>
+            <Typography variant='h6' sx={{ ml: 2, color: 'gray', fontSize: { sm: 16, lg: 22 } }}>
+              SE 2566
+            </Typography>
+          </Box>
+          <Grid container spacing={0}>
+            <Grid
+              item
+              xs={12}
+              sx={{
+                backgroundColor: grey[300],
+                p: 2,
+                mb: 2,
+                fontSize: { sm: 14, lg: 22 },
+                display: { sm: null, md: 'flex' },
+                justifyContent: { sm: null, md: 'space-between' }
+              }}
+            >
+              <Typography variant='body2' sx={{ ml: 2 }}>
+                {simSubjects?.length} Subjects
+              </Typography>
+              <Typography variant='body2' sx={{ ml: 2 }}>
+                {simSubjects?.reduce((sum, subject) => sum + subject.subject_credit, 0)} Total Credit
+              </Typography>
+            </Grid>
+            <Box sx={{ width: '100%', height: 600, overflow: 'auto', borderRadius: 2, pb: 24 }}>
+              {tabs?.map((tabLabel, index) => (
+                <Grid item xs={12} sx={{ p: 6, px: 4, backgroundColor: 'white', pb: 12 }}>
+                  <Typography variant='body2' sx={{ fontWeight: 'bold', mb: 4 }}>
+                    {tabLabel}
+                  </Typography>
+                  {simSubjects
+                    .filter(filterSubject => filterSubject.term === index + 1)
+                    .map((s, index2) => (
+                      <Box
+                        key={s.subject_id}
+                        sx={{
+                          width: '100%',
+                          position: 'relative'
+                        }}
+                      >
+                        {index2 === 0 && (
+                          <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                            <Box sx={{ display: 'flex' }}>
+                              <Typography sx={{ fontSize: { sm: 12, lg: 14 }, minWidth: 100, color: grey[600] }}>
+                                Code
+                              </Typography>
+                              <Typography sx={{ fontSize: { sm: 12, lg: 14 }, color: grey[600] }}>Subject</Typography>
+                            </Box>
+                            <Typography sx={{ fontSize: { sm: 12, lg: 14 }, color: grey[600] }}>Credit</Typography>
+                          </Box>
+                        )}
+                        <Divider />
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                          <Box sx={{ display: 'flex', minWidth: { sm: 100, lg: 300 } }}>
+                            <Typography sx={{ fontSize: { sm: 12, lg: 14, fontWeight: 'bold' }, minWidth: 100 }}>
+                              {s.subject_code}
+                            </Typography>
+                            <Typography sx={{ fontSize: { sm: 12, lg: 14 }, color: 'gray' }} noWrap>
+                              {s.subject_name_en}
+                            </Typography>
+                          </Box>
+                          <Typography sx={{ fontSize: { sm: 12, lg: 14 }, minWidth: 20 }}>
+                            {s.subject_credit}
+                          </Typography>
+                        </Box>
+                        {index2 + 1 ===
+                          simSubjects?.filter(filterSubject => filterSubject.term === index + 1).length && <Divider />}
+                        {index2 + 1 ===
+                          simSubjects?.filter(filterSubject => filterSubject.term === index + 1).length && (
+                          <Typography
+                            sx={{
+                              fontSize: 14,
+                              fontWeight: 'bold',
+                              position: 'absolute',
+                              bottom: -30,
+                              right: 10
+                            }}
+                          >
+                            {simSubjects
+                              ?.filter(filterSubject => filterSubject.term === index + 1)
+                              .reduce((sum, subject) => sum + subject.subject_credit, 0)}
+                          </Typography>
+                        )}
+                        {index2 + 1 ===
+                          simSubjects?.filter(filterSubject => filterSubject.term === index + 1).length && (
+                          <Divider absolute={true} sx={{ bottom: -45 }} />
+                        )}
+                      </Box>
+                    ))}
+                </Grid>
+              ))}
+            </Box>
+          </Grid>
+        </Grid>
+        <Grid
+          item
+          sm={6}
+          md={6}
+          lg={7}
+          sx={{ p: { sm: 6, lg: 16 }, pt: { sm: 24, lg: 24 }, display: 'flex', justifyContent: 'flex-start' }}
+        >
+          space for query result
+        </Grid>
+      </Grid>
+    </>
+  )
+
+  // const ResultJobDisplay = ();
+
   useEffect(() => {
     if (!SubjectsLoading) {
       setSubjectsTemp(Subjects)
@@ -1090,10 +1416,18 @@ function StudyPlanSimulatorPage() {
                                 {index + 1}.
                               </Typography>
                               <Box sx={{ justifyContent: 'space-between', display: 'flex', width: '100%' }}>
-                                <Typography variant='caption' sx={{ minWidth: 100, maxWidth: 300, m: 2 }}>
-                                  {subjectInterm.subject_code} {subjectInterm.subject_name_en}
-                                </Typography>
-                                <Typography sx={{ m: 2, mr: 7, fontWeight: 'bold' }} variant='caption'>
+                                <Box sx={{ display: 'flex', minWidth: 160 }}>
+                                  <Typography variant='caption' sx={{ minWidth: 60, m: 2, fontWeight: 'bold' }}>
+                                    {subjectInterm.subject_code}
+                                  </Typography>
+                                  <Typography variant='caption' sx={{ minWidth: 100, m: 2 }} noWrap>
+                                    {subjectInterm.subject_name_en}
+                                  </Typography>
+                                </Box>
+                                <Typography
+                                  sx={{ m: 2, mr: { sm: 12, md: 12, lg: 6 }, fontWeight: 'bold', minWidth: 20 }}
+                                  variant='caption'
+                                >
                                   {subjectInterm.subject_credit}
                                 </Typography>
                               </Box>
@@ -1102,7 +1436,7 @@ function StudyPlanSimulatorPage() {
                                 color='error'
                                 sx={{
                                   position: 'absolute',
-                                  top: 8,
+                                  top: 6,
                                   right: 8,
                                   zIndex: 1,
                                   opacity: isHovered[index] ? 0.9 : 0, // Show or hide based on hover state
@@ -1293,6 +1627,18 @@ function StudyPlanSimulatorPage() {
                   </Box>
                 ))}
               </Box>
+              <Button
+                onClick={() => {
+                  setResultSelected(2)
+                  setTimeout(() => {
+                    setOpenResult(true)
+                  }, 100)
+                }}
+                variant='contained'
+                sx={{ width: '100%', mb: 2 }}
+              >
+                Open test
+              </Button>
               <Button variant='contained' sx={{ width: '100%' }} onClick={handleOpenResult}>
                 Simulation Results
               </Button>
@@ -1508,224 +1854,54 @@ function StudyPlanSimulatorPage() {
         >
           <DialogTitle
             sx={{
+              height: 70,
+              width: '100%',
               background: 'lightgray',
-              display: 'flex',
-              justifyContent: 'space-between',
               pr: 6,
               borderBottom: 1,
-              borderColor: grey[500]
+              borderColor: grey[500],
+              position: 'relative'
             }}
           >
-            <Typography variant='h6'>
-              {resultSelected === 99
-                ? 'What Do You Pay Attention To? '
-                : resultSelected === 0
-                ? 'Select Subjects You Pay Attention'
-                : 'Select Job You Pay Attention'}
-            </Typography>
+            {resultSelected !== 2 && (
+              <Typography variant='h6' sx={{ pt: 2, position: 'absolute', left: '50%', transform: 'translateX(-50%)' }}>
+                {resultSelected === 99
+                  ? 'What Do You Pay Attention To? '
+                  : resultSelected === 0
+                  ? 'Select Subjects You Pay Attention'
+                  : resultSelected === 1
+                  ? 'Select Job You Pay Attention'
+                  : null}
+              </Typography>
+            )}
             <IconButton
-              sx={{ p: 0, color: grey[700], borderRadius: 1, m: 1, ml: 6 }}
+              sx={{
+                p: 0,
+                color: grey[700],
+                borderRadius: 1,
+                m: 1,
+                ml: 6,
+                fontSize: 16,
+                p: 2,
+                position: 'absolute',
+                right: resultSelected !== 2 ? 18 : null,
+                left: resultSelected === 2 ? 18 : null,
+                top: 12
+              }}
               onClick={() => {
                 handleCloseResultDialog()
               }}
             >
-              <Icon path={mdiClose} size={1} />
+              {resultSelected !== 2 && <Icon path={mdiClose} size={1} />}
+              {resultSelected === 2 && <Icon path={mdiChevronLeft} size={1.1} />}
+              {resultSelected === 2 && 'Back To Simulator'}
             </IconButton>
           </DialogTitle>
-          <DialogContent sx={{ minHeight: 400, background: grey[200], p: 10 }}>
-            {resultSelected === 99 && (
-              <Grid container sx={{ mt: 4 }} spacing={0}>
-                <Grid item xs={6} sx={{ pl: 12, pr: 6, display: 'flex', justifyContent: 'flex-end' }}>
-                  <Card
-                    onClick={() => {
-                      handleClickSearch(99)
-                      setResultSelected(0)
-                      setSimSubjectsForSearch(simSubjects)
-                    }}
-                    sx={{
-                      mt: 3,
-                      height: 220,
-                      width: 400,
-                      borderRadius: 4,
-                      borderBottomRightRadius: 0,
-                      transition: 'background-color 0.3s',
-                      backgroundColor: grey[100],
-                      '&:hover': {
-                        backgroundColor: 'white', // Change the background color on hover
-                        boxShadow: 6
-                      },
-                      cursor: 'pointer'
-                    }}
-                  >
-                    <Box sx={{ p: 8, textAlign: 'center' }}>
-                      <Box sx={{ p: 2 }}>
-                        <Icon path={mdiBookEducation} size={3} />
-                      </Box>
-                      <Typography color={grey[600]} sx={{ mt: 2 }}>
-                        Subject
-                      </Typography>
-                    </Box>
-                  </Card>
-                </Grid>
-                <Grid item xs={6} sx={{ pl: 6, pr: 12, display: 'flex', justifyContent: 'flex-start' }}>
-                  <Card
-                    onClick={() => setResultSelected(1)}
-                    sx={{
-                      mt: 3,
-                      height: 220,
-                      width: 400,
-                      borderRadius: 4,
-                      borderBottomRightRadius: 0,
-                      transition: 'background-color 0.3s',
-                      backgroundColor: grey[100],
-                      '&:hover': {
-                        backgroundColor: 'white', // Change the background color on hover
-                        boxShadow: 6
-                      },
-                      cursor: 'pointer'
-                    }}
-                  >
-                    <Box sx={{ p: 8, textAlign: 'center' }}>
-                      <Box sx={{ p: 2 }}>
-                        <Icon path={mdiAccount} size={3} />
-                      </Box>
-                      <Typography color={grey[600]} sx={{ mt: 2 }}>
-                        Job
-                      </Typography>
-                    </Box>
-                  </Card>
-                </Grid>
 
-                <Grid item xs={12} textAlign={'center'} sx={{ mt: 12 }}>
-                  <Typography color={grey[500]}>**Please Select One**</Typography>
-                </Grid>
-              </Grid>
-            )}
+          <DialogContent sx={{ minHeight: 400, background: grey[200], p: 10 }}>
+            {resultSelected === 99 && SelectResultTypeDisplay}
             {/* choose subject */}
-            {resultSelected === 0 && (
-              <>
-                <Grid container sx={{ mt: 4 }} spacing={0}>
-                  <Grid item xs={6} sx={{ paddingTop: 0, paddingRight: 6, paddingLeft: { sm: 0, md: 0, lg: 32 } }}>
-                    {/* subject list and search bar */}
-                    <Box sx={{ maxHeight: 600, overflow: 'auto' }}>
-                      <Box sx={{ mb: 2 }}>
-                        <TextSearch
-                          onChange={e => handleSearchChange(e.target.value)}
-                          onClick={() => handleClickSearchResult()}
-                          buttoninside={1}
-                          placeholder='Subject Code, Name'
-                        />
-                      </Box>
-                      {simSubjectsForSearch?.map(s => (
-                        <Card
-                          key={s.subject_id}
-                          sx={{
-                            m: 1,
-                            p: 2,
-                            height: 60
-                            // cursor: 'pointer',
-                            // '&:hover': {
-                            //   backgroundColor: grey[100] // Add your desired background color on hover
-                            // }
-                          }}
-                        >
-                          <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                            <Box sx={{ display: 'flex', my: 2.5, ml: 2 }}>
-                              <Typography variant='body2' sx={{ fontWeight: 'bold', mr: 2 }}>
-                                {s.subject_code}
-                              </Typography>
-                              <Typography variant='body2' noWrap>
-                                {s.subject_name_en}
-                              </Typography>
-                            </Box>
-                            <IconButton
-                              sx={{
-                                cursor: resultSubjectList?.length <= 2 ? 'pointer' : 'default',
-                                borderRadius: 2,
-                                width: 60,
-                                opacity: resultSubjectList?.length <= 2 ? 1 : 0.2
-                              }}
-                              onClick={() => (resultSubjectList?.length <= 2 ? handleAddResultSubjectList(s) : null)}
-                            >
-                              +
-                            </IconButton>
-                          </Box>
-                        </Card>
-                      ))}
-                    </Box>
-                  </Grid>
-                  <Grid item xs={6} sx={{ paddingRight: { sm: 0, md: 0, lg: 32 } }}>
-                    {/* subject is selected */}
-                    <Box sx={{ width: '100%', minHeight: 600, backgroundColor: grey[50], position: 'relative' }}>
-                      <Typography
-                        variant='body2'
-                        sx={{
-                          width: '100%',
-                          textAlign: 'center',
-                          p: 2,
-                          fontWeight: 'bold',
-                          backgroundColor: 'lightgray'
-                        }}
-                      >
-                        Subject List ({resultSubjectList?.length}/3)
-                      </Typography>
-                      {/* {Object.values(resultSubjectList)?.map(rs => ( */}
-                      <Grid container spacing={3} sx={{ mt: 2 }}>
-                        {resultSubjectList.length > 0 &&
-                          resultSubjectList?.map((resultSubject, index) => (
-                            <Grid item xs={12} key={resultSubject.subject_id}>
-                              <Card sx={{ p: 2, display: 'flex', mx: 2, position: 'relative' }}>
-                                <Typography variant='h6' sx={{ p: 4.5, color: grey[500] }}>
-                                  {index + 1}.
-                                </Typography>
-                                <Box sx={{ p: 3.5, pr: 12 }}>
-                                  <Typography variant='body1' sx={{ fontWeight: 'bold' }}>
-                                    {resultSubject.subject_code}
-                                  </Typography>
-                                  <Typography variant='body2' noWrap>
-                                    {resultSubject.subject_name_en}
-                                  </Typography>
-                                  <IconButton
-                                    size='large'
-                                    color='error'
-                                    sx={{
-                                      position: 'absolute',
-                                      top: { sm: 8, lg: 22.5 },
-                                      right: { sm: 15, lg: 25 },
-                                      zIndex: 1,
-                                      background: 'white',
-                                      borderRadius: 2
-                                    }}
-                                    onClick={() => {
-                                      handleRemoveResultSubjectList(resultSubject)
-                                    }}
-                                  >
-                                    <Icon path={mdiTrashCan} size={0.8} />
-                                    <Typography variant='body2' color={grey[500]} sx={{ ml: 2 }}>
-                                      Remove
-                                    </Typography>
-                                  </IconButton>
-                                </Box>
-                              </Card>
-                            </Grid>
-                          ))}
-                      </Grid>
-                      {/* ))} */}
-                      <Button
-                        disabled={resultSubjectList?.length <= 2}
-                        variant='contained'
-                        sx={{ width: '100%', bottom: 0, position: 'absolute' }}
-                      >
-                        Recommendation Result
-                      </Button>
-                    </Box>
-                  </Grid>
-                </Grid>
-                <Grid item xs={12} textAlign={'center'} sx={{ mt: 12 }}>
-                  <Typography color={grey[500]}>**Please Select 3 Subjects**</Typography>
-                </Grid>
-              </>
-            )}
+            {resultSelected === 0 && ResultSubjectDisplay}
             {/* choose job */}
             {resultSelected === 1 && (
               <Grid container sx={{ mt: 4 }} spacing={0}>
@@ -1734,6 +1910,7 @@ function StudyPlanSimulatorPage() {
                 </Grid>
               </Grid>
             )}
+            {resultSelected === 2 && FinalResultDisplay}
           </DialogContent>
         </Dialog>
       </Hidden>
