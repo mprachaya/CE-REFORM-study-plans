@@ -537,21 +537,24 @@ function StudyPlanSimulatorPage() {
     }
 
     const checkSubjectInterm = simSubjects.filter(s => s.term === indexToRemove + 1)
+    // console.log('checkSubjectInterm', checkSubjectInterm)
     if (checkSubjectInterm.length > 0) {
       let result = window.confirm(
         'Still Have Subject In This Term ' + parseInt(indexToRemove + 1) + ' Confirm To Delete?'
       )
       if (result) {
         // update all scope in remove tab
-        const subjectsInterm = simSubjects.filter(s => s.term === indexToRemove + 1)
+        // const subjectsInterm = simSubjects.filter(s => s.term === indexToRemove + 1)
         const newUpdates = []
-        subjectsInterm?.map(s => {
+        checkSubjectInterm?.map(s => {
+          console.log(s)
           if (s?.subject_structures[0]?.subjectGroup !== undefined) {
             const finetoUpdateScope = CurriculumStructures.filter(
               scope => scope.subjectGroup?.subject_group_id === s?.subject_structures[0]?.subjectGroup?.subject_group_id
             ).map(pre => ({
               ...pre,
-              countScope: pre.countScope !== s?.subject_credit ? pre.countScope - s?.subject_credit : s?.subject_credit
+              // countScope: pre.countScope !== s?.subject_credit ? pre.countScope - s?.subject_credit : s?.subject_credit
+              countScope: s?.subject_credit
             }))
             if (finetoUpdateScope) {
               const newUpdate = finetoUpdateScope[0]
@@ -563,7 +566,8 @@ function StudyPlanSimulatorPage() {
               scope => scope.subjectGroup?.subject_group_id === s?.subject_structures[0]?.subject_group_id
             ).map(pre => ({
               ...pre,
-              countScope: pre.countScope !== s?.subject_credit ? pre.countScope - s?.subject_credit : s?.subject_credit
+              // countScope: pre.countScope !== s?.subject_credit ? pre.countScope - s?.subject_credit : s?.subject_credit
+              countScope: s?.subject_credit
             }))
             if (finetoUpdateScope) {
               const newUpdate = finetoUpdateScope[0]
@@ -622,11 +626,23 @@ function StudyPlanSimulatorPage() {
           const uniqueUpdate = uniqueNewUpdates.find(
             update => update.curriculum_structures_v2_id === curriculumStructuresV2Id
           )
-          // console.log('uniqueUpdate :', uniqueUpdate)
+          if (uniqueUpdate) {
+            console.log('uniqueUpdate', uniqueUpdate)
+            console.log('item', item)
+
+            // console.log(' item.countScope:', item.countScope)
+            // console.log(' uniqueUpdate.countScope:', uniqueUpdate?.countScope)
+            // console.log(' item.countScope - uniqueUpdate.countScope :', item.countScope - uniqueUpdate?.countScope)
+          }
           // Update countScope based on the difference
           return {
             ...item,
-            countScope: uniqueUpdate ? item.countScope - uniqueUpdate.countScope : item.countScope
+            countScope:
+              uniqueUpdate && item.countScope - uniqueUpdate.countScope > 0
+                ? item.countScope - uniqueUpdate.countScope
+                : uniqueUpdate && item.countScope - uniqueUpdate.countScope < 0
+                ? 0
+                : 0
           }
         })
 
