@@ -460,7 +460,7 @@ function StudyPlanSimulatorPage() {
   }
 
   const handleAddResultSubjectList = subject => {
-    console.log('before add result', resultSubjectList)
+    // console.log('before add result', resultSubjectList)
     if (!resultSubjectList[0]) {
       // console.log('first add')
       const simResult = Array(resultSubjectList)
@@ -479,6 +479,15 @@ function StudyPlanSimulatorPage() {
       const updateSimSubjectsForSearch = simSubjectsForSearch.filter(s => s.subject_id !== subject.subject_id)
       setSimSubjectsForSearch(updateSimSubjectsForSearch)
     }
+  }
+
+  const handleRemoveResultSubjectList = subject => {
+    // console.log('more than 1 add')
+    const simResult = resultSubjectList.filter(rs => rs.subject_id !== subject?.subject_id)
+    setResultSubjectList(simResult)
+    const updateSimSubjectsForSearch = simSubjectsForSearch
+    updateSimSubjectsForSearch = [{ ...subject }, ...simSubjectsForSearch]
+    setSimSubjectsForSearch(updateSimSubjectsForSearch)
   }
 
   const handleCloseResultDialog = () => {
@@ -1671,10 +1680,9 @@ function StudyPlanSimulatorPage() {
                                       background: 'white',
                                       borderRadius: 2
                                     }}
-                                    // onClick={() => {
-                                    //   // Add your remove logic here
-                                    //   handleRemoveSimSubject(subjectInterm)
-                                    // }}
+                                    onClick={() => {
+                                      handleRemoveResultSubjectList(resultSubject)
+                                    }}
                                   >
                                     <Icon path={mdiTrashCan} size={0.8} />
                                     <Typography variant='body2' color={grey[500]} sx={{ ml: 2 }}>
@@ -1687,7 +1695,11 @@ function StudyPlanSimulatorPage() {
                           ))}
                       </Grid>
                       {/* ))} */}
-                      <Button variant='contained' sx={{ width: '100%', bottom: 0, position: 'absolute' }}>
+                      <Button
+                        disabled={resultSubjectList?.length <= 2}
+                        variant='contained'
+                        sx={{ width: '100%', bottom: 0, position: 'absolute' }}
+                      >
                         Recommendation Result
                       </Button>
                     </Box>
