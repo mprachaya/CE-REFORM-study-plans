@@ -46,6 +46,9 @@ function StudyPlanSimulatorPage() {
 
   const [resultSelected, setResultSelected] = useState(99) // 1 Subject, 2 Job , 99  Default
 
+  const [resultSubjectList, setResultSubjectList] = useState([])
+  const [resultJobSelected, setresultJobSelected] = useState([])
+
   const URL_GET_SUBJECTS_BY_CURRICURUM = `${url.BASE_URL}/subjects-by-curriculum/`
   const URL_GET_SUBJECTS_RELATIONS = `${url.BASE_URL}/continue-subjects-subject/`
   const URL_GET_CURRICULUM_STRUCTURES = `${url.BASE_URL}/curriculum-structures-v2/`
@@ -455,6 +458,41 @@ function StudyPlanSimulatorPage() {
   const handleSearchChange = text => {
     setSearchText(text)
   }
+
+  const handleAddResultSubjectList = subject => {
+    console.log('before add result', resultSubjectList)
+    if (!resultSubjectList[0]) {
+      // console.log('first add')
+      const simResult = Array(resultSubjectList)
+      simResult[0] = subject
+      setResultSubjectList(simResult)
+      console.log('simResult', simResult)
+
+      const updateSimSubjectsForSearch = simSubjectsForSearch.filter(s => s.subject_id !== subject.subject_id)
+      setSimSubjectsForSearch(updateSimSubjectsForSearch)
+      return
+    } else {
+      // console.log('more than 1 add')
+      const simResult = resultSubjectList
+      simResult[simResult.length] = subject
+      setResultSubjectList(simResult)
+      const updateSimSubjectsForSearch = simSubjectsForSearch.filter(s => s.subject_id !== subject.subject_id)
+      setSimSubjectsForSearch(updateSimSubjectsForSearch)
+    }
+  }
+
+  const handleCloseResultDialog = () => {
+    setOpenResult(false)
+    handleClickSearch(99)
+    setTimeout(() => {
+      setResultSelected(99)
+      setResultSubjectList([])
+    }, 300)
+  }
+
+  useEffect(() => {
+    console.log('resultSubjectList', resultSubjectList)
+  }, [resultSubjectList])
 
   const handleClickSearch = reset => {
     if (reset === 99) {
@@ -1437,15 +1475,7 @@ function StudyPlanSimulatorPage() {
         <Dialog
           open={openResult}
           onClose={() => {
-            setOpenResult(false)
-            handleClickSearch(99)
-            setTimeout(() => {
-              setResultSelected(99)
-            }, 300)
-
-            // setOpenDetails(false)
-            // setSubjectSelected([])
-            // setDialogStatus(0)
+            handleCloseResultDialog()
           }}
           fullWidth
           fullScreen
@@ -1471,11 +1501,7 @@ function StudyPlanSimulatorPage() {
             <IconButton
               sx={{ p: 0, color: grey[700], borderRadius: 1, m: 1, ml: 6 }}
               onClick={() => {
-                setOpenResult(false)
-                handleClickSearch(99)
-                setTimeout(() => {
-                  setResultSelected(99)
-                }, 300)
+                handleCloseResultDialog()
               }}
             >
               <Icon path={mdiClose} size={1} />
@@ -1571,20 +1597,33 @@ function StudyPlanSimulatorPage() {
                           sx={{
                             m: 1,
                             p: 2,
-                            height: 40,
-                            cursor: 'pointer',
-                            '&:hover': {
-                              backgroundColor: grey[100] // Add your desired background color on hover
-                            }
+                            height: 60
+                            // cursor: 'pointer',
+                            // '&:hover': {
+                            //   backgroundColor: grey[100] // Add your desired background color on hover
+                            // }
                           }}
                         >
-                          <Box sx={{ display: 'flex' }}>
-                            <Typography variant='body2' sx={{ fontWeight: 'bold', mr: 2 }}>
-                              {s.subject_code}
-                            </Typography>
-                            <Typography variant='body2' noWrap>
-                              {s.subject_name_en}
-                            </Typography>
+                          <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                            <Box sx={{ display: 'flex', my: 2.5, ml: 2 }}>
+                              <Typography variant='body2' sx={{ fontWeight: 'bold', mr: 2 }}>
+                                {s.subject_code}
+                              </Typography>
+                              <Typography variant='body2' noWrap>
+                                {s.subject_name_en}
+                              </Typography>
+                            </Box>
+                            <IconButton
+                              sx={{
+                                cursor: resultSubjectList?.length <= 2 ? 'pointer' : 'default',
+                                borderRadius: 2,
+                                width: 60,
+                                opacity: resultSubjectList?.length <= 2 ? 1 : 0.2
+                              }}
+                              onClick={() => (resultSubjectList?.length <= 2 ? handleAddResultSubjectList(s) : null)}
+                            >
+                              +
+                            </IconButton>
                           </Box>
                         </Card>
                       ))}
@@ -1603,8 +1642,51 @@ function StudyPlanSimulatorPage() {
                           backgroundColor: 'lightgray'
                         }}
                       >
-                        Subject List
+                        Subject List ({resultSubjectList?.length}/3)
                       </Typography>
+                      {/* {Object.values(resultSubjectList)?.map(rs => ( */}
+                      <Grid container spacing={3} sx={{ mt: 2 }}>
+                        {resultSubjectList.length > 0 &&
+                          resultSubjectList?.map((resultSubject, index) => (
+                            <Grid item xs={12} key={resultSubject.subject_id}>
+                              <Card sx={{ p: 2, display: 'flex', mx: 2, position: 'relative' }}>
+                                <Typography variant='h6' sx={{ p: 4.5, color: grey[500] }}>
+                                  {index + 1}.
+                                </Typography>
+                                <Box sx={{ p: 3.5, pr: 12 }}>
+                                  <Typography variant='body1' sx={{ fontWeight: 'bold' }}>
+                                    {resultSubject.subject_code}
+                                  </Typography>
+                                  <Typography variant='body2' noWrap>
+                                    {resultSubject.subject_name_en}
+                                  </Typography>
+                                  <IconButton
+                                    size='large'
+                                    color='error'
+                                    sx={{
+                                      position: 'absolute',
+                                      top: { sm: 8, lg: 22.5 },
+                                      right: { sm: 15, lg: 25 },
+                                      zIndex: 1,
+                                      background: 'white',
+                                      borderRadius: 2
+                                    }}
+                                    // onClick={() => {
+                                    //   // Add your remove logic here
+                                    //   handleRemoveSimSubject(subjectInterm)
+                                    // }}
+                                  >
+                                    <Icon path={mdiTrashCan} size={0.8} />
+                                    <Typography variant='body2' color={grey[500]} sx={{ ml: 2 }}>
+                                      Remove
+                                    </Typography>
+                                  </IconButton>
+                                </Box>
+                              </Card>
+                            </Grid>
+                          ))}
+                      </Grid>
+                      {/* ))} */}
                       <Button variant='contained' sx={{ width: '100%', bottom: 0, position: 'absolute' }}>
                         Recommendation Result
                       </Button>
