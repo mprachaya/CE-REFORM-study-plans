@@ -24,6 +24,7 @@ import BlankLayout from 'src/@core/layouts/BlankLayout'
 import { CircleLoading, Selection, TextSearch } from 'src/components'
 import { url } from 'src/configs/urlConfig'
 import { useFetch, useSearchText as UseSearchText } from 'src/hooks'
+import axios from 'axios'
 
 function StudyPlanSimulatorPage() {
   const [SubjectsTemp, setSubjectsTemp] = useState([])
@@ -53,6 +54,7 @@ function StudyPlanSimulatorPage() {
   const URL_GET_SUBJECTS_BY_CURRICURUM = `${url.BASE_URL}/subjects-by-curriculum/`
   const URL_GET_SUBJECTS_RELATIONS = `${url.BASE_URL}/continue-subjects-subject/`
   const URL_GET_CURRICULUM_STRUCTURES = `${url.BASE_URL}/curriculum-structures-v2/`
+  const URL_SIM_RESULT_SUBJECT = `${url.BASE_URL}/simulation-result-subject/`
 
   const {
     error: SubjectsError,
@@ -456,6 +458,8 @@ function StudyPlanSimulatorPage() {
 
   const [searchText, setSearchText] = useState('')
 
+  const [jobsByResult, setJobsByResult] = useState([])
+
   const handleSearchChange = text => {
     setSearchText(text)
   }
@@ -498,6 +502,39 @@ function StudyPlanSimulatorPage() {
       setResultSelected(99)
       setResultSubjectList([])
     }, 300)
+  }
+
+  const handleSubmitResult = () => {
+    // result type subject
+    if (resultSelected === 0) {
+      if (resultSubjectList?.length !== 3) {
+        return
+      } else {
+        const subjectIdArray = resultSubjectList?.map(obj => obj.subject_id)
+        console.log('array subject Id', subjectIdArray)
+        if (subjectIdArray.length === 3) {
+          axios
+            .post(URL_SIM_RESULT_SUBJECT, { subject_id: subjectIdArray })
+            .then(res => {
+              if (res.data?.data?.length > 0) {
+                console.log(res.data)
+                setJobsByResult(res.data.data)
+                setResultSelected(2)
+              } else {
+                console.log('no result ')
+                setJobsByResult([])
+                setResultSelected(2)
+              }
+            })
+            .catch(err => {
+              console.log('err from fething result type subjecrt', err)
+            })
+        }
+      }
+    }
+    // result type job
+    else if (resultSelected === 1) {
+    }
   }
 
   useEffect(() => {
@@ -869,7 +906,9 @@ function StudyPlanSimulatorPage() {
               disabled={resultSubjectList?.length <= 2}
               variant='contained'
               sx={{ width: '100%', bottom: 0, position: 'absolute' }}
-              onClick={() => setResultSelected(2)}
+              onClick={() => {
+                handleSubmitResult()
+              }}
             >
               Recommendation Result
             </Button>
@@ -887,8 +926,8 @@ function StudyPlanSimulatorPage() {
       <Grid container sx={{ mt: 4 }} spacing={0}>
         <Grid
           item
-          sm={6}
-          md={6}
+          sm={12}
+          md={12}
           lg={3}
           sx={{
             display: 'flex',
@@ -913,8 +952,8 @@ function StudyPlanSimulatorPage() {
                 p: 2,
                 mb: 2,
                 fontSize: { sm: 14, lg: 22 },
-                display: { sm: null, md: 'flex' },
-                justifyContent: { sm: null, md: 'space-between' }
+                display: 'flex',
+                justifyContent: 'space-between'
               }}
             >
               <Typography variant='body2' sx={{ ml: 2 }}>
@@ -924,7 +963,15 @@ function StudyPlanSimulatorPage() {
                 {simSubjects?.reduce((sum, subject) => sum + subject.subject_credit, 0)} Total Credit
               </Typography>
             </Grid>
-            <Box sx={{ width: '100%', height: 600, overflow: 'auto', borderRadius: 2, pb: 24 }}>
+            <Box
+              sx={{
+                width: '100%',
+                maxHeight: { sm: 400, md: 400, lg: 600 },
+                overflow: 'auto',
+                borderRadius: 2,
+                pb: 24
+              }}
+            >
               {tabs?.map((tabLabel, index) => (
                 <Grid item xs={12} sx={{ p: 6, px: 4, backgroundColor: 'white', pb: 12 }}>
                   <Typography variant='body2' sx={{ fontWeight: 'bold', mb: 4 }}>
@@ -997,137 +1044,84 @@ function StudyPlanSimulatorPage() {
         <Grid
           item
           container
-          sm={6}
-          md={6}
+          sm={12}
+          md={12}
           lg={9}
           sx={{ p: { sm: 6, lg: 16 }, pt: { sm: 24, lg: 24 }, display: 'flex', justifyContent: 'flex-start' }}
         >
           {/* job1 section */}
-          <Grid item xs={12}>
-            <Typography variant='h6' sx={{ fontWeight: 'bold' }}>
-              Job Position
-            </Typography>
-            <Typography variant='caption'>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et
-              dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex
-              ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu
-              fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt
-              mollit anim id est laborum.
-            </Typography>
-            <Grid container item xs={12} sx={{ mt: 6 }} spacing={6}>
-              {Array.from({ length: 4 }, (_, index) => (
-                <Grid key={index} item xs={12} md={6} lg={3}>
-                  <Card sx={{ height: 65, background: 'white' }}>
-                    <Box
-                      sx={{
-                        height: 30,
-                        background: 'lightgray',
-                        display: 'flex',
-                        justifyContent: 'space-between'
-                      }}
-                    >
-                      <Typography
-                        variant='body2'
+          {jobsByResult?.map(job => (
+            <Grid key={job.job_position_id} item xs={12}>
+              <Typography variant='h6' sx={{ fontWeight: 'bold' }}>
+                {job.job_position_name}
+              </Typography>
+              <Typography variant='caption'>
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et
+                dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip
+                ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu
+                fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia
+                deserunt mollit anim id est laborum.
+              </Typography>
+              <Grid container item xs={12} sx={{ mt: 6 }} spacing={6}>
+                {job?.subjects?.map(subject => (
+                  <Grid key={subject.subject_id} item xs={6} md={4} lg={3}>
+                    <Card sx={{ height: 65, background: 'white' }}>
+                      <Box
                         sx={{
-                          m: 1,
-                          ml: 2,
-                          fontWeight: 'bold',
-                          color: 'gray',
-                          display: 'inline' // Ensure inline display
+                          height: 30,
+                          background: 'lightgray',
+                          display: 'flex',
+                          justifyContent: 'space-between'
                         }}
                       >
-                        ENGCEXX
-                      </Typography>
-                    </Box>
-                    <Box
-                      // onClick={() => handleOpenDetails(value)}
-                      sx={{
-                        height: 35,
-                        ml: 1.5,
-                        p: 1,
-                        display: 'flex',
-                        direction: 'column',
-                        cursor: 'pointer'
-                      }}
-                    >
-                      <Typography variant='body2' noWrap>
-                        {/* Subject ................................................................... */}
-                        Lorem ipsum dolor sit ame
-                      </Typography>
-                    </Box>
-                  </Card>
-                </Grid>
-              ))}
-            </Grid>
-          </Grid>
-          {/* job2 section */}
-
-          <Grid item xs={12} sx={{ mt: 6 }}>
-            <Typography variant='h6' sx={{ fontWeight: 'bold' }}>
-              Job Position
-            </Typography>
-            <Typography variant='caption'>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et
-              dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex
-              ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu
-              fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt
-              mollit anim id est laborum.
-            </Typography>
-            <Grid container item xs={12} sx={{ mt: 6 }} spacing={6}>
-              {Array.from({ length: 4 }, (_, index) => (
-                <Grid key={index} item xs={12} md={6} lg={3}>
-                  <Card sx={{ height: 65, background: 'white' }}>
-                    <Box
-                      sx={{
-                        height: 30,
-                        background: 'lightgray',
-                        display: 'flex',
-                        justifyContent: 'space-between'
-                      }}
-                    >
-                      <Typography
-                        variant='body2'
+                        <Typography
+                          variant='body2'
+                          sx={{
+                            m: 1,
+                            ml: 2,
+                            fontWeight: 'bold',
+                            color: 'gray',
+                            display: 'inline' // Ensure inline display
+                          }}
+                        >
+                          {subject.subject_code}
+                        </Typography>
+                      </Box>
+                      <Box
+                        // onClick={() => handleOpenDetails(value)}
                         sx={{
-                          m: 1,
-                          ml: 2,
-                          fontWeight: 'bold',
-                          color: 'gray',
-                          display: 'inline' // Ensure inline display
+                          height: 35,
+                          ml: 1.5,
+                          p: 1,
+                          display: 'flex',
+                          direction: 'column',
+                          cursor: 'pointer'
                         }}
                       >
-                        ENGCEXX
-                      </Typography>
-                    </Box>
-                    <Box
-                      // onClick={() => handleOpenDetails(value)}
-                      sx={{
-                        height: 35,
-                        ml: 1.5,
-                        p: 1,
-                        display: 'flex',
-                        direction: 'column',
-                        cursor: 'pointer'
-                      }}
-                    >
-                      <Typography variant='body2' noWrap>
-                        {/* Subject ................................................................... */}
-                        Lorem ipsum dolor sit ame
-                      </Typography>
-                    </Box>
-                  </Card>
-                </Grid>
-              ))}
+                        <Typography variant='body2' noWrap>
+                          {/* Subject ................................................................... */}
+                          {subject.subject_name_en}
+                        </Typography>
+                      </Box>
+                    </Card>
+                  </Grid>
+                ))}
+              </Grid>
             </Grid>
-          </Grid>
-
+          ))}
+          {jobsByResult?.length === 0 && (
+            <Typography variant='body2' sx={{ fontWeight: 'bold', mb: 12 }}>
+              no job result
+            </Typography>
+          )}
           {/* project section */}
-          <Grid item xs={12} sx={{ mt: 12 }}>
+          <Grid item xs={12} sx={{ mt: jobsByResult?.length !== 0 && 12 }}>
             <Typography variant='h6' sx={{ fontWeight: 'bold' }}>
               Project Related
             </Typography>
             <Grid container item xs={12} sx={{ mt: 2 }} spacing={6}>
               {Array.from({ length: 6 }, (_, index) => (
-                <Grid key={index} item xs={12} md={12} lg={6}>
+                <Grid key={index} item xs={12} md={6} lg={6}>
                   <Card sx={{ height: 200, background: 'white' }}>
                     <Box
                       sx={{
@@ -1156,7 +1150,7 @@ function StudyPlanSimulatorPage() {
                         <Typography
                           variant='body2'
                           sx={{
-                            maxWidth: 400,
+                            maxWidth: 300,
                             ml: 1.5,
                             fontWeight: 'bold',
                             color: 'gray',
@@ -1169,6 +1163,7 @@ function StudyPlanSimulatorPage() {
                         <Typography
                           variant='caption'
                           sx={{
+                            minWidth: 80,
                             color: 'gray',
                             display: 'inline' // Ensure inline display
                           }}
