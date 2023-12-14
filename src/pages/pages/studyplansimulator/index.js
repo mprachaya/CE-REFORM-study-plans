@@ -45,7 +45,7 @@ function StudyPlanSimulatorPage() {
 
   const [dialogStatus, setDialogStatus] = useState(0) // if 0 show Details, 1 show alert when subject has parent
 
-  const [resultSelected, setResultSelected] = useState(2) // 99  Default, 0 Subject, 1 Job ,2 Final Result
+  const [resultSelected, setResultSelected] = useState(99) // 99  Default, 0 Subject, 1 Job ,2 Final Result
 
   const [resultSubjectList, setResultSubjectList] = useState([])
   const [resultJobSelected, setresultJobSelected] = useState([])
@@ -869,6 +869,7 @@ function StudyPlanSimulatorPage() {
               disabled={resultSubjectList?.length <= 2}
               variant='contained'
               sx={{ width: '100%', bottom: 0, position: 'absolute' }}
+              onClick={() => setResultSelected(2)}
             >
               Recommendation Result
             </Button>
@@ -995,12 +996,219 @@ function StudyPlanSimulatorPage() {
         </Grid>
         <Grid
           item
+          container
           sm={6}
           md={6}
-          lg={7}
+          lg={9}
           sx={{ p: { sm: 6, lg: 16 }, pt: { sm: 24, lg: 24 }, display: 'flex', justifyContent: 'flex-start' }}
         >
-          space for query result
+          {/* job1 section */}
+          <Grid item xs={12}>
+            <Typography variant='h6' sx={{ fontWeight: 'bold' }}>
+              Job Position
+            </Typography>
+            <Typography variant='caption'>
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et
+              dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex
+              ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu
+              fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt
+              mollit anim id est laborum.
+            </Typography>
+            <Grid container item xs={12} sx={{ mt: 6 }} spacing={6}>
+              {Array.from({ length: 4 }, (_, index) => (
+                <Grid key={index} item xs={12} md={6} lg={3}>
+                  <Card sx={{ height: 65, background: 'white' }}>
+                    <Box
+                      sx={{
+                        height: 30,
+                        background: 'lightgray',
+                        display: 'flex',
+                        justifyContent: 'space-between'
+                      }}
+                    >
+                      <Typography
+                        variant='body2'
+                        sx={{
+                          m: 1,
+                          ml: 2,
+                          fontWeight: 'bold',
+                          color: 'gray',
+                          display: 'inline' // Ensure inline display
+                        }}
+                      >
+                        ENGCEXX
+                      </Typography>
+                    </Box>
+                    <Box
+                      // onClick={() => handleOpenDetails(value)}
+                      sx={{
+                        height: 35,
+                        ml: 1.5,
+                        p: 1,
+                        display: 'flex',
+                        direction: 'column',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      <Typography variant='body2' noWrap>
+                        {/* Subject ................................................................... */}
+                        Lorem ipsum dolor sit ame
+                      </Typography>
+                    </Box>
+                  </Card>
+                </Grid>
+              ))}
+            </Grid>
+          </Grid>
+          {/* job2 section */}
+
+          <Grid item xs={12} sx={{ mt: 6 }}>
+            <Typography variant='h6' sx={{ fontWeight: 'bold' }}>
+              Job Position
+            </Typography>
+            <Typography variant='caption'>
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et
+              dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex
+              ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu
+              fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt
+              mollit anim id est laborum.
+            </Typography>
+            <Grid container item xs={12} sx={{ mt: 6 }} spacing={6}>
+              {Array.from({ length: 4 }, (_, index) => (
+                <Grid key={index} item xs={12} md={6} lg={3}>
+                  <Card sx={{ height: 65, background: 'white' }}>
+                    <Box
+                      sx={{
+                        height: 30,
+                        background: 'lightgray',
+                        display: 'flex',
+                        justifyContent: 'space-between'
+                      }}
+                    >
+                      <Typography
+                        variant='body2'
+                        sx={{
+                          m: 1,
+                          ml: 2,
+                          fontWeight: 'bold',
+                          color: 'gray',
+                          display: 'inline' // Ensure inline display
+                        }}
+                      >
+                        ENGCEXX
+                      </Typography>
+                    </Box>
+                    <Box
+                      // onClick={() => handleOpenDetails(value)}
+                      sx={{
+                        height: 35,
+                        ml: 1.5,
+                        p: 1,
+                        display: 'flex',
+                        direction: 'column',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      <Typography variant='body2' noWrap>
+                        {/* Subject ................................................................... */}
+                        Lorem ipsum dolor sit ame
+                      </Typography>
+                    </Box>
+                  </Card>
+                </Grid>
+              ))}
+            </Grid>
+          </Grid>
+
+          {/* project section */}
+          <Grid item xs={12} sx={{ mt: 12 }}>
+            <Typography variant='h6' sx={{ fontWeight: 'bold' }}>
+              Project Related
+            </Typography>
+            <Grid container item xs={12} sx={{ mt: 2 }} spacing={6}>
+              {Array.from({ length: 6 }, (_, index) => (
+                <Grid key={index} item xs={12} md={12} lg={6}>
+                  <Card sx={{ height: 200, background: 'white' }}>
+                    <Box
+                      sx={{
+                        height: 30,
+                        background: 'lightgray',
+                        display: 'flex',
+                        justifyContent: 'space-between'
+                      }}
+                    ></Box>
+                    <Box
+                      // onClick={() => handleOpenDetails(value)}
+                      sx={{
+                        display: 'flex',
+                        flexDirection: 'column'
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          backgroundColor: grey[200],
+                          p: 2,
+                          pl: 1.5
+                        }}
+                      >
+                        <Typography
+                          variant='body2'
+                          sx={{
+                            maxWidth: 400,
+                            ml: 1.5,
+                            fontWeight: 'bold',
+                            color: 'gray',
+                            display: 'inline' // Ensure inline display
+                          }}
+                          noWrap
+                        >
+                          Project Name Project Name Project Name
+                        </Typography>
+                        <Typography
+                          variant='caption'
+                          sx={{
+                            color: 'gray',
+                            display: 'inline' // Ensure inline display
+                          }}
+                        >
+                          2023-07-16
+                        </Typography>
+                      </Box>
+                      <Box sx={{ m: 2, ml: 1.5, p: 1, display: 'flex', flexDirection: 'column' }}>
+                        <Typography variant='caption' sx={{ display: 'inline', fontWeight: 'bold' }}>
+                          ENGCEXX
+                          <Typography variant='caption' sx={{ display: 'inline', ml: 6 }}>
+                            Subject Name...........................
+                          </Typography>
+                        </Typography>
+
+                        <Typography variant='caption' sx={{ display: 'inline', fontWeight: 'bold' }}>
+                          ENGCEXX
+                          <Typography variant='caption' sx={{ display: 'inline', ml: 6 }}>
+                            Subject Name...........................
+                          </Typography>
+                        </Typography>
+                      </Box>
+                      <Button
+                        variant={'contained'}
+                        sx={{
+                          mx: 24,
+                          mt: 2,
+                          letterSpacing: 2,
+                          fontSize: 12,
+                          backgroundColor: 'black'
+                        }}
+                      >
+                        Details
+                      </Button>
+                    </Box>
+                  </Card>
+                </Grid>
+              ))}
+            </Grid>
+          </Grid>
         </Grid>
       </Grid>
     </>
@@ -1161,7 +1369,7 @@ function StudyPlanSimulatorPage() {
             </Grid>
             <Grid item xs={12}>
               <Box sx={{ height: 600, mt: 6 }}>
-                <Grid container spacing={2} sx={{ p: 2 }}>
+                <Grid container spacing={6} sx={{ p: 2 }}>
                   {/* {Array.from({ length: 24 }, (_, index) => index).map(value => ( */}
                   {SubjectsLoading ? (
                     <Box sx={{ width: '100%', height: 200, m: 12 }}>
@@ -1627,7 +1835,8 @@ function StudyPlanSimulatorPage() {
                   </Box>
                 ))}
               </Box>
-              <Button
+              {/* <Button
+                disabled={simSubjects?.length === 0}
                 onClick={() => {
                   setResultSelected(2)
                   setTimeout(() => {
@@ -1638,7 +1847,7 @@ function StudyPlanSimulatorPage() {
                 sx={{ width: '100%', mb: 2 }}
               >
                 Open test
-              </Button>
+              </Button> */}
               <Button variant='contained' sx={{ width: '100%' }} onClick={handleOpenResult}>
                 Simulation Results
               </Button>
