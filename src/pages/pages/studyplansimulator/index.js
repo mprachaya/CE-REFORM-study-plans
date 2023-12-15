@@ -14,8 +14,10 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
-  Divider
+  Divider,
+  CircularProgress
 } from '@mui/material'
+import { motion } from 'framer-motion'
 import { grey } from '@mui/material/colors'
 import { mdiClose, mdiTrashCan, mdiBookEducation, mdiAccount, mdiChevronLeft } from '@mdi/js'
 import Icon from '@mdi/react'
@@ -49,12 +51,14 @@ function StudyPlanSimulatorPage() {
   const [resultSelected, setResultSelected] = useState(99) // 99  Default, 0 Subject, 1 Job ,2 Final Result
 
   const [resultSubjectList, setResultSubjectList] = useState([])
-  const [resultJobSelected, setresultJobSelected] = useState([])
+  const [showLoadingResult, setShowLoadingResult] = useState(false)
 
   const URL_GET_SUBJECTS_BY_CURRICURUM = `${url.BASE_URL}/subjects-by-curriculum/`
   const URL_GET_SUBJECTS_RELATIONS = `${url.BASE_URL}/continue-subjects-subject/`
   const URL_GET_CURRICULUM_STRUCTURES = `${url.BASE_URL}/curriculum-structures-v2/`
   const URL_SIM_RESULT_SUBJECT = `${url.BASE_URL}/simulation-result-subject/`
+  const URL_SIM_RESULT_JOB = `${url.BASE_URL}/simulation-result-job/`
+  const URL_GET_JOBS = `${url.BASE_URL}/job-positions/`
 
   const {
     error: SubjectsError,
@@ -80,6 +84,14 @@ function StudyPlanSimulatorPage() {
     reFetch: reFetchCurriculumStructures
   } = useFetch(URL_GET_CURRICULUM_STRUCTURES + 2)
 
+  const {
+    error: JobsError,
+    data: Jobs,
+    setData: setJobs,
+    loading: JobsLoading,
+    reFetch: reFetchJobs
+  } = useFetch(URL_GET_JOBS)
+
   const handleOpenDetails = subject => {
     if (!subject) return
 
@@ -88,7 +100,8 @@ function StudyPlanSimulatorPage() {
   }
 
   const handleOpenResult = () => {
-    setOpenResult(true)
+    if (simSubjects?.length === 0) alert('Please add subject in simulator.')
+    else setOpenResult(true)
   }
 
   const handleCheckLimitCredit = term => {
@@ -460,6 +473,8 @@ function StudyPlanSimulatorPage() {
 
   const [jobsByResult, setJobsByResult] = useState([])
 
+  const [jobSelected, setJobSelected] = useState(0)
+
   const handleSearchChange = text => {
     setSearchText(text)
   }
@@ -498,9 +513,11 @@ function StudyPlanSimulatorPage() {
   const handleCloseResultDialog = () => {
     setOpenResult(false)
     handleClickSearch(99)
+
     setTimeout(() => {
       setResultSelected(99)
       setResultSubjectList([])
+      setJobSelected(0)
     }, 300)
   }
 
@@ -529,11 +546,41 @@ function StudyPlanSimulatorPage() {
             .catch(err => {
               console.log('err from fething result type subjecrt', err)
             })
+            .finally(() => {
+              setTimeout(() => {
+                setShowLoadingResult(false)
+              }, 1000)
+            })
         }
       }
     }
     // result type job
     else if (resultSelected === 1) {
+      if (jobSelected === 0) {
+        return
+      } else {
+        axios
+          .post(URL_SIM_RESULT_JOB, { job_position_id: jobSelected })
+          .then(res => {
+            if (res.data?.data?.length > 0) {
+              console.log(res.data)
+              setJobsByResult(res.data.data)
+              setResultSelected(2)
+            } else {
+              console.log('no result ')
+              setJobsByResult([])
+              setResultSelected(2)
+            }
+          })
+          .catch(err => {
+            console.log('err from fething result type job', err)
+          })
+          .finally(() => {
+            setTimeout(() => {
+              setShowLoadingResult(false)
+            }, 1000)
+          })
+      }
     }
   }
 
@@ -799,6 +846,59 @@ function StudyPlanSimulatorPage() {
     </Grid>
   )
 
+  const ResultJobDisplay = (
+    <>
+      <Grid container sx={{ mt: 4, position: 'relative' }} spacing={0}>
+        {Jobs?.map(job => (
+          <Grid key={job.job_position_id} item xs={12} md={6} lg={4}>
+            <Card
+              sx={{
+                m: 1,
+                p: 2,
+                height: 60,
+                '&:hover': {
+                  backgroundColor: grey[200], // Add your desired background color on hover
+                  cursor: 'pointer'
+                },
+                border: job.job_position_id === jobSelected ? 1 : 0
+              }}
+              onClick={() => setJobSelected(job.job_position_id)}
+            >
+              <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    my: 2.5,
+                    ml: 2
+                  }}
+                  noWrap
+                >
+                  <Typography variant='body2' sx={{ fontWeight: 'bold', mr: 2, fontSize: { xs: 12, md: 14 } }}>
+                    {job.job_position_name}
+                  </Typography>
+                </Box>
+              </Box>
+            </Card>
+          </Grid>
+        ))}
+        <Button
+          variant='contained'
+          sx={{ position: 'absolute', bottom: { xs: -120, md: -50 }, right: 10, width: { xs: '100%', md: 350 } }}
+          onClick={() => {
+            setShowLoadingResult(true)
+            handleSubmitResult()
+          }}
+        >
+          Recommendation Result
+        </Button>
+      </Grid>
+
+      <Grid item xs={12} textAlign={'center'} sx={{ mt: 12 }}>
+        <Typography color={grey[500]}>**Please Select One Job**</Typography>
+      </Grid>
+    </>
+  )
+
   const ResultSubjectDisplay = (
     <>
       <Grid container sx={{ mt: 4 }} spacing={0}>
@@ -929,6 +1029,7 @@ function StudyPlanSimulatorPage() {
               variant='contained'
               sx={{ width: '100%', bottom: 0, position: 'absolute' }}
               onClick={() => {
+                setShowLoadingResult(true)
                 handleSubmitResult()
               }}
             >
@@ -1329,7 +1430,35 @@ function StudyPlanSimulatorPage() {
     </>
   )
 
-  // const ResultJobDisplay = ();
+  const LoadingResult = (
+    // <motion.div
+    //   key='loading'
+    //   initial={{ opacity: 0 }}
+    //   animate={{ opacity: 1 }}
+    //   exit={{ opacity: 0 }}
+    //   transition={{ duration: 0.3 }}
+    // >
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: '100vh', // 100% of the viewport height
+        backgroundColor: 'white', // White background color
+        pb: 24
+      }}
+    >
+      <Box sx={{ mr: 12 }}>
+        <Typography variant='h4'>Loading Result</Typography>
+        <Typography variant='h6' sx={{ color: grey[600] }}>
+          Software Engineering RMUTL
+        </Typography>
+      </Box>
+      <CircularProgress sx={{ mt: 2 }} />
+    </Box>
+    // </motion.div>
+  )
 
   useEffect(() => {
     if (!SubjectsLoading) {
@@ -1372,591 +1501,609 @@ function StudyPlanSimulatorPage() {
   return (
     <>
       {/* <Hidden smDown> */}
-      <Grid container sx={{ m: { xs: 0, lg: 2 }, p: { xs: 6, lg: 0 } }} spacing={2}>
-        <Grid container item xs={12} sm={12} md={6} lg={7} sx={{ height: { sm: 800, lg: '100%' } }} spacing={6}>
-          {/* Filter */}
-          <Grid item xs={12} sm={12} md={6} lg={8} sx={{ px: { xs: 6, sm: 6, lg: 2 } }}>
-            <TextSearch
-              onChange={e => handleSearchChange(e.target.value)}
-              onClick={() => handleClickSearch()}
-              buttoninside={1}
-              placeholder='Subject Code, Name'
-            />
-          </Grid>
-          <Grid item xs={12} sm={12} md={6} lg={4}>
-            {/* Pagination */}
-            <TablePagination
-              rowsPerPageOptions={[]}
-              component='div'
-              size='small'
-              count={
-                Subjects.filter(
-                  f =>
-                    // case 1 select all filters
-                    (f.subject_structures[0]?.subjectCategory?.subject_category_name === categoriesSelected &&
-                      f.subject_structures[0]?.subjectType?.subject_type_name === typesSelected &&
-                      f.subject_structures[0]?.subjectGroup?.subject_group_name === groupsSelected) ||
-                    // case 2 select two of three
-                    // category and type
-                    (f.subject_structures[0]?.subjectCategory?.subject_category_name === categoriesSelected &&
-                      f.subject_structures[0]?.subjectType?.subject_type_name === typesSelected &&
-                      !groupsSelected) ||
-                    // category and group
-                    (f.subject_structures[0]?.subjectCategory?.subject_category_name === categoriesSelected &&
-                      f.subject_structures[0]?.subjectGroup?.subject_group_name === groupsSelected &&
-                      !typesSelected) ||
-                    // type and group
-                    (f.subject_structures[0]?.subjectType?.subject_type_name === typesSelected &&
-                      f.subject_structures[0]?.subjectGroup?.subject_group_name === groupsSelected &&
-                      !categoriesSelected) ||
-                    // case 3 select only one of three
-                    // only category
-                    (f.subject_structures[0]?.subjectCategory?.subject_category_name === categoriesSelected &&
-                      !typesSelected &&
-                      !groupsSelected) ||
-                    // only type
-                    (f.subject_structures[0]?.subjectType?.subject_type_name === typesSelected &&
-                      !categoriesSelected &&
-                      !groupsSelected) ||
-                    // only group
-                    (f.subject_structures[0]?.subjectGroup?.subject_group_name === groupsSelected &&
-                      !categoriesSelected &&
-                      !typesSelected) ||
-                    (!categoriesSelected && !typesSelected && !groupsSelected)
-                ).length
-              }
-              rowsPerPage={24}
-              page={page}
-              onPageChange={handleChangePage}
-            />
-          </Grid>
-          <Grid container item xs={12} sm={12} lg={8} spacing={2}>
-            <Grid item xs={12} sm={12} md={12} lg={4}>
-              <Selection
-                disabled={categoriesSubject[0] === undefined}
-                label={'Category'}
-                height={40}
-                width={'100%'}
-                selectionValue={categoriesSelected}
-                firstItemText={'แสดงทั้งหมด'}
-                handleChange={e => {
-                  setCategoriesSelected(e.target.value)
-                }}
-                Items={Object.values(categoriesSubject).map(menu => (
-                  <MenuItem key={menu} value={menu}>
-                    {menu}
-                  </MenuItem>
-                ))}
-              />
-            </Grid>
-            <Grid item xs={12} sm={12} md={12} lg={4}>
-              <Selection
-                disabled={typesSubject[0] === undefined}
-                label={'Type'}
-                height={40}
-                width={'100%'}
-                selectionValue={typesSelected}
-                firstItemText={'แสดงทั้งหมด'}
-                handleChange={e => setTypesSelected(e.target.value)}
-                Items={Object.values(typesSubject).map(menu => (
-                  <MenuItem key={menu} value={menu}>
-                    {menu}
-                  </MenuItem>
-                ))}
-              />
-            </Grid>
-            <Grid item xs={12} sm={12} md={12} lg={4}>
-              <Selection
-                disabled={groupsSubject[0] === undefined}
-                label={'Group'}
-                height={40}
-                width={'100%'}
-                selectionValue={groupsSelected}
-                firstItemText={'แสดงทั้งหมด'}
-                handleChange={e => setGroupsSelected(e.target.value)}
-                Items={Object.values(groupsSubject).map(menu => (
-                  <MenuItem key={menu} value={menu}>
-                    {menu}
-                  </MenuItem>
-                ))}
-              />
-            </Grid>
-          </Grid>
-          <Grid item xs={12}>
-            <Box sx={{ height: { xs: 300, sm: 400, lg: 600 }, mt: 6, overflow: 'auto' }}>
-              <Grid container spacing={6} sx={{ p: 2 }}>
-                {/* {Array.from({ length: 24 }, (_, index) => index).map(value => ( */}
-                {SubjectsLoading ? (
-                  <Box sx={{ width: '100%', height: 200, m: 12 }}>
-                    <CircleLoading />
-                  </Box>
-                ) : (
-                  // Subjects.slice(page * 24, page * 24 + 24).map(value => (
-                  Subjects.filter(
-                    f =>
-                      // case 1 select all filters
-                      (f.subject_structures[0]?.subjectCategory?.subject_category_name === categoriesSelected &&
-                        f.subject_structures[0]?.subjectType?.subject_type_name === typesSelected &&
-                        f.subject_structures[0]?.subjectGroup?.subject_group_name === groupsSelected) ||
-                      // case 2 select two of three
-                      // category and type
-                      (f.subject_structures[0]?.subjectCategory?.subject_category_name === categoriesSelected &&
-                        f.subject_structures[0]?.subjectType?.subject_type_name === typesSelected &&
-                        !groupsSelected) ||
-                      // category and group
-                      (f.subject_structures[0]?.subjectCategory?.subject_category_name === categoriesSelected &&
-                        f.subject_structures[0]?.subjectGroup?.subject_group_name === groupsSelected &&
-                        !typesSelected) ||
-                      // type and group
-                      (f.subject_structures[0]?.subjectType?.subject_type_name === typesSelected &&
-                        f.subject_structures[0]?.subjectGroup?.subject_group_name === groupsSelected &&
-                        !categoriesSelected) ||
-                      // case 3 select only one of three
-                      // only category
-                      (f.subject_structures[0]?.subjectCategory?.subject_category_name === categoriesSelected &&
-                        !typesSelected &&
-                        !groupsSelected) ||
-                      // only type
-                      (f.subject_structures[0]?.subjectType?.subject_type_name === typesSelected &&
-                        !categoriesSelected &&
-                        !groupsSelected) ||
-                      // only group
-                      (f.subject_structures[0]?.subjectGroup?.subject_group_name === groupsSelected &&
-                        !categoriesSelected &&
-                        !typesSelected) ||
-                      (!categoriesSelected && !typesSelected && !groupsSelected)
-                  )
-                    .slice(page * 24, page * 24 + 24)
-
-                    .map(value => (
-                      <Grid item xs={12} sm={12} md={6} lg={4} key={value.subject_id}>
-                        <Card sx={{ height: 65, background: 'white' }}>
-                          <Box
-                            sx={{
-                              height: 30,
-                              background: simSubjects.find(v => v.subject_id === value.subject_id)
-                                ? 'white'
-                                : 'lightgray',
-                              display: 'flex',
-                              justifyContent: 'space-between'
-                            }}
-                          >
-                            <Typography
-                              variant='body2'
-                              sx={{
-                                m: 1,
-                                ml: 2,
-                                fontWeight: 'bold',
-                                color: simSubjects.find(v => v.subject_id === value.subject_id) && 'gray',
-                                display: 'inline' // Ensure inline display
-                              }}
-                            >
-                              {value.subject_code}
-                              <Typography
-                                variant='caption'
-                                color={'gray'}
-                                component='span' // Use span as the component to render inline
-                                sx={{
-                                  display: 'inline' // Ensure inline display
-                                }}
-                              >
-                                {simSubjects.find(v => v.subject_id === value.subject_id) &&
-                                  '(TERM ' + simSubjects.find(v => v.subject_id === value.subject_id).term + ')'}
-                              </Typography>
-                            </Typography>
-                            {simSubjects.find(v => v.subject_id === value.subject_id) ? null : (
-                              <Button
-                                onClick={() =>
-                                  !simSubjects.find(v => v.subject_id === value.subject_id) &&
-                                  handleAddSimSubjects(value)
-                                }
-                                sx={{
-                                  color: 'white',
-                                  m: 1,
-                                  mx: -2
-                                }}
-                              >
-                                +
-                              </Button>
-                            )}
-                          </Box>
-                          <Box
-                            onClick={() => handleOpenDetails(value)}
-                            sx={{
-                              height: 35,
-                              ml: 1.5,
-                              p: 1,
-                              display: 'flex',
-                              direction: 'column',
-                              cursor: 'pointer'
-                            }}
-                          >
-                            <Typography
-                              variant='body2'
-                              color={simSubjects.find(v => v.subject_id === value.subject_id) && 'lightgray'}
-                              noWrap
-                            >
-                              {/* Subject ................................................................... */}
-                              {value.subject_name_en}
-                            </Typography>
-                          </Box>
-                        </Card>
-                      </Grid>
-                    ))
-                )}
-              </Grid>
-            </Box>
-          </Grid>
-        </Grid>
-        <Grid item xs={12} sm={12} md={6} lg={5}>
-          <Box
-            sx={{
-              // background: 'lightGray',
-              height: '100vh',
-              p: { sm: 2, md: 2, lg: 5 },
-              pr: { sm: 3, md: 3, lg: 7 },
-              pt: { sm: 6, md: 6, lg: 0 }
-            }}
-          >
-            <Box sx={{ pt: 6, display: 'flex', flexDirection: 'row' }}>
-              <Typography variant='h6' sx={{ fontWeight: 'bold' }}>
-                Simulator :
-              </Typography>
-              <Typography variant='h6' sx={{ ml: 2, color: 'gray' }}>
-                SE 2566
-              </Typography>
-            </Box>
-            <Box>
-              <Box sx={{ overflowX: 'auto' }}>
-                <Tabs
-                  value={value}
-                  onChange={handleChange}
-                  variant={'scrollable'}
-
-                  // centered={tabs.length <= 3}
-                >
-                  {tabs.map((tabLabel, index) => (
-                    <Tab
-                      key={index}
-                      label={
-                        <span>
-                          {tabLabel}
-                          {value === index &&
-                            index === tabs.length - 1 &&
-                            index !== 0 && ( // Only show IconButton for tabs other than the first one
-                              <IconButton
-                                sx={{ color: 'gray', borderRadius: 1, ml: 2 }}
-                                onClick={() => handleRemoveTab(index)}
-                              >
-                                <Icon path={mdiClose} size={0.5} />
-                              </IconButton>
-                            )}
-                        </span>
-                      }
-                      sx={{ fontSize: 12 }}
+      {showLoadingResult ? (
+        LoadingResult
+      ) : (
+        <>
+          {resultSelected !== 2 && !openResult && (
+            <Grid container sx={{ m: { xs: 0, lg: 2 }, p: { xs: 6, lg: 0 } }} spacing={2}>
+              <Grid container item xs={12} sm={12} md={6} lg={7} sx={{ height: { sm: 800, lg: '100%' } }} spacing={6}>
+                {/* Filter */}
+                <Grid item xs={12} sm={12} md={6} lg={8} sx={{ px: { xs: 6, sm: 6, lg: 2 } }}>
+                  <TextSearch
+                    onChange={e => handleSearchChange(e.target.value)}
+                    onClick={() => handleClickSearch()}
+                    buttoninside={1}
+                    placeholder='Subject Code, Name'
+                  />
+                </Grid>
+                <Grid item xs={12} sm={12} md={6} lg={4}>
+                  {/* Pagination */}
+                  <TablePagination
+                    rowsPerPageOptions={[]}
+                    component='div'
+                    size='small'
+                    count={
+                      Subjects.filter(
+                        f =>
+                          // case 1 select all filters
+                          (f.subject_structures[0]?.subjectCategory?.subject_category_name === categoriesSelected &&
+                            f.subject_structures[0]?.subjectType?.subject_type_name === typesSelected &&
+                            f.subject_structures[0]?.subjectGroup?.subject_group_name === groupsSelected) ||
+                          // case 2 select two of three
+                          // category and type
+                          (f.subject_structures[0]?.subjectCategory?.subject_category_name === categoriesSelected &&
+                            f.subject_structures[0]?.subjectType?.subject_type_name === typesSelected &&
+                            !groupsSelected) ||
+                          // category and group
+                          (f.subject_structures[0]?.subjectCategory?.subject_category_name === categoriesSelected &&
+                            f.subject_structures[0]?.subjectGroup?.subject_group_name === groupsSelected &&
+                            !typesSelected) ||
+                          // type and group
+                          (f.subject_structures[0]?.subjectType?.subject_type_name === typesSelected &&
+                            f.subject_structures[0]?.subjectGroup?.subject_group_name === groupsSelected &&
+                            !categoriesSelected) ||
+                          // case 3 select only one of three
+                          // only category
+                          (f.subject_structures[0]?.subjectCategory?.subject_category_name === categoriesSelected &&
+                            !typesSelected &&
+                            !groupsSelected) ||
+                          // only type
+                          (f.subject_structures[0]?.subjectType?.subject_type_name === typesSelected &&
+                            !categoriesSelected &&
+                            !groupsSelected) ||
+                          // only group
+                          (f.subject_structures[0]?.subjectGroup?.subject_group_name === groupsSelected &&
+                            !categoriesSelected &&
+                            !typesSelected) ||
+                          (!categoriesSelected && !typesSelected && !groupsSelected)
+                      ).length
+                    }
+                    rowsPerPage={24}
+                    page={page}
+                    onPageChange={handleChangePage}
+                  />
+                </Grid>
+                <Grid container item xs={12} sm={12} lg={8} spacing={2}>
+                  <Grid item xs={12} sm={12} md={12} lg={4}>
+                    <Selection
+                      disabled={categoriesSubject[0] === undefined}
+                      label={'Category'}
+                      height={40}
+                      width={'100%'}
+                      selectionValue={categoriesSelected}
+                      firstItemText={'แสดงทั้งหมด'}
+                      handleChange={e => {
+                        setCategoriesSelected(e.target.value)
+                      }}
+                      Items={Object.values(categoriesSubject).map(menu => (
+                        <MenuItem key={menu} value={menu}>
+                          {menu}
+                        </MenuItem>
+                      ))}
                     />
-                  ))}
-                  {tabs.length >= 12 ? null : (
-                    <IconButton
-                      sx={{ color: 'gray', borderRadius: 1, borderTopRightRadius: 24, m: 1, width: 48 }}
-                      onClick={handleAddTab}
-                    >
-                      +
-                    </IconButton>
-                  )}
-                </Tabs>
-              </Box>
-              {tabs.map((tabLabel, index) => (
-                <Box
-                  key={index}
-                  role='tabpanel'
-                  hidden={value !== index}
-                  id={`tabpanel-${index}`}
-                  aria-labelledby={`tab-${index}`}
-                  sx={{ width: '100%', display: value === index ? 'block' : 'none' }}
-                >
-                  {/* Content for each tab */}
-
-                  <Box sx={{ m: { xs: 0, lg: 2 }, width: '100%', minHeight: 600 }}>
-                    <Box sx={{ width: '100%', my: 2 }}>
-                      <Button
-                        sx={{
-                          fontSize: 12,
-                          width: '49%',
-                          background: displaySubjects ? 'lightgray' : null,
-                          color: displaySubjects ? 'white' : null,
-                          border: 2,
-                          borderColor: grey[300]
-                        }}
-                        onClick={handleChangeDisplay}
-                      >
-                        Subjects
-                      </Button>
-                      <Button
-                        sx={{
-                          ml: '1%',
-                          fontSize: 12,
-                          width: '49%',
-                          background: displayScope ? 'lightgray' : null,
-                          color: displayScope ? 'white' : null,
-                          border: 2,
-                          borderColor: grey[300]
-                        }}
-                        onClick={handleChangeDisplay}
-                      >
-                        Scope
-                      </Button>
-                    </Box>
-                    {displaySubjects && (
-                      <div style={{ textAlign: 'right' }}>
-                        <Typography variant='body2' sx={{ mr: 4 }}>
-                          {'Total Credit : ' + totalCredit}
-                        </Typography>
-                      </div>
-                    )}
-
-                    {displaySubjects &&
-                      simSubjects
-                        .filter(s => s.term === value + 1)
-                        .map((subjectInterm, index) => (
-                          <Box
-                            key={subjectInterm.subject_id}
-                            onMouseEnter={() => handleMouseEnter(index)}
-                            onMouseLeave={() => handleMouseLeave(index)}
-                            sx={{
-                              width: '100%',
-                              height: { xs: 100, sm: 60 },
-                              display: 'flex',
-                              p: { xs: 2, sm: 3.5 },
-                              pt: { xs: 8, sm: 3.5 },
-                              mt: 2,
-                              mr: 3.5,
-                              borderRadius: 2,
-                              background: 'white',
-                              position: 'relative' // Add relative positioning
-                            }}
-                          >
-                            <Typography variant='caption' sx={{ m: 2, maxWidth: 30, color: 'lightgray' }}>
-                              {index + 1}.
-                            </Typography>
-
-                            <Typography
-                              variant='caption'
-                              sx={{ width: { xs: 60, sm: 60, md: 60, lg: 100 }, m: 2, fontWeight: 'bold' }}
-                            >
-                              {subjectInterm.subject_code}
-                            </Typography>
-
-                            <Typography
-                              variant='caption'
-                              sx={{ maxWidth: { xs: 300, sm: 600, md: 200, lg: 300 }, m: 2 }}
-                              noWrap
-                            >
-                              {subjectInterm.subject_name_en}
-                            </Typography>
-                            <Typography
-                              sx={{
-                                position: 'absolute',
-                                right: 0,
-                                m: 2,
-                                mr: { sm: 12, md: 12, lg: 6 },
-                                fontWeight: 'bold',
-                                minWidth: 20
-                              }}
-                              variant='caption'
-                            >
-                              {subjectInterm.subject_credit}
-                            </Typography>
-
-                            <IconButton
-                              size='small'
-                              color='error'
-                              sx={{
-                                position: 'absolute',
-                                top: 6,
-                                right: 8,
-                                zIndex: 1,
-                                opacity: isHovered[index] ? 0.9 : 0, // Show or hide based on hover state
-                                transition: 'opacity 0.3s ease'
-                              }}
-                              onClick={() => {
-                                // Add your remove logic here
-                                handleRemoveSimSubject(subjectInterm)
-                              }}
-                            >
-                              <Icon path={mdiTrashCan} size={0.7} />
-                            </IconButton>
-                          </Box>
-                        ))}
-                    {displayScope && (
-                      <Grid item xs={12}>
-                        <Box sx={{ width: '100%', textAlign: 'end' }}>
-                          <Typography sx={{ mr: { xs: 6, sm: 6, lg: 2 } }} variant='body2'>
-                            Credit
-                          </Typography>
+                  </Grid>
+                  <Grid item xs={12} sm={12} md={12} lg={4}>
+                    <Selection
+                      disabled={typesSubject[0] === undefined}
+                      label={'Type'}
+                      height={40}
+                      width={'100%'}
+                      selectionValue={typesSelected}
+                      firstItemText={'แสดงทั้งหมด'}
+                      handleChange={e => setTypesSelected(e.target.value)}
+                      Items={Object.values(typesSubject).map(menu => (
+                        <MenuItem key={menu} value={menu}>
+                          {menu}
+                        </MenuItem>
+                      ))}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={12} md={12} lg={4}>
+                    <Selection
+                      disabled={groupsSubject[0] === undefined}
+                      label={'Group'}
+                      height={40}
+                      width={'100%'}
+                      selectionValue={groupsSelected}
+                      firstItemText={'แสดงทั้งหมด'}
+                      handleChange={e => setGroupsSelected(e.target.value)}
+                      Items={Object.values(groupsSubject).map(menu => (
+                        <MenuItem key={menu} value={menu}>
+                          {menu}
+                        </MenuItem>
+                      ))}
+                    />
+                  </Grid>
+                </Grid>
+                <Grid item xs={12}>
+                  <Box sx={{ height: { xs: 300, sm: 400, lg: 600 }, mt: 6, overflow: 'auto' }}>
+                    <Grid container spacing={6} sx={{ p: 2 }}>
+                      {/* {Array.from({ length: 24 }, (_, index) => index).map(value => ( */}
+                      {SubjectsLoading ? (
+                        <Box sx={{ width: '100%', height: 200, m: 12 }}>
+                          <CircleLoading />
                         </Box>
-                        <Box sx={{ width: '100%', px: 4 }}>
-                          {UniqueCategories.map(categoryHeader => (
-                            <Box key={categoryHeader} maxWidth={{ sm: 1200, lg: 600 }} sx={{ mb: 3 }}>
-                              {CurriculumStructures?.filter(
-                                categoryHasCredit =>
-                                  categoryHasCredit.subject_category_id !== null &&
-                                  categoryHasCredit.subject_type_id === null &&
-                                  categoryHasCredit.subject_group_id === null &&
-                                  categoryHasCredit.subjectCategory?.subject_category_name === categoryHeader
-                              ).length > 0 ? (
-                                CurriculumStructures?.filter(
-                                  categoryHasCredit =>
-                                    categoryHasCredit.subject_category_id !== null &&
-                                    categoryHasCredit.subject_type_id === null &&
-                                    categoryHasCredit.subject_group_id === null &&
-                                    categoryHasCredit.subjectCategory?.subject_category_name === categoryHeader
-                                ).map(categoryHasCreditResult => (
-                                  <Box
-                                    key={categoryHasCreditResult.curriculum_structures_v2_id}
-                                    sx={{ display: 'flex', justifyContent: 'space-between', mr: 2 }}
+                      ) : (
+                        // Subjects.slice(page * 24, page * 24 + 24).map(value => (
+                        Subjects.filter(
+                          f =>
+                            // case 1 select all filters
+                            (f.subject_structures[0]?.subjectCategory?.subject_category_name === categoriesSelected &&
+                              f.subject_structures[0]?.subjectType?.subject_type_name === typesSelected &&
+                              f.subject_structures[0]?.subjectGroup?.subject_group_name === groupsSelected) ||
+                            // case 2 select two of three
+                            // category and type
+                            (f.subject_structures[0]?.subjectCategory?.subject_category_name === categoriesSelected &&
+                              f.subject_structures[0]?.subjectType?.subject_type_name === typesSelected &&
+                              !groupsSelected) ||
+                            // category and group
+                            (f.subject_structures[0]?.subjectCategory?.subject_category_name === categoriesSelected &&
+                              f.subject_structures[0]?.subjectGroup?.subject_group_name === groupsSelected &&
+                              !typesSelected) ||
+                            // type and group
+                            (f.subject_structures[0]?.subjectType?.subject_type_name === typesSelected &&
+                              f.subject_structures[0]?.subjectGroup?.subject_group_name === groupsSelected &&
+                              !categoriesSelected) ||
+                            // case 3 select only one of three
+                            // only category
+                            (f.subject_structures[0]?.subjectCategory?.subject_category_name === categoriesSelected &&
+                              !typesSelected &&
+                              !groupsSelected) ||
+                            // only type
+                            (f.subject_structures[0]?.subjectType?.subject_type_name === typesSelected &&
+                              !categoriesSelected &&
+                              !groupsSelected) ||
+                            // only group
+                            (f.subject_structures[0]?.subjectGroup?.subject_group_name === groupsSelected &&
+                              !categoriesSelected &&
+                              !typesSelected) ||
+                            (!categoriesSelected && !typesSelected && !groupsSelected)
+                        )
+                          .slice(page * 24, page * 24 + 24)
+
+                          .map(value => (
+                            <Grid item xs={12} sm={12} md={6} lg={4} key={value.subject_id}>
+                              <Card sx={{ height: 65, background: 'white' }}>
+                                <Box
+                                  sx={{
+                                    height: 30,
+                                    background: simSubjects.find(v => v.subject_id === value.subject_id)
+                                      ? 'white'
+                                      : 'lightgray',
+                                    display: 'flex',
+                                    justifyContent: 'space-between'
+                                  }}
+                                >
+                                  <Typography
+                                    variant='body2'
+                                    sx={{
+                                      m: 1,
+                                      ml: 2,
+                                      fontWeight: 'bold',
+                                      color: simSubjects.find(v => v.subject_id === value.subject_id) && 'gray',
+                                      display: 'inline' // Ensure inline display
+                                    }}
                                   >
-                                    <Typography variant='body1'>
-                                      {categoryHasCreditResult?.subjectCategory?.subject_category_name}
+                                    {value.subject_code}
+                                    <Typography
+                                      variant='caption'
+                                      color={'gray'}
+                                      component='span' // Use span as the component to render inline
+                                      sx={{
+                                        display: 'inline' // Ensure inline display
+                                      }}
+                                    >
+                                      {simSubjects.find(v => v.subject_id === value.subject_id) &&
+                                        '(TERM ' + simSubjects.find(v => v.subject_id === value.subject_id).term + ')'}
                                     </Typography>
-                                    <Typography variant='body2' sx={{ display: 'inline' }}>
-                                      {categoryHasCreditResult.countScope > categoryHasCreditResult?.credit_total && (
-                                        <Typography variant='body2' color={'error'} sx={{ display: 'inline', mr: 2 }}>
-                                          (overflow)
-                                        </Typography>
-                                      )}
-                                      {categoryHasCreditResult.countScope
-                                        ? categoryHasCreditResult.countScope +
-                                          ' of ' +
-                                          categoryHasCreditResult?.credit_total
-                                        : '0 of ' + categoryHasCreditResult?.credit_total}
-                                    </Typography>
-                                  </Box>
-                                ))
-                              ) : (
-                                <Typography variant='body1' key={categoryHeader}>
-                                  {categoryHeader}
-                                </Typography>
-                              )}
-
-                              {CurriculumStructures?.filter(
-                                case1 =>
-                                  // condition category && type or category && group
-                                  (case1.subject_category_id !== null &&
-                                    case1.subject_type_id !== null &&
-                                    case1.subjectCategory?.subject_category_name === categoryHeader &&
-                                    case1.subject_group_id === null) ||
-                                  (case1.subject_category_id !== null &&
-                                    case1.subject_group_id !== null &&
-                                    case1.subjectCategory?.subject_category_name === categoryHeader &&
-                                    case1.subject_type_id === null)
-                              ).map(case1Result => (
-                                <Box key={case1Result.curriculum_structures_v2_id}>
-                                  {case1Result.subject_type_id !== null ? (
-                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mx: 2 }}>
-                                      <Typography variant='body2'>
-                                        {case1Result.subjectType?.subject_type_name}
-                                      </Typography>
-                                      <Typography variant='body2' display='inline'>
-                                        {case1Result.countScope > case1Result.credit_total && (
-                                          <Typography variant='body2' color={'error'} sx={{ display: 'inline', mr: 2 }}>
-                                            (overflow)
-                                          </Typography>
-                                        )}
-                                        {/* {'0' + ' of ' + case1Result.credit_total} */}
-                                        {case1Result.countScope
-                                          ? case1Result.countScope + ' of ' + case1Result?.credit_total
-                                          : '0 of ' + case1Result?.credit_total}
-                                      </Typography>
-                                    </Box>
-                                  ) : (
-                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mx: 2 }}>
-                                      <Typography variant='body2'>
-                                        {case1Result.subjectGroup?.subject_group_name}
-                                      </Typography>
-                                      <Typography variant='body2' display='inline'>
-                                        {case1Result.countScope > case1Result.credit_total && (
-                                          <Typography variant='body2' color={'error'} sx={{ display: 'inline', mr: 2 }}>
-                                            (overflow)
-                                          </Typography>
-                                        )}
-
-                                        {case1Result.countScope
-                                          ? case1Result.countScope + ' of ' + case1Result?.credit_total
-                                          : '0 of ' + case1Result?.credit_total}
-                                      </Typography>
-                                    </Box>
+                                  </Typography>
+                                  {simSubjects.find(v => v.subject_id === value.subject_id) ? null : (
+                                    <Button
+                                      onClick={() =>
+                                        !simSubjects.find(v => v.subject_id === value.subject_id) &&
+                                        handleAddSimSubjects(value)
+                                      }
+                                      sx={{
+                                        color: 'white',
+                                        m: 1,
+                                        mx: -2
+                                      }}
+                                    >
+                                      +
+                                    </Button>
                                   )}
                                 </Box>
-                              ))}
+                                <Box
+                                  onClick={() => handleOpenDetails(value)}
+                                  sx={{
+                                    height: 35,
+                                    ml: 1.5,
+                                    p: 1,
+                                    display: 'flex',
+                                    direction: 'column',
+                                    cursor: 'pointer'
+                                  }}
+                                >
+                                  <Typography
+                                    variant='body2'
+                                    color={simSubjects.find(v => v.subject_id === value.subject_id) && 'lightgray'}
+                                    noWrap
+                                  >
+                                    {/* Subject ................................................................... */}
+                                    {value.subject_name_en}
+                                  </Typography>
+                                </Box>
+                              </Card>
+                            </Grid>
+                          ))
+                      )}
+                    </Grid>
+                  </Box>
+                </Grid>
+              </Grid>
+              <Grid item xs={12} sm={12} md={6} lg={5}>
+                <Box
+                  sx={{
+                    // background: 'lightGray',
+                    height: '100vh',
+                    p: { sm: 2, md: 2, lg: 5 },
+                    pr: { sm: 3, md: 3, lg: 7 },
+                    pt: { sm: 6, md: 6, lg: 0 }
+                  }}
+                >
+                  <Box sx={{ pt: 6, display: 'flex', flexDirection: 'row' }}>
+                    <Typography variant='h6' sx={{ fontWeight: 'bold' }}>
+                      Simulator :
+                    </Typography>
+                    <Typography variant='h6' sx={{ ml: 2, color: 'gray' }}>
+                      SE 2566
+                    </Typography>
+                  </Box>
+                  <Box>
+                    <Box sx={{ overflowX: 'auto' }}>
+                      <Tabs
+                        value={value}
+                        onChange={handleChange}
+                        variant={'scrollable'}
 
-                              {UniqueTypes.filter(
-                                filterType => filterType.subject_category_name === categoryHeader
-                              ).map(typeHeader => (
-                                <Box key={typeHeader.subject_type_name} sx={{ ml: 3 }}>
-                                  {/* {typeHeader.subject_type_name} */}
+                        // centered={tabs.length <= 3}
+                      >
+                        {tabs.map((tabLabel, index) => (
+                          <Tab
+                            key={index}
+                            label={
+                              <span>
+                                {tabLabel}
+                                {value === index &&
+                                  index === tabs.length - 1 &&
+                                  index !== 0 && ( // Only show IconButton for tabs other than the first one
+                                    <IconButton
+                                      sx={{ color: 'gray', borderRadius: 1, ml: 2 }}
+                                      onClick={() => handleRemoveTab(index)}
+                                    >
+                                      <Icon path={mdiClose} size={0.5} />
+                                    </IconButton>
+                                  )}
+                              </span>
+                            }
+                            sx={{ fontSize: 12 }}
+                          />
+                        ))}
+                        {tabs.length >= 12 ? null : (
+                          <IconButton
+                            sx={{ color: 'gray', borderRadius: 1, borderTopRightRadius: 24, m: 1, width: 48 }}
+                            onClick={handleAddTab}
+                          >
+                            +
+                          </IconButton>
+                        )}
+                      </Tabs>
+                    </Box>
+                    {tabs.map((tabLabel, index) => (
+                      <Box
+                        key={index}
+                        role='tabpanel'
+                        hidden={value !== index}
+                        id={`tabpanel-${index}`}
+                        aria-labelledby={`tab-${index}`}
+                        sx={{ width: '100%', display: value === index ? 'block' : 'none' }}
+                      >
+                        {/* Content for each tab */}
 
-                                  {CurriculumStructures?.filter(
-                                    case1 =>
-                                      // condition category && type
-                                      case1.subject_category_id !== null &&
-                                      case1.subject_type_id !== null &&
-                                      case1.subject_group_id === null
-                                  ).map(case1Duplicate => (
-                                    <Box key={case1Duplicate.curriculum_structures_v2_id}>
-                                      {case1Duplicate.subjectType.subject_type_name !==
-                                        typeHeader.subject_type_name && (
-                                        <Typography>{typeHeader.subject_type_name}</Typography>
-                                      )}
-                                    </Box>
-                                  ))}
+                        <Box sx={{ m: { xs: 0, lg: 2 }, width: '100%', minHeight: 600 }}>
+                          <Box sx={{ width: '100%', my: 2 }}>
+                            <Button
+                              sx={{
+                                fontSize: 12,
+                                width: '49%',
+                                background: displaySubjects ? 'lightgray' : null,
+                                color: displaySubjects ? 'white' : null,
+                                border: 2,
+                                borderColor: grey[300]
+                              }}
+                              onClick={handleChangeDisplay}
+                            >
+                              Subjects
+                            </Button>
+                            <Button
+                              sx={{
+                                ml: '1%',
+                                fontSize: 12,
+                                width: '49%',
+                                background: displayScope ? 'lightgray' : null,
+                                color: displayScope ? 'white' : null,
+                                border: 2,
+                                borderColor: grey[300]
+                              }}
+                              onClick={handleChangeDisplay}
+                            >
+                              Scope
+                            </Button>
+                          </Box>
+                          {displaySubjects && (
+                            <div style={{ textAlign: 'right' }}>
+                              <Typography variant='body2' sx={{ mr: 4 }}>
+                                {'Total Credit : ' + totalCredit}
+                              </Typography>
+                            </div>
+                          )}
 
-                                  {/* <Typography>{typeHeader.subject_type_name}</Typography> */}
+                          {displaySubjects &&
+                            simSubjects
+                              .filter(s => s.term === value + 1)
+                              .map((subjectInterm, index) => (
+                                <Box
+                                  key={subjectInterm.subject_id}
+                                  onMouseEnter={() => handleMouseEnter(index)}
+                                  onMouseLeave={() => handleMouseLeave(index)}
+                                  sx={{
+                                    width: '100%',
+                                    height: { xs: 100, sm: 60 },
+                                    display: 'flex',
+                                    p: { xs: 2, sm: 3.5 },
+                                    pt: { xs: 8, sm: 3.5 },
+                                    mt: 2,
+                                    mr: 3.5,
+                                    borderRadius: 2,
+                                    background: 'white',
+                                    position: 'relative' // Add relative positioning
+                                  }}
+                                >
+                                  <Typography variant='caption' sx={{ m: 2, maxWidth: 30, color: 'lightgray' }}>
+                                    {index + 1}.
+                                  </Typography>
 
-                                  {/* case 2 */}
+                                  <Typography
+                                    variant='caption'
+                                    sx={{ width: { xs: 60, sm: 60, md: 60, lg: 100 }, m: 2, fontWeight: 'bold' }}
+                                  >
+                                    {subjectInterm.subject_code}
+                                  </Typography>
 
-                                  {CurriculumStructures?.filter(
-                                    case2 =>
-                                      // condition category && type && group
-                                      case2.subject_category_id !== null &&
-                                      case2.subject_type_id !== null &&
-                                      case2.subject_group_id !== null &&
-                                      case2.subjectCategory?.subject_category_name === categoryHeader &&
-                                      case2.subjectType?.subject_type_name === typeHeader.subject_type_name
-                                  ).map(case2Result => (
-                                    <Box key={case2Result.curriculum_structures_v2_id} sx={{ ml: 3 }}>
-                                      <Box sx={{ display: 'flex', justifyContent: 'space-between', mx: 2 }}>
-                                        <Typography variant='body2'>
-                                          {case2Result.subjectGroup?.subject_group_name}
-                                        </Typography>
-                                        <Typography variant='body1' display='inline'>
-                                          {case2Result.countScope > case2Result.credit_total && (
-                                            <Typography
-                                              variant='body2'
-                                              color={'error'}
-                                              sx={{ display: 'inline', mr: 2 }}
-                                            >
-                                              (overflow)
-                                            </Typography>
-                                          )}
+                                  <Typography
+                                    variant='caption'
+                                    sx={{ maxWidth: { xs: 300, sm: 600, md: 200, lg: 300 }, m: 2 }}
+                                    noWrap
+                                  >
+                                    {subjectInterm.subject_name_en}
+                                  </Typography>
+                                  <Typography
+                                    sx={{
+                                      position: 'absolute',
+                                      right: 0,
+                                      m: 2,
+                                      mr: { sm: 12, md: 12, lg: 6 },
+                                      fontWeight: 'bold',
+                                      minWidth: 20
+                                    }}
+                                    variant='caption'
+                                  >
+                                    {subjectInterm.subject_credit}
+                                  </Typography>
 
-                                          {' ' + case2Result.credit_total + ' credit'}
-                                        </Typography>
-                                      </Box>
-                                    </Box>
-                                  ))}
+                                  <IconButton
+                                    size='small'
+                                    color='error'
+                                    sx={{
+                                      position: 'absolute',
+                                      top: 6,
+                                      right: 8,
+                                      zIndex: 1,
+                                      opacity: isHovered[index] ? 0.9 : 0, // Show or hide based on hover state
+                                      transition: 'opacity 0.3s ease'
+                                    }}
+                                    onClick={() => {
+                                      // Add your remove logic here
+                                      handleRemoveSimSubject(subjectInterm)
+                                    }}
+                                  >
+                                    <Icon path={mdiTrashCan} size={0.7} />
+                                  </IconButton>
                                 </Box>
                               ))}
-                            </Box>
-                          ))}
+                          {displayScope && (
+                            <Grid item xs={12}>
+                              <Box sx={{ width: '100%', textAlign: 'end' }}>
+                                <Typography sx={{ mr: { xs: 6, sm: 6, lg: 3 } }} variant='body2'>
+                                  Credit
+                                </Typography>
+                              </Box>
+                              <Box sx={{ width: '100%', px: 4 }}>
+                                {UniqueCategories.map(categoryHeader => (
+                                  <Box key={categoryHeader} maxWidth={'100%'} sx={{ mb: 3 }}>
+                                    {CurriculumStructures?.filter(
+                                      categoryHasCredit =>
+                                        categoryHasCredit.subject_category_id !== null &&
+                                        categoryHasCredit.subject_type_id === null &&
+                                        categoryHasCredit.subject_group_id === null &&
+                                        categoryHasCredit.subjectCategory?.subject_category_name === categoryHeader
+                                    ).length > 0 ? (
+                                      CurriculumStructures?.filter(
+                                        categoryHasCredit =>
+                                          categoryHasCredit.subject_category_id !== null &&
+                                          categoryHasCredit.subject_type_id === null &&
+                                          categoryHasCredit.subject_group_id === null &&
+                                          categoryHasCredit.subjectCategory?.subject_category_name === categoryHeader
+                                      ).map(categoryHasCreditResult => (
+                                        <Box
+                                          key={categoryHasCreditResult.curriculum_structures_v2_id}
+                                          sx={{ display: 'flex', justifyContent: 'space-between', mr: 2 }}
+                                        >
+                                          <Typography variant='body1'>
+                                            {categoryHasCreditResult?.subjectCategory?.subject_category_name}
+                                          </Typography>
+                                          <Typography variant='body2' sx={{ display: 'inline' }}>
+                                            {categoryHasCreditResult.countScope >
+                                              categoryHasCreditResult?.credit_total && (
+                                              <Typography
+                                                variant='body2'
+                                                color={'error'}
+                                                sx={{ display: 'inline', mr: 2 }}
+                                              >
+                                                (overflow)
+                                              </Typography>
+                                            )}
+                                            {categoryHasCreditResult.countScope
+                                              ? categoryHasCreditResult.countScope +
+                                                ' of ' +
+                                                categoryHasCreditResult?.credit_total
+                                              : '0 of ' + categoryHasCreditResult?.credit_total}
+                                          </Typography>
+                                        </Box>
+                                      ))
+                                    ) : (
+                                      <Typography variant='body1' key={categoryHeader}>
+                                        {categoryHeader}
+                                      </Typography>
+                                    )}
+
+                                    {CurriculumStructures?.filter(
+                                      case1 =>
+                                        // condition category && type or category && group
+                                        (case1.subject_category_id !== null &&
+                                          case1.subject_type_id !== null &&
+                                          case1.subjectCategory?.subject_category_name === categoryHeader &&
+                                          case1.subject_group_id === null) ||
+                                        (case1.subject_category_id !== null &&
+                                          case1.subject_group_id !== null &&
+                                          case1.subjectCategory?.subject_category_name === categoryHeader &&
+                                          case1.subject_type_id === null)
+                                    ).map(case1Result => (
+                                      <Box key={case1Result.curriculum_structures_v2_id}>
+                                        {case1Result.subject_type_id !== null ? (
+                                          <Box sx={{ display: 'flex', justifyContent: 'space-between', mx: 2 }}>
+                                            <Typography variant='body2'>
+                                              {case1Result.subjectType?.subject_type_name}
+                                            </Typography>
+                                            <Typography variant='body2' display='inline'>
+                                              {case1Result.countScope > case1Result.credit_total && (
+                                                <Typography
+                                                  variant='body2'
+                                                  color={'error'}
+                                                  sx={{ display: 'inline', mr: 2 }}
+                                                >
+                                                  (overflow)
+                                                </Typography>
+                                              )}
+                                              {/* {'0' + ' of ' + case1Result.credit_total} */}
+                                              {case1Result.countScope
+                                                ? case1Result.countScope + ' of ' + case1Result?.credit_total
+                                                : '0 of ' + case1Result?.credit_total}
+                                            </Typography>
+                                          </Box>
+                                        ) : (
+                                          <Box sx={{ display: 'flex', justifyContent: 'space-between', mx: 2 }}>
+                                            <Typography variant='body2'>
+                                              {case1Result.subjectGroup?.subject_group_name}
+                                            </Typography>
+                                            <Typography variant='body2' display='inline'>
+                                              {case1Result.countScope > case1Result.credit_total && (
+                                                <Typography
+                                                  variant='body2'
+                                                  color={'error'}
+                                                  sx={{ display: 'inline', mr: 2 }}
+                                                >
+                                                  (overflow)
+                                                </Typography>
+                                              )}
+
+                                              {case1Result.countScope
+                                                ? case1Result.countScope + ' of ' + case1Result?.credit_total
+                                                : '0 of ' + case1Result?.credit_total}
+                                            </Typography>
+                                          </Box>
+                                        )}
+                                      </Box>
+                                    ))}
+
+                                    {UniqueTypes.filter(
+                                      filterType => filterType.subject_category_name === categoryHeader
+                                    ).map(typeHeader => (
+                                      <Box key={typeHeader.subject_type_name} sx={{ ml: 3 }}>
+                                        {/* {typeHeader.subject_type_name} */}
+
+                                        {CurriculumStructures?.filter(
+                                          case1 =>
+                                            // condition category && type
+                                            case1.subject_category_id !== null &&
+                                            case1.subject_type_id !== null &&
+                                            case1.subject_group_id === null
+                                        ).map(case1Duplicate => (
+                                          <Box key={case1Duplicate.curriculum_structures_v2_id}>
+                                            {case1Duplicate.subjectType.subject_type_name !==
+                                              typeHeader.subject_type_name && (
+                                              <Typography>{typeHeader.subject_type_name}</Typography>
+                                            )}
+                                          </Box>
+                                        ))}
+
+                                        {/* <Typography>{typeHeader.subject_type_name}</Typography> */}
+
+                                        {/* case 2 */}
+
+                                        {CurriculumStructures?.filter(
+                                          case2 =>
+                                            // condition category && type && group
+                                            case2.subject_category_id !== null &&
+                                            case2.subject_type_id !== null &&
+                                            case2.subject_group_id !== null &&
+                                            case2.subjectCategory?.subject_category_name === categoryHeader &&
+                                            case2.subjectType?.subject_type_name === typeHeader.subject_type_name
+                                        ).map(case2Result => (
+                                          <Box key={case2Result.curriculum_structures_v2_id} sx={{ ml: 3 }}>
+                                            <Box sx={{ display: 'flex', justifyContent: 'space-between', mx: 2 }}>
+                                              <Typography variant='body2'>
+                                                {case2Result.subjectGroup?.subject_group_name}
+                                              </Typography>
+                                              <Typography variant='body1' display='inline'>
+                                                {case2Result.countScope > case2Result.credit_total && (
+                                                  <Typography
+                                                    variant='body2'
+                                                    color={'error'}
+                                                    sx={{ display: 'inline', mr: 2 }}
+                                                  >
+                                                    (overflow)
+                                                  </Typography>
+                                                )}
+
+                                                {' ' + case2Result.credit_total + ' credit'}
+                                              </Typography>
+                                            </Box>
+                                          </Box>
+                                        ))}
+                                      </Box>
+                                    ))}
+                                  </Box>
+                                ))}
+                              </Box>
+                            </Grid>
+                          )}
                         </Box>
-                      </Grid>
-                    )}
+                      </Box>
+                    ))}
                   </Box>
-                </Box>
-              ))}
-            </Box>
-            {/* <Button
+                  {/* <Button
                 disabled={simSubjects?.length === 0}
                 onClick={() => {
                   setResultSelected(2)
@@ -1969,279 +2116,274 @@ function StudyPlanSimulatorPage() {
               >
                 Open test
               </Button> */}
-            <Button variant='contained' sx={{ width: '100%' }} onClick={handleOpenResult}>
-              Simulation Results
-            </Button>
-          </Box>
-        </Grid>
-      </Grid>
-      {/* </Hidden> */}
-      {/* <Hidden smUp>
-        <Box sx={{ height: '100vh', width: '100%', background: 'gray' }}>
-          <Typography>Not Support Too Small Screen</Typography>
-        </Box>
-      </Hidden> */}
-      {/* <Hidden smDown> */}
-      <Dialog
-        open={openDetails}
-        onClose={() => {
-          setOpenDetails(false)
-          setSubjectSelected([])
-          setDialogStatus(0)
-        }}
-        fullWidth
-        maxWidth={'md'}
-      >
-        {dialogStatus === 0 ? (
-          <>
-            <DialogTitle
-              sx={{
-                background: 'lightgray',
-                display: 'flex',
-                justifyContent: 'space-between',
-                pr: 6,
-                borderBottom: 1,
-                borderColor: grey[500]
-              }}
-            >
-              <Typography variant='h6'>Subject Details</Typography>
-              <Typography variant='h5'>{subjectSelected.subject_code}</Typography>
-            </DialogTitle>
-            <DialogContent sx={{ minHeight: 600, background: grey[200], p: 10 }}>
-              <Box sx={{ display: 'flex', flexDirection: 'row', mt: 6 }}>
-                <Typography variant='h3'>{subjectSelected.subject_credit}</Typography>
-                <Box sx={{ display: 'flex', flexDirection: 'column', ml: 4, mt: 1.5 }}>
-                  <Typography variant='body2' sx={{ color: 'gray' }}>
-                    {subjectSelected.subject_name_en}
-                  </Typography>
-                  <Typography variant='body2' sx={{ color: grey[800] }}>
-                    {subjectSelected.subject_name_th}
-                  </Typography>
+                  <Button variant='contained' sx={{ width: '100%' }} onClick={handleOpenResult}>
+                    Simulation Results
+                  </Button>
                 </Box>
-              </Box>
-              <Grid container sx={{ display: 'flex', flexDirection: 'row', mt: 10 }} spacing={2}>
-                <Grid item xs={6}>
-                  <Typography variant='body2' sx={{ color: 'gray' }}>
-                    Previous Subject
-                  </Typography>
-                  {SubjectsRelationsLoading && 'Loading...'}
-                  <Typography variant='body2' sx={{ fontWeight: 'bold' }} noWrap>
-                    {SubjectsRelations[0]?.parent
-                      ? SubjectsRelations[0]?.parent?.subject_code + ' ' + SubjectsRelations[0]?.parent?.subject_name_en
-                      : !SubjectsRelationsLoading && 'No Previous Subject'}
-                  </Typography>
-                </Grid>
-                <Grid item xs={5}>
-                  <Typography variant='body2' sx={{ color: 'gray' }}>
-                    Continue Subject
-                  </Typography>
-                  {SubjectsRelationsLoading && 'Loading...'}
-                  {SubjectsRelations[0]?.children.length > 0
-                    ? SubjectsRelations[0]?.children.map(ch => (
-                        <div
-                          key={ch.subject_id}
-                          style={{
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            '&:hover': {
-                              backgroundColor: '#e0e0e0' // Add your desired background color on hover
-                            }
-                          }}
-                        >
-                          <div style={{ marginRight: '8px' }}>•</div> {/* Bullet-like character */}
-                          <Typography
-                            variant='body2'
-                            sx={{ color: grey[700], fontWeight: 'bold', display: 'inline' }}
-                            noWrap
-                          >
-                            {ch.subjects.subject_code + ' ' + ch.subjects.subject_name_en}
-                          </Typography>
-                        </div>
-
-                        // </li>
-                      ))
-                    : !SubjectsRelationsLoading && (
-                        <Typography variant='body2' sx={{ color: grey[700], fontWeight: 'bold', display: 'inline' }}>
-                          No Continue Subject
-                        </Typography>
-                      )}
-                </Grid>
-                <Grid item xs={12}>
-                  <Typography variant='body2' sx={{ color: 'gray', mt: 8 }}>
-                    Subject Description
-                  </Typography>
-                  <Typography variant='body2' sx={{ color: grey[700] }} textAlign='justify'>
-                    {subjectSelected.subject_description}
-                  </Typography>
-                </Grid>
-                <Grid container item xs={12} spacing={2}>
-                  <Grid item xs={12} sx={{ mb: 2 }}>
-                    <Typography variant='body2' sx={{ color: 'gray', mt: 8 }}>
-                      Project Related
-                    </Typography>
-                  </Grid>
-                  {[1, 2, 3, 4].map((item, index) => (
-                    <Grid key={item} item xs={12} sm={12} md={6} lg={4}>
-                      <Card sx={{ height: 65, background: 'white' }}>
-                        <Box
-                          sx={{
-                            height: 30,
-                            background: 'lightgray',
-                            display: 'flex',
-                            justifyContent: 'end'
-                          }}
-                        >
-                          <Button
-                            sx={{
-                              color: 'white',
-                              m: 1,
-                              mx: -2
-                            }}
-                          >
-                            ...
-                          </Button>
-                        </Box>
-                        <Box
-                          sx={{
-                            height: 35,
-                            ml: 1.5,
-                            p: 1,
-                            display: 'flex',
-                            direction: 'column'
-                          }}
-                        >
-                          <Typography variant='body2' noWrap>
-                            Application something
-                          </Typography>
-                        </Box>
-                      </Card>
-                    </Grid>
-                  ))}
-                </Grid>
-              </Grid>
-            </DialogContent>
-          </>
-        ) : (
-          <>
-            <DialogTitle
-              sx={{
-                background: 'lightgray',
-                display: 'flex',
-                justifyContent: 'space-between',
-                pr: 6,
-                borderBottom: 1,
-                borderColor: grey[500]
-              }}
-            >
-              <Typography variant='h6'>Subject Details</Typography>
-              <Typography variant='h5'>{subjectSelected.subject_code}</Typography>
-            </DialogTitle>
-            <DialogContent sx={{ minHeight: 600, background: grey[200], p: 10 }}>
-              <Box sx={{ mt: 6 }}>
-                <Typography variant='body2'>
-                  this subject has parent please add this subject before, or you add this subject in a wrong term{' '}
-                </Typography>
-              </Box>
-              {SubjectsRelationsLoading ? (
-                <Box sx={{ m: 6 }}>Loading...</Box>
-              ) : (
-                <Box sx={{ display: 'flex', flexDirection: 'row', mt: 6 }}>
-                  <Typography variant='h3'>{SubjectsRelations[0]?.parent?.subject_credit}</Typography>
-                  <Box sx={{ display: 'flex', flexDirection: 'column', ml: 4, mt: 1.5 }}>
-                    <Typography variant='body2' sx={{ color: 'gray' }}>
-                      {SubjectsRelations[0]?.parent?.subject_name_en}
-                    </Typography>
-                    <Typography variant='body2' sx={{ color: grey[800] }}>
-                      {SubjectsRelations[0]?.parent?.subject_name_th}
-                    </Typography>
-                  </Box>
-                  <IconButton
-                    sx={{ color: grey[400], borderRadius: 1, m: 1, width: 48, ml: 6 }}
-                    onClick={() => {
-                      handleAddSimSubjects(SubjectsRelations[0]?.parent, false)
-                      setOpenDetails(false)
-                    }}
-                  >
-                    +
-                  </IconButton>
-                </Box>
-              )}
-            </DialogContent>
-          </>
-        )}
-      </Dialog>
-      <Dialog
-        open={openResult}
-        onClose={() => {
-          handleCloseResultDialog()
-        }}
-        fullWidth
-        fullScreen
-        maxWidth={resultSelected === 99 ? 'md' : resultSelected === 0 ? 'lg' : 'lg'}
-      >
-        <DialogTitle
-          sx={{
-            height: 70,
-            width: '100%',
-            background: 'lightgray',
-            pr: 6,
-            borderBottom: 1,
-            borderColor: grey[500],
-            position: 'relative'
-          }}
-        >
-          {resultSelected !== 2 && (
-            <Typography sx={{ pt: 2, position: 'absolute', left: '50%', transform: 'translateX(-50%)' }}>
-              {resultSelected === 99
-                ? 'What Do You Pay Attention To? '
-                : resultSelected === 0
-                ? 'Subjects You Pay Attention'
-                : resultSelected === 1
-                ? 'Job You Pay Attention'
-                : null}
-            </Typography>
-          )}
-          <IconButton
-            sx={{
-              p: 0,
-              color: grey[700],
-              borderRadius: 1,
-              m: 1,
-              ml: 6,
-              fontSize: 16,
-              p: 2,
-              position: 'absolute',
-              right: resultSelected !== 2 ? 18 : null,
-              left: resultSelected === 2 ? 18 : null,
-              top: 12
-            }}
-            onClick={() => {
-              handleCloseResultDialog()
-            }}
-          >
-            {resultSelected !== 2 && <Icon path={mdiClose} size={1} />}
-            {resultSelected === 2 && <Icon path={mdiChevronLeft} size={1.1} />}
-            {resultSelected === 2 && 'Back To Simulator'}
-          </IconButton>
-        </DialogTitle>
-
-        <DialogContent sx={{ minHeight: 400, background: grey[200], p: 10 }}>
-          {resultSelected === 99 && SelectResultTypeDisplay}
-          {/* choose subject */}
-          {resultSelected === 0 && ResultSubjectDisplay}
-          {/* choose job */}
-          {resultSelected === 1 && (
-            <Grid container sx={{ mt: 4 }} spacing={0}>
-              <Grid item xs={6} sx={{ pl: 12, pr: 6 }}>
-                test job
               </Grid>
             </Grid>
           )}
-          {resultSelected === 2 && FinalResultDisplay}
-        </DialogContent>
-      </Dialog>
-      {/* </Hidden> */}
+          <Dialog
+            open={openDetails}
+            onClose={() => {
+              setOpenDetails(false)
+              setSubjectSelected([])
+              setDialogStatus(0)
+              setJobSelected(0)
+            }}
+            fullWidth
+            maxWidth={'md'}
+          >
+            {dialogStatus === 0 ? (
+              <>
+                <DialogTitle
+                  sx={{
+                    background: 'lightgray',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    pr: 6,
+                    borderBottom: 1,
+                    borderColor: grey[500]
+                  }}
+                >
+                  <Typography variant='h6'>Subject Details</Typography>
+                  <Typography variant='h5'>{subjectSelected.subject_code}</Typography>
+                </DialogTitle>
+                <DialogContent sx={{ minHeight: 600, background: grey[200], p: 10 }}>
+                  <Box sx={{ display: 'flex', flexDirection: 'row', mt: 6 }}>
+                    <Typography variant='h3'>{subjectSelected.subject_credit}</Typography>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', ml: 4, mt: 1.5 }}>
+                      <Typography variant='body2' sx={{ color: 'gray' }}>
+                        {subjectSelected.subject_name_en}
+                      </Typography>
+                      <Typography variant='body2' sx={{ color: grey[800] }}>
+                        {subjectSelected.subject_name_th}
+                      </Typography>
+                    </Box>
+                  </Box>
+                  <Grid container sx={{ display: 'flex', flexDirection: 'row', mt: 10 }} spacing={2}>
+                    <Grid item xs={6}>
+                      <Typography variant='body2' sx={{ color: 'gray' }}>
+                        Previous Subject
+                      </Typography>
+                      {SubjectsRelationsLoading && 'Loading...'}
+                      <Typography variant='body2' sx={{ fontWeight: 'bold' }} noWrap>
+                        {SubjectsRelations[0]?.parent
+                          ? SubjectsRelations[0]?.parent?.subject_code +
+                            ' ' +
+                            SubjectsRelations[0]?.parent?.subject_name_en
+                          : !SubjectsRelationsLoading && 'No Previous Subject'}
+                      </Typography>
+                    </Grid>
+                    <Grid item xs={5}>
+                      <Typography variant='body2' sx={{ color: 'gray' }}>
+                        Continue Subject
+                      </Typography>
+                      {SubjectsRelationsLoading && 'Loading...'}
+                      {SubjectsRelations[0]?.children.length > 0
+                        ? SubjectsRelations[0]?.children.map(ch => (
+                            <div
+                              key={ch.subject_id}
+                              style={{
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                '&:hover': {
+                                  backgroundColor: '#e0e0e0' // Add your desired background color on hover
+                                }
+                              }}
+                            >
+                              <div style={{ marginRight: '8px' }}>•</div> {/* Bullet-like character */}
+                              <Typography
+                                variant='body2'
+                                sx={{ color: grey[700], fontWeight: 'bold', display: 'inline' }}
+                                noWrap
+                              >
+                                {ch.subjects.subject_code + ' ' + ch.subjects.subject_name_en}
+                              </Typography>
+                            </div>
+
+                            // </li>
+                          ))
+                        : !SubjectsRelationsLoading && (
+                            <Typography
+                              variant='body2'
+                              sx={{ color: grey[700], fontWeight: 'bold', display: 'inline' }}
+                            >
+                              No Continue Subject
+                            </Typography>
+                          )}
+                    </Grid>
+                    <Grid item xs={12}>
+                      <Typography variant='body2' sx={{ color: 'gray', mt: 8 }}>
+                        Subject Description
+                      </Typography>
+                      <Typography variant='body2' sx={{ color: grey[700] }} textAlign='justify'>
+                        {subjectSelected.subject_description}
+                      </Typography>
+                    </Grid>
+                    <Grid container item xs={12} spacing={2}>
+                      <Grid item xs={12} sx={{ mb: 2 }}>
+                        <Typography variant='body2' sx={{ color: 'gray', mt: 8 }}>
+                          Project Related
+                        </Typography>
+                      </Grid>
+                      {[1, 2, 3, 4].map((item, index) => (
+                        <Grid key={item} item xs={12} sm={12} md={6} lg={4}>
+                          <Card sx={{ height: 65, background: 'white' }}>
+                            <Box
+                              sx={{
+                                height: 30,
+                                background: 'lightgray',
+                                display: 'flex',
+                                justifyContent: 'end'
+                              }}
+                            >
+                              <Button
+                                sx={{
+                                  color: 'white',
+                                  m: 1,
+                                  mx: -2
+                                }}
+                              >
+                                ...
+                              </Button>
+                            </Box>
+                            <Box
+                              sx={{
+                                height: 35,
+                                ml: 1.5,
+                                p: 1,
+                                display: 'flex',
+                                direction: 'column'
+                              }}
+                            >
+                              <Typography variant='body2' noWrap>
+                                Application something
+                              </Typography>
+                            </Box>
+                          </Card>
+                        </Grid>
+                      ))}
+                    </Grid>
+                  </Grid>
+                </DialogContent>
+              </>
+            ) : (
+              <>
+                <DialogTitle
+                  sx={{
+                    background: 'lightgray',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    pr: 6,
+                    borderBottom: 1,
+                    borderColor: grey[500]
+                  }}
+                >
+                  <Typography variant='h6'>Subject Details</Typography>
+                  <Typography variant='h5'>{subjectSelected.subject_code}</Typography>
+                </DialogTitle>
+                <DialogContent sx={{ minHeight: 600, background: grey[200], p: 10 }}>
+                  <Box sx={{ mt: 6 }}>
+                    <Typography variant='body2'>
+                      this subject has parent please add this subject before, or you add this subject in a wrong term{' '}
+                    </Typography>
+                  </Box>
+                  {SubjectsRelationsLoading ? (
+                    <Box sx={{ m: 6 }}>Loading...</Box>
+                  ) : (
+                    <Box sx={{ display: 'flex', flexDirection: 'row', mt: 6 }}>
+                      <Typography variant='h3'>{SubjectsRelations[0]?.parent?.subject_credit}</Typography>
+                      <Box sx={{ display: 'flex', flexDirection: 'column', ml: 4, mt: 1.5 }}>
+                        <Typography variant='body2' sx={{ color: 'gray' }}>
+                          {SubjectsRelations[0]?.parent?.subject_name_en}
+                        </Typography>
+                        <Typography variant='body2' sx={{ color: grey[800] }}>
+                          {SubjectsRelations[0]?.parent?.subject_name_th}
+                        </Typography>
+                      </Box>
+                      <IconButton
+                        sx={{ color: grey[400], borderRadius: 1, m: 1, width: 48, ml: 6 }}
+                        onClick={() => {
+                          handleAddSimSubjects(SubjectsRelations[0]?.parent, false)
+                          setOpenDetails(false)
+                        }}
+                      >
+                        +
+                      </IconButton>
+                    </Box>
+                  )}
+                </DialogContent>
+              </>
+            )}
+          </Dialog>
+          <Dialog
+            open={openResult}
+            onClose={() => {
+              handleCloseResultDialog()
+            }}
+            fullWidth
+            fullScreen
+            maxWidth={resultSelected === 99 ? 'md' : resultSelected === 0 ? 'lg' : 'lg'}
+          >
+            <DialogTitle
+              sx={{
+                height: 70,
+                width: '100%',
+                background: 'lightgray',
+                pr: 6,
+                borderBottom: 1,
+                borderColor: grey[500],
+                position: 'relative'
+              }}
+            >
+              {resultSelected !== 2 && (
+                <Typography sx={{ pt: 2, position: 'absolute', left: '50%', transform: 'translateX(-50%)' }}>
+                  {resultSelected === 99
+                    ? 'What Do You Pay Attention To? '
+                    : resultSelected === 0
+                    ? 'Subjects You Pay Attention'
+                    : resultSelected === 1
+                    ? 'Job You Pay Attention'
+                    : null}
+                </Typography>
+              )}
+              <IconButton
+                sx={{
+                  p: 0,
+                  color: grey[700],
+                  borderRadius: 1,
+                  m: 1,
+                  ml: 6,
+                  fontSize: 16,
+                  p: 2,
+                  position: 'absolute',
+                  right: resultSelected !== 2 ? 18 : null,
+                  left: resultSelected === 2 ? 18 : null,
+                  top: 12
+                }}
+                onClick={() => {
+                  handleCloseResultDialog()
+                }}
+              >
+                {resultSelected !== 2 && <Icon path={mdiClose} size={1} />}
+                {resultSelected === 2 && <Icon path={mdiChevronLeft} size={1.1} />}
+                {resultSelected === 2 && 'Back To Simulator'}
+              </IconButton>
+            </DialogTitle>
+
+            <DialogContent sx={{ minHeight: 400, background: grey[200], p: 10 }}>
+              {resultSelected === 99 && SelectResultTypeDisplay}
+              {/* choose subject */}
+              {resultSelected === 0 && ResultSubjectDisplay}
+              {/* choose job */}
+              {resultSelected === 1 && ResultJobDisplay}
+              {resultSelected === 2 && FinalResultDisplay}
+            </DialogContent>
+          </Dialog>
+        </>
+      )}
     </>
   )
 }
