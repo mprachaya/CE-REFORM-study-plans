@@ -1027,10 +1027,7 @@ function StudyPlanSimulatorPage() {
                             <Typography
                               sx={{
                                 fontWeight:
-                                  (jobsByResult[0]?.subjects?.find(f => f.subject_id === s.subject_id) ||
-                                    jobsByResult[1]?.subjects?.find(f => f.subject_id === s.subject_id) ||
-                                    jobsByResult[2]?.subjects?.find(f => f.subject_id === s.subject_id)) &&
-                                  'bold',
+                                  jobsByResult[0]?.subjects?.find(f => f.subject_id === s.subject_id) && 'bold',
                                 // fontWeight: 'bold',
                                 fontSize: { xs: 12, md: 14 },
                                 minWidth: 100
@@ -1043,10 +1040,7 @@ function StudyPlanSimulatorPage() {
                                 fontSize: { xs: 12, md: 14 },
                                 color: 'gray',
                                 fontWeight:
-                                  (jobsByResult[0]?.subjects?.find(f => f.subject_id === s.subject_id) ||
-                                    jobsByResult[1]?.subjects?.find(f => f.subject_id === s.subject_id) ||
-                                    jobsByResult[2]?.subjects?.find(f => f.subject_id === s.subject_id)) &&
-                                  'bold'
+                                  jobsByResult[0]?.subjects?.find(f => f.subject_id === s.subject_id) && 'bold'
                               }}
                               noWrap
                             >
@@ -1097,75 +1091,148 @@ function StudyPlanSimulatorPage() {
           spacing={0}
         >
           {/* job1 section */}
-          {jobsByResult?.map((job, index) => (
-            <Grid key={job.job_position_id} item xs={12} sx={{ mt: index !== 0 && 6 }}>
-              <Typography variant='h6' sx={{ fontWeight: 'bold' }}>
-                {job.job_position_name}
-              </Typography>
-              <Typography variant='caption'>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et
-                dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip
-                ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu
-                fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia
-                deserunt mollit anim id est laborum.
-              </Typography>
-              <Grid container item xs={12} sx={{ mt: 3.5 }} spacing={6}>
-                {job?.subjects?.map(subject => (
-                  <Grid key={subject.subject_id} item xs={6} md={4} lg={3}>
-                    <Card
-                      sx={{
-                        height: 65,
-                        background: 'white',
-                        border: simSubjects?.find(s => s.subject_id === subject.subject_id) ? 1 : 0
-                      }}
-                    >
-                      <Box
+          {jobsByResult?.map((job, index) =>
+            index === 0 ? (
+              <Grid key={job.job_position_id} item xs={12} sx={{ mt: index !== 0 && 6 }}>
+                <Typography variant={'body2'}>ตำแหน่งงานแนะนำ</Typography>
+                <Divider />
+                <Typography variant='h6' sx={{ fontWeight: 'bold' }}>
+                  {job.job_position_name}
+                </Typography>
+                <Typography variant='caption'>
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et
+                  dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+                  aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum
+                  dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui
+                  officia deserunt mollit anim id est laborum.
+                </Typography>
+                <Grid container item xs={12} sx={{ mt: 3.5 }} spacing={6}>
+                  {job?.subjects?.map(subject => (
+                    <Grid key={subject.subject_id} item xs={6} md={4} lg={3}>
+                      <Card
                         sx={{
-                          height: 30,
-                          background: 'lightgray',
-                          display: 'flex',
-                          justifyContent: 'space-between'
+                          height: 65,
+                          background: 'white',
+                          border: simSubjects?.find(s => s.subject_id === subject.subject_id) ? 1 : 0
                         }}
                       >
-                        <Typography
-                          variant='body2'
+                        <Box
                           sx={{
-                            m: 1,
-                            ml: 2,
-                            fontWeight: 'bold',
-                            color: 'gray',
-                            display: 'inline' // Ensure inline display
+                            height: 30,
+                            background: 'lightgray',
+                            display: 'flex',
+                            justifyContent: 'space-between'
                           }}
                         >
-                          {subject.subject_code}
-                        </Typography>
-                      </Box>
-                      <Box
-                        // onClick={() => handleOpenDetails(value)}
+                          <Typography
+                            variant='body2'
+                            sx={{
+                              m: 1,
+                              ml: 2,
+                              fontWeight: 'bold',
+                              color: 'gray',
+                              display: 'inline' // Ensure inline display
+                            }}
+                          >
+                            {subject.subject_code}
+                          </Typography>
+                        </Box>
+                        <Box
+                          // onClick={() => handleOpenDetails(value)}
+                          sx={{
+                            height: 35,
+                            ml: 1.5,
+                            p: 1,
+                            display: 'flex',
+                            direction: 'column',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          <Typography variant='body2' noWrap>
+                            {/* Subject ................................................................... */}
+                            {subject.subject_name_en}
+                          </Typography>
+                        </Box>
+                      </Card>
+                    </Grid>
+                  ))}
+                </Grid>
+              </Grid>
+            ) : (
+              <Grid key={job.job_position_id} item xs={12} sx={{ mt: index !== 0 && 6 }}>
+                {index === 1 && <Typography variant={'body2'}> ตำแหน่งงานที่เกี่ยวข้อง</Typography>}
+                <Divider />
+                <Typography variant='h6' sx={{ fontWeight: 'bold' }}>
+                  {job.job_position_name}
+                </Typography>
+                <Typography variant='caption'>
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et
+                  dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+                  aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum
+                  dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui
+                  officia deserunt mollit anim id est laborum.
+                </Typography>
+                <Grid container item xs={12} sx={{ mt: 3.5 }} spacing={6}>
+                  {job?.subjects?.map(subject => (
+                    <Grid key={subject.subject_id} item xs={6} md={4} lg={3}>
+                      <Card
                         sx={{
-                          height: 35,
-                          ml: 1.5,
-                          p: 1,
-                          display: 'flex',
-                          direction: 'column',
-                          cursor: 'pointer'
+                          height: 65,
+                          background: 'white',
+                          border: simSubjects?.find(s => s.subject_id === subject.subject_id) ? 1 : 0
                         }}
                       >
-                        <Typography variant='body2' noWrap>
-                          {/* Subject ................................................................... */}
-                          {subject.subject_name_en}
-                        </Typography>
-                      </Box>
-                    </Card>
-                  </Grid>
-                ))}
+                        <Box
+                          sx={{
+                            height: 30,
+                            background: 'lightgray',
+                            display: 'flex',
+                            justifyContent: 'space-between'
+                          }}
+                        >
+                          <Typography
+                            variant='body2'
+                            sx={{
+                              m: 1,
+                              ml: 2,
+                              fontWeight: 'bold',
+                              color: 'gray',
+                              display: 'inline' // Ensure inline display
+                            }}
+                          >
+                            {subject.subject_code}
+                          </Typography>
+                        </Box>
+                        <Box
+                          // onClick={() => handleOpenDetails(value)}
+                          sx={{
+                            height: 35,
+                            ml: 1.5,
+                            p: 1,
+                            display: 'flex',
+                            direction: 'column',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          <Typography variant='body2' noWrap>
+                            {/* Subject ................................................................... */}
+                            {subject.subject_name_en}
+                          </Typography>
+                        </Box>
+                      </Card>
+                    </Grid>
+                  ))}
+                </Grid>
               </Grid>
-            </Grid>
-          ))}
+            )
+          )}
           {jobsByResult?.length === 0 && (
-            <Typography variant='body2' sx={{ fontWeight: 'bold', mb: 12 }}>
-              no job result
-            </Typography>
+            <Box sx={{ width: '100%', mb: 6 }}>
+              <Typography variant='body2' sx={{ fontWeight: 'bold' }}>
+                ไม่มีตำแหน่งงานแนะนำจากรายวิชาที่เกี่ยวข้อง
+              </Typography>
+              <Divider />
+            </Box>
           )}
           {/* project section */}
           <Grid item xs={12} sx={{ mt: jobsByResult?.length !== 0 && 12 }}>
