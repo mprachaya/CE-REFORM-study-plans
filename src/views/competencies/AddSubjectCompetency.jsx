@@ -408,7 +408,7 @@ function AddSubjectCompetency({ open, handleClose, subject, subjects, setSubject
                         <Grid container spacing={2}>
                           <Grid item xs={12}>
                             <List>
-                              {Object.values(mainCom.competency_sub).map(filterSub => (
+                              {mainCom?.competency_sub?.map(filterSub => (
                                 <ListItem key={filterSub.competency_sub_id}>
                                   {/* <ListItemText primary={'- ' + filterSub.competency_sub_name} /> */}
                                   <Grid container spacing={2}>
