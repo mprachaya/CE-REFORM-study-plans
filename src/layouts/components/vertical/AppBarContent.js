@@ -23,7 +23,12 @@ const AppBarContent = props => {
 
   return (
     <Box
-      sx={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: { xs: 'space-between', lg: 'end' } }}
+      sx={{
+        width: '100%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: { xs: 'space-between', lg: 'end' }
+      }}
     >
       <Box className='actions-left' sx={{ mr: 2, display: 'flex', alignItems: 'center' }}>
         {hidden ? (

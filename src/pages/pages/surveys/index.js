@@ -6,7 +6,7 @@ import { useRouter } from 'next/router'
 function SurveysPage() {
   const router = useRouter()
   useEffect(() => {
-    router.push('/pages/surveys/curriculums')
+    router.push('/pages/surveys/interestsurveys/')
   }, [])
 }
 

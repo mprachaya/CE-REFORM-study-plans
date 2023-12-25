@@ -4,10 +4,13 @@ import Grid from '@mui/material/Grid'
 import Box from '@mui/material/Grid'
 
 /////////////Icon///////////////////
-import { mdiFolderOpenOutline } from '@mdi/js'
-import { mdiAccountMultipleOutline } from '@mdi/js'
-import { mdiAccountCardOutline } from '@mdi/js'
-import { mdiFileTableOutline } from '@mdi/js'
+import {
+  mdiFolderOpenOutline,
+  mdiAccountMultipleOutline,
+  mdiAccountCardOutline,
+  mdiFileTableOutline,
+  mdiFileAccount
+} from '@mdi/js'
 
 import BlankLayout from 'src/@core/layouts/BlankLayout'
 import CardMenu from 'src/components/CardMenu'
@@ -36,23 +39,6 @@ const MasterData = () => {
                 handleclick={() => router.push('/pages/masterdata/curriculums')}
                 MenuIcon={mdiFolderOpenOutline}
                 MenuName={'Master Data'}
-
-                // Content={
-                //   <React.Fragment>
-                //     <Typography variant='body2' letterSpacing={0}>
-                //       - Faculty
-                //     </Typography>
-                //     <Typography variant='body2' letterSpacing={0}>
-                //       - Student Groups
-                //     </Typography>
-                //     <Typography variant='body2' letterSpacing={0}>
-                //       - Curriculums
-                //     </Typography>
-                //     <Typography variant='body2' letterSpacing={0}>
-                //       - Job Positions
-                //     </Typography>
-                //   </React.Fragment>
-                // }
               />
             </OnHover>
           </Visible>
@@ -67,20 +53,6 @@ const MasterData = () => {
                 handleclick={() => router.push('/pages/surveys/interestsurveys')}
                 MenuIcon={mdiAccountCardOutline}
                 MenuName={'Surveys & Forms'}
-
-                // Content={
-                //   <React.Fragment>
-                //     <Typography variant='body2' letterSpacing={0}>
-                //       - Study Plans
-                //     </Typography>
-                //     <Typography variant='body2' letterSpacing={0}>
-                //       - Actual Study
-                //     </Typography>
-                //     <Typography variant='body2' letterSpacing={0}>
-                //       - Recommend Plans
-                //     </Typography>
-                //   </React.Fragment>
-                // }
               />
             </OnHover>
           </Visible>
@@ -92,20 +64,9 @@ const MasterData = () => {
           <Visible>
             <OnHover>
               <CardMenu
-                handleclick={() => console.log('Student Syst.')}
-                MenuIcon={mdiAccountMultipleOutline}
-                MenuName={'Student Syst.'}
-                
-                // Content={
-                //   <React.Fragment>
-                //     <Typography variant='body2' letterSpacing={0}>
-                //       - Assessment Forms
-                //     </Typography>
-                //     <Typography variant='body2' letterSpacing={0}>
-                //       - Feedback Forms
-                //     </Typography>
-                //   </React.Fragment>
-                // }
+                handleclick={() => router.push('/pages/job-subjectrelated')}
+                MenuIcon={mdiFileAccount}
+                MenuName={'Job & Subjects Related'}
               />
             </OnHover>
           </Visible>
