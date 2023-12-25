@@ -71,11 +71,21 @@ export const surveysNavigation = () => {
       title: 'Interest Surveys',
       icon: BookOutline,
       path: '/pages/surveys/interestsurveys'
-    },
+    }
+    // {
+    //   title: 'Feedbacks',
+    //   icon: BookOutline,
+    //   path: '/pages/surveys/feedbacks'
+    // }
+  ]
+}
+
+export const jobSubjectRelatedNavigation = () => {
+  return [
     {
-      title: 'Feedbacks',
+      title: 'Job & Subject Related',
       icon: BookOutline,
-      path: '/pages/surveys/feedbacks'
+      path: '/pages/job-subjectrelated'
     }
   ]
 }

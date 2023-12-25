@@ -17,7 +17,6 @@ import {
   Divider,
   CircularProgress
 } from '@mui/material'
-import { motion } from 'framer-motion'
 import { grey } from '@mui/material/colors'
 import { mdiClose, mdiTrashCan, mdiBookEducation, mdiAccount, mdiChevronLeft } from '@mdi/js'
 import Icon from '@mdi/react'
@@ -616,6 +615,9 @@ function StudyPlanSimulatorPage() {
     handleCheckLimitCredit(newTabIndex)
     setTabs([...tabs, newTabLabel])
     setValue(newTabIndex - 1) // Switch to the newly added tab
+
+    setDisplaySubjects(true)
+    setDisplayCompetencies(false)
   }
 
   const handleRemoveTab = indexToRemove => {
